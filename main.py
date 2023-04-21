@@ -91,7 +91,7 @@ async def log_requests(request: Request, call_next):
     return response
 
 
-@app.post("/signup/email")
+@app.post("/api/signup/email")
 async def signup_via_email(sign_up_via_email: SignUpViaEmail, db: Session = Depends(get_db)):
     try:
         # generate random UUID as verification code
@@ -129,7 +129,7 @@ async def signup_via_email(sign_up_via_email: SignUpViaEmail, db: Session = Depe
         raise HTTPException(status_code=500, detail="Failed to save data.")
 
 
-@app.get("/verify/email")
+@app.get("/api/verify/email")
 async def verify_email(id: str, db: Session = Depends(get_db)):
     unverified_user: Optional[UnverifiedUser] = db.query(UnverifiedUser).filter(
         UnverifiedUser.verification_code == id).first()
