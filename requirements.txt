@@ -1,0 +1,8 @@
+Authlib==1.2.0
+fastapi==0.95.1
+Jinja2==3.1.2
+pydantic==1.10.4
+sqladmin==0.10.3
+SQLAlchemy==1.4.46
+starlette==0.26.1
+uvicorn==0.21.1
