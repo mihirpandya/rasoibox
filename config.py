@@ -5,7 +5,8 @@ class Settings(BaseSettings):
     from_email: str
     email: str
     email_app_password: str
-    url_base: str
+    backend_url_base: str
+    frontend_url_base: str
 
     class Config:
         env_file = ".env"

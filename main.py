@@ -4,7 +4,7 @@ import sqlite3
 import string
 import random
 import time
-from uuid import uuid4, UUID
+from uuid import uuid4
 from typing import Optional
 from imaplib import IMAP4_SSL
 
@@ -26,6 +26,7 @@ from views.user import VerifiedUserAdmin, UnverifiedUserAdmin
 
 logger = logging.getLogger(__name__)
 
+settings: Settings = Settings()
 engine = create_engine(
     "sqlite:///example.db",
     connect_args={"check_same_thread": False},
@@ -42,7 +43,6 @@ admin.add_view(UnverifiedUserAdmin)
 
 Base.metadata.create_all(engine)  # Create tables
 
-settings: Optional[Settings] = None
 imap_server: Optional[IMAP4_SSL] = None
 
 
@@ -63,8 +63,7 @@ def generate_trace_id() -> str:
 @app.on_event("startup")
 async def startup_event():
     # connect to email server
-    global imap_server, settings
-    settings = Settings()
+    global imap_server
     imap_server = IMAP4_SSL("imap.gmail.com", 993)
     imap_server.login(settings.email, settings.email_app_password)
     GMAIL_DRAFTS = "[Gmail]/Drafts"
@@ -114,7 +113,8 @@ async def signup_via_email(sign_up_via_email: SignUpViaEmail, db: Session = Depe
         db.commit()
 
         # send email with verification link
-        url_base: str = settings.url_base[0:-1] if settings.url_base.endswith("/") else settings.url_base
+        url_base: str = settings.backend_url_base[0:-1] if settings.backend_url_base.endswith(
+            "/") else settings.backend_url_base
         verification_email: VerifyUserEmail = VerifyUserEmail(templates.get_template("verify_email.html"),
                                                               url_base,
                                                               verification_code,
