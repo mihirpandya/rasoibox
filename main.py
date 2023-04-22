@@ -141,6 +141,11 @@ async def verify_email(id: str, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Invalid verification code.")
 
 
+@app.get("/healthz")
+async def health():
+    return
+
+
 if __name__ == "__main__":
     import uvicorn
 
