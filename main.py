@@ -153,5 +153,5 @@ if __name__ == "__main__":
         app,
         host="0.0.0.0",
         port=9000,
-        log_config=logging.basicConfig(level=logging.INFO, filename="service.log")
+        log_config=logging.basicConfig(level=logging.INFO)
     )
