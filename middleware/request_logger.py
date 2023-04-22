@@ -35,23 +35,29 @@ class RequestContextLogMiddleware(BaseHTTPMiddleware):
         trace_id = generate_trace_id()
         start_time = time.time()
         request.scope["trace_id"] = trace_id
+        request_payload = {
+            "method": request.method,
+            "url": str(request.url),
+            "headers": request.headers,
+            "params": {
+                "path-params": request.path_params,
+                "query-params": request.query_params
+            }
+        }
+
         await self.set_body(request)
-        json_body = await request.json()
+        try:
+            json_body = await request.json()
+            request_payload["body"] = json_body
+        except Exception as e:
+            self.request_logger.error("Failed to get json body for request.")
+
         response: Response = await call_next(request)
         process_time = time.time() - start_time
         response.headers["X-Process-Time"] = str(process_time)
         log_payload = {
             "trace_id": trace_id,
-            "request": {
-                "method": request.method,
-                "url": str(request.url),
-                "headers": request.headers,
-                "params": {
-                    "path-params": request.path_params,
-                    "query-params": request.query_params
-                },
-                "body": json_body
-            },
+            "request": request_payload,
             "response": {
                 "status_code": response.status_code,
             },

@@ -77,6 +77,11 @@ async def shutdown_event():
     return
 
 
+@app.get("/healthz")
+async def health():
+    return
+
+
 @app.post("/api/signup/email")
 async def signup_via_email(sign_up_via_email: SignUpViaEmail, db: Session = Depends(get_db)):
     try:
@@ -139,11 +144,6 @@ async def verify_email(id: str, db: Session = Depends(get_db)):
         return
     else:
         raise HTTPException(status_code=404, detail="Invalid verification code.")
-
-
-@app.get("/healthz")
-async def health():
-    return
 
 
 if __name__ == "__main__":

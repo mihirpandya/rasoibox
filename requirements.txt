@@ -6,3 +6,4 @@ sqladmin==0.10.3
 SQLAlchemy==1.4.46
 starlette==0.26.1
 uvicorn==0.21.1
+itsdangerous==2.1.2
