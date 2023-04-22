@@ -1,4 +1,5 @@
 import datetime
+import json
 import logging
 import sqlite3
 import string
@@ -8,11 +9,12 @@ from uuid import uuid4
 from typing import Optional
 from imaplib import IMAP4_SSL
 
-from fastapi import FastAPI, Depends, HTTPException, Request
+from fastapi import FastAPI, Depends, HTTPException, Request, Response
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from sqladmin import Admin
 from sqlalchemy import create_engine
+from starlette.middleware.base import RequestResponseEndpoint
 from starlette.middleware.sessions import SessionMiddleware
 from sqlalchemy.orm import sessionmaker, Session
 
@@ -20,11 +22,12 @@ from admin_auth.basic.base import AdminAuth
 from api.signup.via_email import SignUpViaEmail
 from config import Settings
 from emails.base import VerifyUserEmail, send_email
+from middleware.request_logger import RequestContextLogMiddleware
 from models.base import Base
 from models.user import UnverifiedUser, VerifiedUser
 from views.user import VerifiedUserAdmin, UnverifiedUserAdmin
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger("rasoibox")
 
 settings: Settings = Settings()
 engine = create_engine(
@@ -34,6 +37,7 @@ engine = create_engine(
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 app = FastAPI()
 app.add_middleware(SessionMiddleware, secret_key="test")
+app.add_middleware(RequestContextLogMiddleware, request_logger=logger)
 app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")
 
@@ -54,12 +58,6 @@ def get_db():
         db.close()
 
 
-def generate_trace_id() -> str:
-    res = ''.join(random.choices(string.ascii_uppercase +
-                                 string.digits, k=10))
-    return res.lower()
-
-
 @app.on_event("startup")
 async def startup_event():
     # connect to email server
@@ -77,18 +75,6 @@ async def shutdown_event():
     imap_server.close()
     logger.info("Shutting down gracefully!")
     return
-
-
-@app.middleware("http")
-async def log_requests(request: Request, call_next):
-    trace_id = generate_trace_id()
-    start_time = time.time()
-    request.scope["trace_id"] = trace_id
-    response = await call_next(request)
-    process_time = time.time() - start_time
-    response.headers["X-Process-Time"] = str(process_time)
-    logger.info("%s, %s, %s", request, response, process_time)
-    return response
 
 
 @app.post("/api/signup/email")
@@ -158,4 +144,9 @@ async def verify_email(id: str, db: Session = Depends(get_db)):
 if __name__ == "__main__":
     import uvicorn
 
-    uvicorn.run(app, host="0.0.0.0", port=9000)
+    uvicorn.run(
+        app,
+        host="0.0.0.0",
+        port=9000,
+        log_config=logging.basicConfig(level=logging.INFO, filename="service.log")
+    )
