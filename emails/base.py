@@ -35,12 +35,16 @@ class RasoiBoxEmail():
 class VerifyUserEmail(RasoiBoxEmail):
     _subject: str = "Hello from Rasoi Box! Please verify your email."
 
-    def __init__(self, email_template: Template, url_base: str, verification_code: str, to_email: str, from_email: str):
-        super().__init__(email_template, {"verification_link": self.verification_link(url_base, verification_code)},
-                         to_email, self._subject, from_email)
+    def __init__(self, email_template: Template, url_base: str, first_name: str, verification_code: str, to_email: str,
+                 from_email: str):
+        template_args = {
+            "verification_link": self.verification_link(url_base, verification_code),
+            "first_name": first_name
+        }
+        super().__init__(email_template, template_args, to_email, self._subject, from_email)
 
     def verification_link(self, url_base: str, verification_code: str) -> str:
-        return "{}/verify/email?id={}".format(url_base, verification_code)
+        return "{}/api/verify/email?id={}".format(url_base, verification_code)
 
 
 def send_email(email: RasoiBoxEmail, email_server: IMAP4_SSL):

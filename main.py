@@ -117,6 +117,7 @@ async def signup_via_email(sign_up_via_email: SignUpViaEmail, db: Session = Depe
             "/") else settings.backend_url_base
         verification_email: VerifyUserEmail = VerifyUserEmail(templates.get_template("verify_email.html"),
                                                               url_base,
+                                                              sign_up_via_email.first_name,
                                                               verification_code,
                                                               sign_up_via_email.email,
                                                               settings.from_email)
