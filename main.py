@@ -28,7 +28,7 @@ logger = logging.getLogger(__name__)
 
 settings: Settings = Settings()
 engine = create_engine(
-    "sqlite:///example.db",
+    "sqlite:///" + settings.db_path,
     connect_args={"check_same_thread": False},
 )
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
