@@ -5,19 +5,27 @@ from starlette.requests import Request
 from starlette.responses import RedirectResponse
 
 
-class AdminAuth(AuthenticationBackend):
+def _generate_token() -> str:
+    return "token";
 
-    def _generate_token(self) -> str:
-        return "token";
+
+class AdminAuth(AuthenticationBackend):
+    user: str
+    password: str
+
+    def __init__(self, user: str, password: str, secret_key: str):
+        super().__init__(secret_key)
+        self.user = user
+        self.password = password
 
     async def login(self, request: Request) -> bool:
         form = await request.form()
         username, password = form["username"], form["password"]
 
-        if username == "admin" and password == "admin":
+        if username == self.user and password == self.password:
             # Validate username/password credentials
             # And update session
-            request.session.update({"token": self._generate_token()})
+            request.session.update({"token": _generate_token()})
 
             return True
         else:
@@ -31,5 +39,5 @@ class AdminAuth(AuthenticationBackend):
     async def authenticate(self, request: Request) -> Optional[RedirectResponse]:
         token = request.session.get("token")
 
-        if not token or token != self._generate_token():
+        if not token or token != _generate_token():
             return RedirectResponse(request.url_for("admin:login"), status_code=302)

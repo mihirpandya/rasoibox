@@ -5,6 +5,7 @@ from pydantic import BaseSettings, validator, ValidationError
 
 logger = logging.getLogger(__name__)
 
+
 class Settings(BaseSettings):
     from_email: str
     email: str
@@ -12,6 +13,8 @@ class Settings(BaseSettings):
     backend_url_base: str
     frontend_url_base: str
     db_path: str
+    admin_user: str
+    admin_password: str
 
     class Config:
         env_file = ".env"

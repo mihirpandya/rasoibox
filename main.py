@@ -1,22 +1,17 @@
 import datetime
-import json
 import logging
 import sqlite3
-import string
-import random
-import time
-from uuid import uuid4
-from typing import Optional
 from imaplib import IMAP4_SSL
+from typing import Optional
+from uuid import uuid4
 
-from fastapi import FastAPI, Depends, HTTPException, Request, Response
+from fastapi import FastAPI, Depends, HTTPException
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from sqladmin import Admin
 from sqlalchemy import create_engine
-from starlette.middleware.base import RequestResponseEndpoint
-from starlette.middleware.sessions import SessionMiddleware
 from sqlalchemy.orm import sessionmaker, Session
+from starlette.middleware.sessions import SessionMiddleware
 
 from admin_auth.basic.base import AdminAuth
 from api.signup.via_email import SignUpViaEmail
@@ -41,7 +36,8 @@ app.add_middleware(RequestContextLogMiddleware, request_logger=logger)
 app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")
 
-admin: Admin = Admin(app, engine, authentication_backend=AdminAuth(secret_key="test"))
+admin: Admin = Admin(app, engine, authentication_backend=AdminAuth(user=settings.admin_user,
+                                                                   password=settings.admin_password, secret_key="test"))
 admin.add_view(VerifiedUserAdmin)
 admin.add_view(UnverifiedUserAdmin)
 

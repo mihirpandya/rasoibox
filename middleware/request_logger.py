@@ -18,6 +18,7 @@ def generate_trace_id() -> str:
 
 class RequestContextLogMiddleware(BaseHTTPMiddleware):
     request_logger: logging.Logger
+    log_debug_paths = ["/healthz"]
 
     def __init__(self, app, request_logger: logging.Logger):
         super().__init__(app)
@@ -63,5 +64,8 @@ class RequestContextLogMiddleware(BaseHTTPMiddleware):
             },
             "process_time_seconds": process_time
         }
-        self.request_logger.info("%s", log_payload)
+        if str(request.url.path) in self.log_debug_paths:
+            self.request_logger.debug("%s", log_payload)
+        else:
+            self.request_logger.info("%s", log_payload)
         return response
