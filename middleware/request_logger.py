@@ -53,7 +53,13 @@ class RequestContextLogMiddleware(BaseHTTPMiddleware):
         except Exception as e:
             self.request_logger.error("Failed to get json body for request.")
 
-        response: Response = await call_next(request)
+        response = None
+        err = None
+        try:
+            response = await call_next(request)
+        except Exception as e:
+            err = e
+
         process_time = time.time() - start_time
         response.headers["X-Process-Time"] = str(process_time)
         log_payload = {
@@ -68,4 +74,8 @@ class RequestContextLogMiddleware(BaseHTTPMiddleware):
             self.request_logger.debug("%s", log_payload)
         else:
             self.request_logger.info("%s", log_payload)
+
+        if err is not None:
+            raise err
+
         return response
