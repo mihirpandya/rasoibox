@@ -100,8 +100,8 @@ async def signup_via_email(sign_up_via_email: SignUpViaEmail, db: Session = Depe
         db.commit()
 
         # send email with verification link
-        url_base: str = settings.backend_url_base[0:-1] if settings.frontend_url_base.endswith(
-            "/") else settings.backend_url_base
+        url_base: str = settings.frontend_url_base[0:-1] if settings.frontend_url_base.endswith(
+            "/") else settings.frontend_url_base
         verification_email: VerifyUserEmail = VerifyUserEmail(templates.get_template("verify_email.html"),
                                                               url_base,
                                                               sign_up_via_email.first_name,
