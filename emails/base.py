@@ -44,7 +44,7 @@ class VerifyUserEmail(RasoiBoxEmail):
         super().__init__(email_template, template_args, to_email, self._subject, from_email)
 
     def verification_link(self, url_base: str, verification_code: str) -> str:
-        return "{}/api/verify/email?id={}".format(url_base, verification_code)
+        return "{}/verify?id={}".format(url_base, verification_code)
 
 
 def send_email(email: RasoiBoxEmail, email_server: IMAP4_SSL):
