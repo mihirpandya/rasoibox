@@ -6,12 +6,14 @@ from typing import Optional
 from uuid import uuid4
 
 from fastapi import FastAPI, Depends, HTTPException
+from fastapi.encoders import jsonable_encoder
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from sqladmin import Admin
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, Session
 from starlette.middleware.sessions import SessionMiddleware
+from starlette.responses import JSONResponse
 
 from admin_auth.basic.base import AdminAuth
 from api.signup.via_email import SignUpViaEmail
@@ -117,16 +119,10 @@ async def signup_via_email(sign_up_via_email: SignUpViaEmail, db: Session = Depe
 
 
 @app.get("/api/verify/email")
-async def verify_email(id: str, db: Session = Depends(get_db)):
-    # if user already verified, return ok
-    verified_user: Optional[VerifiedUser] = db.query(VerifiedUser).filter(VerifiedUser.verification_code == id).first()
-    if verified_user is not None:
-        logger.info("User already verified.", id)
-        return
-
+async def verify_email(id: str, db: Session = Depends(get_db)) -> JSONResponse:
     unverified_user: Optional[UnverifiedUser] = db.query(UnverifiedUser).filter(
         UnverifiedUser.verification_code == id).first()
-    
+
     if unverified_user is not None:
         join_date = datetime.datetime.now()
         db.add(
@@ -144,7 +140,14 @@ async def verify_email(id: str, db: Session = Depends(get_db)):
 
         db.delete(unverified_user)
         db.commit()
-        return
+
+    verified_user: Optional[VerifiedUser] = db.query(VerifiedUser).filter(VerifiedUser.verification_code == id).first()
+    if verified_user is not None:
+        response = {
+            "first_name": verified_user.first_name,
+            "last_name": verified_user.last_name
+        }
+        return JSONResponse(content=jsonable_encoder(response))
     else:
         raise HTTPException(status_code=404, detail="Invalid verification code.")
 

@@ -11,7 +11,8 @@ class VerifiedUserAdmin(ModelView, model=VerifiedUser):
         VerifiedUser.email,
         VerifiedUser.join_date,
         VerifiedUser.signup_date,
-        VerifiedUser.signup_from
+        VerifiedUser.signup_from,
+        VerifiedUser.verification_code
     ]
 
 
