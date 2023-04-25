@@ -51,7 +51,10 @@ class RequestContextLogMiddleware(BaseHTTPMiddleware):
             json_body = await request.json()
             request_payload["body"] = json_body
         except Exception as e:
-            self.request_logger.error("Failed to get json body for request.")
+            if str(request.url.path) in self.log_debug_paths:
+                self.request_logger.debug("Failed to get json body for request.")
+            else:
+                self.request_logger.error("Failed to get json body for request.")
 
         log_payload = {
             "trace_id": trace_id,
