@@ -1,7 +1,7 @@
 import datetime
 import logging
 import sqlite3
-from imaplib import IMAP4_SSL
+from smtplib import SMTP
 from typing import Optional
 from uuid import uuid4
 
@@ -44,7 +44,7 @@ admin.add_view(UnverifiedUserAdmin)
 
 Base.metadata.create_all(engine)  # Create tables
 
-imap_server: Optional[IMAP4_SSL] = None
+smtp_server: Optional[SMTP] = None
 
 
 def get_db():
@@ -58,18 +58,17 @@ def get_db():
 @app.on_event("startup")
 async def startup_event():
     # connect to email server
-    global imap_server
-    imap_server = IMAP4_SSL("imap.gmail.com", 993)
-    imap_server.login(settings.email, settings.email_app_password)
-    GMAIL_DRAFTS = "[Gmail]/Drafts"
-    imap_server.select(GMAIL_DRAFTS)
+    global smtp_server
+    smtp_server = SMTP('smtp.gmail.com', 587)
+    smtp_server.starttls()
+    smtp_server.login(settings.email, settings.email_app_password)
     logger.info("Email server is ready!")
 
 
 @app.on_event("shutdown")
 async def shutdown_event():
-    global imap_server
-    imap_server.close()
+    global smtp_server
+    smtp_server.close()
     logger.info("Shutting down gracefully!")
     return
 
@@ -140,7 +139,7 @@ async def signup_via_email(sign_up_via_email: SignUpViaEmail, db: Session = Depe
 
         # send email best effort
         try:
-            send_email(verification_email, imap_server)
+            send_email(verification_email, smtp_server)
         except Exception as e:
             logger.error("Failed to send email.", e)
 

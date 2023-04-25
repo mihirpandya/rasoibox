@@ -2,6 +2,7 @@ import time
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from imaplib import IMAP4_SSL, Time2Internaldate
+from smtplib import SMTP
 from typing import Dict
 
 from jinja2 import Template, Environment
@@ -47,7 +48,7 @@ class VerifyUserEmail(RasoiBoxEmail):
         return "{}/verify?id={}".format(url_base, verification_code)
 
 
-def send_email(email: RasoiBoxEmail, email_server: IMAP4_SSL):
+def send_email(email: RasoiBoxEmail, email_server: SMTP):
     GMAIL_DRAFTS = "[Gmail]/Drafts"
     message: MIMEMultipart = MIMEMultipart('alternative')
     message['From'] = email.from_email
@@ -57,7 +58,8 @@ def send_email(email: RasoiBoxEmail, email_server: IMAP4_SSL):
     email_html: str = email.render_template()
     html_payload: MIMEText = MIMEText(email_html, 'html')
     message.attach(html_payload)
-    email_server.append(GMAIL_DRAFTS,
-                        '',
-                        Time2Internaldate(time.time()),
-                        bytes(message))
+    # email_server.append(GMAIL_DRAFTS,
+    #                     '',
+    #                     Time2Internaldate(time.time()),
+    #                     bytes(message))
+    email_server.send_message(message)
