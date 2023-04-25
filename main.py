@@ -82,23 +82,51 @@ async def health():
 @app.post("/api/signup/email")
 async def signup_via_email(sign_up_via_email: SignUpViaEmail, db: Session = Depends(get_db)):
     try:
-        # generate random UUID as verification code
-        verification_code: str = str(uuid4())
+        verified_user: Optional[VerifiedUser] = db.query(VerifiedUser).filter(
+            VerifiedUser.first_name == sign_up_via_email.first_name
+            and VerifiedUser.last_name == sign_up_via_email.last_name
+            and VerifiedUser.email == sign_up_via_email.email
+            and VerifiedUser.zipcode == sign_up_via_email.zipcode).first()
 
-        # insert entry in db
-        db.add(
-            UnverifiedUser(
-                first_name=sign_up_via_email.first_name,
-                last_name=sign_up_via_email.last_name,
-                email=sign_up_via_email.email,
-                signup_date=sign_up_via_email.signup_date,
-                signup_from="EMAIL",
-                zipcode=sign_up_via_email.zipcode,
-                verification_code=verification_code
+        if verified_user is not None:
+            logger.info("User already verified.", sign_up_via_email)
+
+            return JSONResponse(content=jsonable_encoder({"status": 0, "message": "User already verified."}))
+
+        unverified_user: Optional[UnverifiedUser] = db.query(UnverifiedUser).filter(
+            UnverifiedUser.first_name == sign_up_via_email.first_name
+            and UnverifiedUser.last_name == sign_up_via_email.last_name
+            and UnverifiedUser.email == sign_up_via_email.email
+            and UnverifiedUser.zipcode == sign_up_via_email.zipcode).first()
+
+        message: str
+        status_code: int
+        verification_code: str
+        if unverified_user is not None:
+            logger.info("User already signed up but not verified. Resending verification email.", sign_up_via_email)
+            verification_code = unverified_user.verification_code
+            status_code = 1
+            message = "User already signed up but not verified. Verification email re-sent"
+        else:
+            status_code = 2
+            message = "Verification email sent"
+            # generate random UUID as verification code
+            verification_code: str = str(uuid4())
+
+            # insert entry in db
+            db.add(
+                UnverifiedUser(
+                    first_name=sign_up_via_email.first_name,
+                    last_name=sign_up_via_email.last_name,
+                    email=sign_up_via_email.email,
+                    signup_date=sign_up_via_email.signup_date,
+                    signup_from="EMAIL",
+                    zipcode=sign_up_via_email.zipcode,
+                    verification_code=verification_code,
+                )
             )
-        )
 
-        db.commit()
+            db.commit()
 
         # send email with verification link
         url_base: str = settings.frontend_url_base[0:-1] if settings.frontend_url_base.endswith(
@@ -110,9 +138,13 @@ async def signup_via_email(sign_up_via_email: SignUpViaEmail, db: Session = Depe
                                                               sign_up_via_email.email,
                                                               settings.from_email)
 
-        send_email(verification_email, imap_server)
+        # send email best effort
+        try:
+            send_email(verification_email, imap_server)
+        except Exception as e:
+            logger.error("Failed to send email.", e)
 
-        return
+        return JSONResponse(content={"status": status_code, "message": message})
     except sqlite3.OperationalError as e:
         logger.error("Failed to save data.", sign_up_via_email, e)
         raise HTTPException(status_code=500, detail="Failed to save data.")
