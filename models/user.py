@@ -26,3 +26,4 @@ class VerifiedUser(Base):
     signup_from = Column(String(100))
     join_date = Column(DateTime)
     zipcode = Column(Integer)
+    verification_code = Column(String(100))

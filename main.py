@@ -118,8 +118,15 @@ async def signup_via_email(sign_up_via_email: SignUpViaEmail, db: Session = Depe
 
 @app.get("/api/verify/email")
 async def verify_email(id: str, db: Session = Depends(get_db)):
+    # if user already verified, return ok
+    verified_user: Optional[VerifiedUser] = db.query(VerifiedUser).filter(VerifiedUser.verification_code == id).first()
+    if verified_user is not None:
+        logger.info("User already verified.", id)
+        return
+
     unverified_user: Optional[UnverifiedUser] = db.query(UnverifiedUser).filter(
         UnverifiedUser.verification_code == id).first()
+    
     if unverified_user is not None:
         join_date = datetime.datetime.now()
         db.add(
@@ -130,7 +137,8 @@ async def verify_email(id: str, db: Session = Depends(get_db)):
                 signup_date=unverified_user.signup_date,
                 signup_from=unverified_user.signup_from,
                 zipcode=unverified_user.zipcode,
-                join_date=join_date
+                join_date=join_date,
+                verification_code=unverified_user.verification_code
             )
         )
 
