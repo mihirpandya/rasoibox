@@ -26,8 +26,7 @@ logger = logging.getLogger("rasoibox")
 
 settings: Settings = Settings()
 engine = create_engine(
-    "sqlite:///" + settings.db_path,
-    connect_args={"check_same_thread": False},
+    settings.db_path,
 )
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 app = FastAPI()
