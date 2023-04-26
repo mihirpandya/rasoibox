@@ -1,24 +1,85 @@
 <html>
     <head>
-        <title>Hello from Rasoi Box!</title>
+        <title>Thanks for signing up!</title>
+        <style>
+            body {
+                font-family: "Avenir";
+                text-align: center;
+            }
+            a {
+              text-align: center;
+              font-family: Avenir;
+              border: none;
+              border-radius: 12px;
+              background-color: #f9a66c;
+              color: white;
+              padding: 16px 32px;
+              text-align: center;
+              text-decoration: none;
+              display: inline-block;
+              font-size: 16px;
+              font-weight: bold;
+              margin: 4px 2px;
+              transition-duration: 0.4s;
+              cursor: pointer;
+            }
+            .title {
+                text-align: center;
+            }
+            .message {
+                text-align: center;
+                font-size: 15px;
+            }
+            .content {
+                background-color: white;
+                padding: 20px;
+            }
+            .container {
+                width: 500px;
+                display: inline-block;
+                background-color: #f9faf4;
+                padding: 30px;
+            }
+            .footer {
+                text-align: center;
+                padding: 20px;
+                font-size: 10px;
+                font-family: Avenir;
+            }
+            .logo {
+                display: block;
+                margin-left: auto;
+                margin-right: auto;
+                width: 50px;
+                padding: 20px;
+            }
+            .icon {
+                width: 15px;
+                height: 15px;
+            }
+        </style>
     </head>
     <body>
-        <h2>Hello from Rasoi Box!</h2>
-        <p>
-            Hi {{ first_name }},
-            <br />
-            <br />
-            We are so excited you have taken the first step to join the Rasoi Box community! Please complete the process by
-            opening the following link and verifying your email:
-            <br />
-            <br />
-            {{ verification_link }}
-            <br />
-            <br />
-            Thanks!
-            <br />
-            <br />
-            Team Rasoi Box
-        </p>
+        <div class="container">
+            <img class="logo" src="cid:logo.png" />
+            <div class="content">
+                <h2 class="title">Thanks for signing up, {{ first_name }}!</h2>
+                <p class="message">
+                    We are so excited you have taken the first step to join the Rasoi Box community! Please verify your email address to get early access to Rasoi Box.
+                    <br />
+                    <br />
+                    <a href="{{ verification_link }}">Verify Email</a>
+                    <br />
+                    <br />
+                    Thank you,
+                    <br />
+                    Team Rasoi Box
+                </p>
+            </div>
+            <div class="footer">
+                <br />
+                &nbsp;&copy; 2023 Rasoi Box
+            </div>
+        </div>
     </body>
 </html>

@@ -7,8 +7,7 @@ from uuid import uuid4
 
 from fastapi import FastAPI, Depends, HTTPException
 from fastapi.encoders import jsonable_encoder
-from fastapi.staticfiles import StaticFiles
-from fastapi.templating import Jinja2Templates
+from jinja2 import Environment, FileSystemLoader, select_autoescape
 from sqladmin import Admin
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, Session
@@ -30,12 +29,11 @@ settings: Settings = Settings()
 engine = create_engine(
     settings.db_path,
 )
+jinjaEnv = Environment(loader=FileSystemLoader("templates"), autoescape=select_autoescape())
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 app = FastAPI()
 app.add_middleware(SessionMiddleware, secret_key="test")
 app.add_middleware(RequestContextLogMiddleware, request_logger=logger)
-app.mount("/static", StaticFiles(directory="static"), name="static")
-templates = Jinja2Templates(directory="templates")
 
 admin: Admin = Admin(app, engine, authentication_backend=AdminAuth(user=settings.admin_user,
                                                                    password=settings.admin_password, secret_key="test"))
@@ -88,7 +86,7 @@ async def signup_via_email(sign_up_via_email: SignUpViaEmail, db: Session = Depe
             and VerifiedUser.zipcode == sign_up_via_email.zipcode).first()
 
         if verified_user is not None:
-            logger.info("User already verified.", sign_up_via_email)
+            logger.info("User already verified.")
 
             return JSONResponse(content=jsonable_encoder({"status": 0, "message": "User already verified."}))
 
@@ -102,7 +100,7 @@ async def signup_via_email(sign_up_via_email: SignUpViaEmail, db: Session = Depe
         status_code: int
         verification_code: str
         if unverified_user is not None:
-            logger.info("User already signed up but not verified. Resending verification email.", sign_up_via_email)
+            logger.info("User already signed up but not verified. Resending verification email.")
             verification_code = unverified_user.verification_code
             status_code = 1
             message = "User already signed up but not verified. Verification email re-sent"
@@ -130,8 +128,7 @@ async def signup_via_email(sign_up_via_email: SignUpViaEmail, db: Session = Depe
         # send email with verification link
         url_base: str = settings.frontend_url_base[0:-1] if settings.frontend_url_base.endswith(
             "/") else settings.frontend_url_base
-        verification_email: VerifyUserEmail = VerifyUserEmail(templates.get_template("verify_email.html"),
-                                                              url_base,
+        verification_email: VerifyUserEmail = VerifyUserEmail(url_base,
                                                               sign_up_via_email.first_name,
                                                               verification_code,
                                                               sign_up_via_email.email,
@@ -139,13 +136,14 @@ async def signup_via_email(sign_up_via_email: SignUpViaEmail, db: Session = Depe
 
         # send email best effort
         try:
-            send_email(verification_email, smtp_server)
+            send_email(jinjaEnv, verification_email, smtp_server)
         except Exception as e:
-            logger.error("Failed to send email.", e)
+            logger.error("Failed to send email.")
+            logger.error(e)
 
         return JSONResponse(content={"status": status_code, "message": message})
     except sqlite3.OperationalError as e:
-        logger.error("Failed to save data.", sign_up_via_email, e)
+        logger.error(e)
         raise HTTPException(status_code=500, detail="Failed to save data.")
 
 
