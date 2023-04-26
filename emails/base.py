@@ -1,5 +1,4 @@
 from email.mime.image import MIMEImage
-from email.mime.image import MIMEImage
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from smtplib import SMTP
@@ -45,7 +44,8 @@ class VerifyUserEmail(RasoiBoxEmail):
         return "{}/verify?id={}".format(url_base, verification_code)
 
 
-def send_email(jinjaEnv: Environment, email: RasoiBoxEmail, email_server: SMTP):
+def send_email(jinjaEnv: Environment, email: RasoiBoxEmail, email_server: SMTP, email_address: str,
+               email_password: str):
     message: MIMEMultipart = MIMEMultipart("related")
     message['From'] = email.from_email
     message['To'] = email.to_email
@@ -60,4 +60,8 @@ def send_email(jinjaEnv: Environment, email: RasoiBoxEmail, email_server: SMTP):
     logo_img.add_header('Content-Disposition', 'inline', filename="templates/assets/logo.png")
     message.attach(logo_img)
 
+    email_server.connect('smtp.gmail.com', 587)
+    email_server.starttls()
+    email_server.login(email_address, email_password)
     email_server.send_message(message)
+    email_server.quit()

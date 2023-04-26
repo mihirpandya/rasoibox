@@ -42,7 +42,7 @@ admin.add_view(UnverifiedUserAdmin)
 
 Base.metadata.create_all(engine)  # Create tables
 
-smtp_server: Optional[SMTP] = None
+smtp_server: SMTP = SMTP('smtp.gmail.com', 587)
 
 
 def get_db():
@@ -55,12 +55,7 @@ def get_db():
 
 @app.on_event("startup")
 async def startup_event():
-    # connect to email server
-    global smtp_server
-    smtp_server = SMTP('smtp.gmail.com', 587)
-    smtp_server.starttls()
-    smtp_server.login(settings.email, settings.email_app_password)
-    logger.info("Email server is ready!")
+    logger.info("Server started successfully!")
 
 
 @app.on_event("shutdown")
@@ -136,7 +131,7 @@ async def signup_via_email(sign_up_via_email: SignUpViaEmail, db: Session = Depe
 
         # send email best effort
         try:
-            send_email(jinjaEnv, verification_email, smtp_server)
+            send_email(jinjaEnv, verification_email, smtp_server, settings.email, settings.email_app_password)
         except Exception as e:
             logger.error("Failed to send email.")
             logger.error(e)
