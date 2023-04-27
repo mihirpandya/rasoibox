@@ -1,6 +1,7 @@
 import logging
 import re
 from datetime import datetime
+from typing import Optional
 
 from pydantic import BaseModel, ValidationError, validator
 
@@ -13,6 +14,8 @@ class SignUpViaEmail(BaseModel):
     last_name: str
     zipcode: int
     signup_date: datetime
+    verification_code: str
+    referrer: Optional[str]
 
     class Config:
         orm_mode = True
