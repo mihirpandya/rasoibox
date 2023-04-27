@@ -16,10 +16,12 @@ from starlette.responses import JSONResponse
 
 from admin_auth.basic.base import AdminAuth
 from api.signup.via_email import SignUpViaEmail
+from api.welcome import WelcomeEvent
 from config import Settings
 from emails.base import VerifyUserEmail, send_email
 from middleware.request_logger import RequestContextLogMiddleware
 from models.base import Base
+from models.event import Event
 from models.user import UnverifiedUser, VerifiedUser
 from views.event import EventAdmin
 from views.user import VerifiedUserAdmin, UnverifiedUserAdmin
@@ -55,6 +57,18 @@ def get_db():
         db.close()
 
 
+def emit_event(db: Session, event_type: str, event_timestamp: datetime, code: str, referrer_opt: Optional[str]):
+    try:
+        referrer = referrer_opt if referrer_opt is not None else "NONE"
+        event = Event(event_type=event_type, event_timestamp=event_timestamp, code=code, referrer=referrer)
+        db.add(event)
+        db.commit()
+    except Exception as e:
+        logger.error("Failed to save event.")
+        logger.error(e)
+        return
+
+
 @app.on_event("startup")
 async def startup_event():
     logger.info("Server started successfully!")
@@ -70,6 +84,12 @@ async def shutdown_event():
 
 @app.get("/healthz")
 async def health():
+    return
+
+
+@app.post("/api/welcome")
+async def welcome(welcome_event: WelcomeEvent, db: Session = Depends(get_db)):
+    emit_event(db, "WELCOME", welcome_event.welcome_date, welcome_event.verification_code, welcome_event.referrer)
     return
 
 
