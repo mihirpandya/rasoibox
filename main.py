@@ -3,7 +3,6 @@ import logging
 import sqlite3
 from smtplib import SMTP
 from typing import Optional
-from uuid import uuid4
 
 from fastapi import FastAPI, Depends, HTTPException
 from fastapi.encoders import jsonable_encoder
@@ -122,10 +121,11 @@ async def signup_via_email(sign_up_via_email: SignUpViaEmail, db: Session = Depe
             status_code = 1
             message = "User already signed up but not verified. Verification email re-sent"
         else:
+            verification_code = sign_up_via_email.verification_code
             status_code = 2
             message = "Verification email sent"
-            # generate random UUID as verification code
-            verification_code: str = str(uuid4())
+            emit_event(db, "NEW_SIGN_UP", sign_up_via_email.signup_date, sign_up_via_email.verification_code,
+                       sign_up_via_email.referrer)
 
             # insert entry in db
             db.add(
@@ -186,6 +186,7 @@ async def verify_email(id: str, db: Session = Depends(get_db)) -> JSONResponse:
 
         db.delete(unverified_user)
         db.commit()
+        emit_event(db, "VERIFY", join_date, unverified_user.verification_code, None)
 
     verified_user: Optional[VerifiedUser] = db.query(VerifiedUser).filter(VerifiedUser.verification_code == id).first()
     if verified_user is not None:
