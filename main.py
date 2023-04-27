@@ -21,6 +21,7 @@ from emails.base import VerifyUserEmail, send_email
 from middleware.request_logger import RequestContextLogMiddleware
 from models.base import Base
 from models.user import UnverifiedUser, VerifiedUser
+from views.event import EventAdmin
 from views.user import VerifiedUserAdmin, UnverifiedUserAdmin
 
 logger = logging.getLogger("rasoibox")
@@ -39,6 +40,7 @@ admin: Admin = Admin(app, engine, authentication_backend=AdminAuth(user=settings
                                                                    password=settings.admin_password, secret_key="test"))
 admin.add_view(VerifiedUserAdmin)
 admin.add_view(UnverifiedUserAdmin)
+admin.add_view(EventAdmin)
 
 Base.metadata.create_all(engine)  # Create tables
 
