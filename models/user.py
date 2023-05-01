@@ -11,7 +11,7 @@ class UnverifiedUser(Base):
     email = Column(String(100))
     signup_date = Column(DateTime)
     signup_from = Column(String(100))
-    zipcode = Column(Integer)
+    zipcode = Column(String(20))
     verification_code = Column(String(100))
 
 
@@ -25,5 +25,5 @@ class VerifiedUser(Base):
     signup_date = Column(DateTime)
     signup_from = Column(String(100))
     join_date = Column(DateTime)
-    zipcode = Column(Integer)
+    zipcode = Column(String(20))
     verification_code = Column(String(100))
