@@ -135,7 +135,7 @@ async def signup_via_email(sign_up_via_email: SignUpViaEmail, db: Session = Depe
                     email=sign_up_via_email.email,
                     signup_date=sign_up_via_email.signup_date,
                     signup_from="EMAIL",
-                    zipcode=int(sign_up_via_email.zipcode),
+                    zipcode=sign_up_via_email.zipcode,
                     verification_code=verification_code,
                 )
             )
