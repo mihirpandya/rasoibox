@@ -1,5 +1,4 @@
 import logging
-import os.path
 
 from pydantic import BaseSettings, validator, ValidationError
 
