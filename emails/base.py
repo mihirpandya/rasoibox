@@ -40,7 +40,7 @@ class VerifySignUpEmail(RasoiBoxEmail):
         super().__init__("verify_email.html", template_args, to_email, self._subject, from_email)
 
     def verification_link(self, url_base: str, verification_code: str) -> str:
-        return "{}/verify?id={}".format(url_base, verification_code)
+        return "{}/menu?id={}".format(url_base, verification_code)
 
 
 def send_email(jinjaEnv: Environment, email: RasoiBoxEmail, email_server: SMTP, email_address: str,
