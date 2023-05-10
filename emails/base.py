@@ -29,14 +29,13 @@ class RasoiBoxEmail():
         self.from_email = from_email
 
 
-class VerifyUserEmail(RasoiBoxEmail):
+class VerifySignUpEmail(RasoiBoxEmail):
     _subject: str = "Hello from Rasoi Box! Please verify your email."
 
-    def __init__(self, url_base: str, first_name: str, verification_code: str, to_email: str,
+    def __init__(self, url_base: str, verification_code: str, to_email: str,
                  from_email: str):
         template_args = {
-            "verification_link": self.verification_link(url_base, verification_code),
-            "first_name": first_name
+            "verification_link": self.verification_link(url_base, verification_code)
         }
         super().__init__("verify_email.html", template_args, to_email, self._subject, from_email)
 

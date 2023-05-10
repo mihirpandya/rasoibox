@@ -10,8 +10,6 @@ logger = logging.getLogger(__name__)
 
 class SignUpViaEmail(BaseModel):
     email: str
-    first_name: str
-    last_name: str
     zipcode: str
     signup_date: datetime
     verification_code: str
