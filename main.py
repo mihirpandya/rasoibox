@@ -2,7 +2,7 @@ import datetime
 import logging
 import sqlite3
 from smtplib import SMTP
-from typing import Optional
+from typing import Optional, List
 
 from fastapi import FastAPI, Depends, HTTPException
 from fastapi.encoders import jsonable_encoder
@@ -15,13 +15,15 @@ from starlette.responses import JSONResponse
 
 from admin_auth.basic.base import AdminAuth
 from api.menu import MenuEvent
-from api.signup.via_email import SignUpViaEmail
+from api.recipes import CandidateRecipe, StarRecipe
+from api.signup import SignUpViaEmail
 from api.welcome import WelcomeEvent
 from config import Settings
 from emails.base import VerifySignUpEmail, send_email
 from middleware.request_logger import RequestContextLogMiddleware
 from models.base import Base
 from models.event import Event
+from models.recipes import RecipeContributor, Recipe
 from models.signups import UnverifiedSignUp, VerifiedSignUp
 from views.event import EventAdmin
 from views.user import VerifiedUserAdmin, UnverifiedUserAdmin
@@ -206,6 +208,56 @@ async def is_verified_sign_up(id: str, db: Session = Depends(get_db)) -> JSONRes
     verified: bool = True if verified_sign_up is not None else False
 
     return JSONResponse(content=jsonable_encoder({"verified": verified}))
+
+
+@app.post("/api/recipe/add")
+async def add_recipes(recipes: List[CandidateRecipe], db: Session = Depends(get_db)):
+    recipes_to_add: List[Recipe] = []
+    created_date = datetime.datetime.now()
+    for recipe in recipes:
+        contributor_name = recipe.recipe_contributor_name
+        contributor = db.query(RecipeContributor).filter(RecipeContributor.name == contributor_name).first()
+        if contributor is None:
+            raise HTTPException(status_code=404, detail="Unrecognized contributor {}.".format(contributor_name))
+
+        recipes_to_add.append(
+            Recipe(
+                name=recipe.name,
+                created_date=created_date,
+                description=recipe.description,
+                image_url=recipe.image_url,
+                recipe_contributor_id=contributor.id
+            )
+        )
+
+    db.add_all(recipes_to_add)
+    db.commit()
+    return
+
+
+@app.post("/api/recipe/star")
+async def star_recipe(recipe_to_star: StarRecipe, db: Session = Depends(get_db)):
+    star_date = datetime.datetime.now()
+    recipe: Recipe = db.query(Recipe).filter(Recipe.name == recipe_to_star.recipe_name).first()
+    starred_by: VerifiedSignUp = db.query(VerifiedSignUp).filter(
+        VerifiedSignUp.verification_code == recipe_to_star.verification_code).first()
+
+    if recipe is None:
+        raise HTTPException(status_code=404, detail="Unrecognized recipe {}.".format(recipe_to_star.recipe_name))
+
+    if starred_by is None:
+        raise HTTPException(status_code=404, detail="Unverified user.")
+
+    db.add(
+        StarRecipe(
+            recipe_id=recipe.id,
+            verified_sign_up_id=starred_by.id,
+            starred_date=star_date
+        )
+    )
+
+    db.commit()
+    return
 
 
 if __name__ == "__main__":
