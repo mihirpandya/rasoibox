@@ -11,3 +11,6 @@ class EventAdmin(ModelView, model=Event):
         Event.code,
         Event.referrer
     ]
+
+    column_searchable_list = [Event.referrer, Event.code, Event.event_type]
+    column_sortable_list = [Event.event_timestamp]

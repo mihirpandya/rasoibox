@@ -14,10 +14,9 @@ from starlette.middleware.sessions import SessionMiddleware
 from starlette.responses import JSONResponse
 
 from admin_auth.basic.base import AdminAuth
-from api.menu import MenuEvent
+from api.event import SiteEvent
 from api.recipes import CandidateRecipe, StarRecipe
 from api.signup import SignUpViaEmail
-from api.welcome import WelcomeEvent
 from config import Settings
 from emails.base import VerifySignUpEmail, send_email
 from middleware.request_logger import RequestContextLogMiddleware
@@ -94,14 +93,26 @@ async def health():
 
 
 @app.post("/api/welcome")
-async def welcome(welcome_event: WelcomeEvent, db: Session = Depends(get_db)):
-    emit_event(db, "WELCOME", welcome_event.welcome_date, welcome_event.verification_code, welcome_event.referrer)
+async def welcome(site_event: SiteEvent, db: Session = Depends(get_db)):
+    emit_event(db, "WELCOME", site_event.event_date, site_event.verification_code, site_event.referrer)
     return
 
 
 @app.post("/api/menu")
-async def menu(menu_event: MenuEvent, db: Session = Depends(get_db)):
-    emit_event(db, "MENU", menu_event.menu_date, menu_event.verification_code, menu_event.referrer)
+async def menu(site_event: SiteEvent, db: Session = Depends(get_db)):
+    emit_event(db, "MENU", site_event.event_date, site_event.verification_code, site_event.referrer)
+    return
+
+
+@app.post("/api/our_story")
+async def our_story(site_event: SiteEvent, db: Session = Depends(get_db)):
+    emit_event(db, "OUR_STORY", site_event.event_date, site_event.verification_code, site_event.referrer)
+    return
+
+
+@app.post("/api/blog")
+async def our_story(site_event: SiteEvent, db: Session = Depends(get_db)):
+    emit_event(db, "BLOG", site_event.event_date, site_event.verification_code, site_event.referrer)
     return
 
 

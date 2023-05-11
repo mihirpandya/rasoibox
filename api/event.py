@@ -4,8 +4,8 @@ from typing import Optional
 from pydantic import BaseModel
 
 
-class WelcomeEvent(BaseModel):
-    welcome_date: datetime
+class SiteEvent(BaseModel):
+    event_date: datetime
     verification_code: str
     referrer: Optional[str]
 
