@@ -1,5 +1,4 @@
 from sqlalchemy import Column, Integer, String, DateTime
-from sqlalchemy.orm import relationship
 
 from models.base import Base
 
@@ -24,5 +23,3 @@ class VerifiedSignUp(Base):
     verify_date = Column(DateTime)
     zipcode = Column(String(20))
     verification_code = Column(String(100))
-
-    starred_recipes = relationship("StarredRecipe", back_populates="starred_by")

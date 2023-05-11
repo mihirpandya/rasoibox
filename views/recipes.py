@@ -18,7 +18,7 @@ class RecipeAdmin(ModelView, model=Recipe):
         Recipe.created_date,
         Recipe.description,
         Recipe.image_url,
-        Recipe.receipe_contributor_id
+        Recipe.recipe_contributor_id
     ]
 
 
