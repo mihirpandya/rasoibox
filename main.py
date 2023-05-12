@@ -92,27 +92,9 @@ async def health():
     return
 
 
-@app.post("/api/welcome")
-async def welcome(site_event: SiteEvent, db: Session = Depends(get_db)):
-    emit_event(db, "WELCOME", site_event.event_date, site_event.verification_code, site_event.referrer)
-    return
-
-
-@app.post("/api/menu")
-async def menu(site_event: SiteEvent, db: Session = Depends(get_db)):
-    emit_event(db, "MENU", site_event.event_date, site_event.verification_code, site_event.referrer)
-    return
-
-
-@app.post("/api/our_story")
-async def our_story(site_event: SiteEvent, db: Session = Depends(get_db)):
-    emit_event(db, "OUR_STORY", site_event.event_date, site_event.verification_code, site_event.referrer)
-    return
-
-
-@app.post("/api/blog")
-async def our_story(site_event: SiteEvent, db: Session = Depends(get_db)):
-    emit_event(db, "BLOG", site_event.event_date, site_event.verification_code, site_event.referrer)
+@app.post("/api/event")
+async def event(site_event: SiteEvent, db: Session = Depends(get_db)):
+    emit_event(db, site_event.event_type, site_event.event_date, site_event.verification_code, site_event.referrer)
     return
 
 
