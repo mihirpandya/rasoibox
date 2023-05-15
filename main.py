@@ -299,6 +299,7 @@ async def get_recipe_schedule(id: str, db: Session = Depends(get_db)) -> JSONRes
             if item.schedule_start_date not in result:
                 result[item.schedule_start_date] = []
             result[item.schedule_start_date].append({
+                "id": recipe.id,
                 "name": recipe.name,
                 "description": recipe.description,
                 "image_url": recipe.image_url
