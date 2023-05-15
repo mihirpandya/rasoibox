@@ -22,10 +22,10 @@ from emails.base import VerifySignUpEmail, send_email
 from middleware.request_logger import RequestContextLogMiddleware
 from models.base import Base
 from models.event import Event
-from models.recipes import RecipeContributor, Recipe, StarredRecipe
+from models.recipes import RecipeContributor, Recipe, StarredRecipe, RecipeSchedule
 from models.signups import UnverifiedSignUp, VerifiedSignUp
 from views.event import EventAdmin
-from views.recipes import RecipeContributorAdmin, RecipeAdmin, StarredRecipeAdmin
+from views.recipes import RecipeContributorAdmin, RecipeAdmin, StarredRecipeAdmin, RecipeScheduleAdmin
 from views.user import VerifiedUserAdmin, UnverifiedUserAdmin
 
 logger = logging.getLogger("rasoibox")
@@ -48,6 +48,7 @@ admin.add_view(EventAdmin)
 admin.add_view(RecipeContributorAdmin)
 admin.add_view(RecipeAdmin)
 admin.add_view(StarredRecipeAdmin)
+admin.add_view(RecipeScheduleAdmin)
 
 Base.metadata.create_all(engine)  # Create tables
 
@@ -279,6 +280,30 @@ async def get_stars_for_user(id: str, db: Session = Depends(get_db)) -> JSONResp
     for starred_recipe in starred_recipes:
         recipe: Recipe = db.query(Recipe).filter(Recipe.id == starred_recipe.recipe_id).first()
         result.append(recipe.name)
+    return JSONResponse(content=jsonable_encoder(result))
+
+
+@app.get("/api/recipe/schedule")
+async def get_recipe_schedule(id: str, db: Session = Depends(get_db)) -> JSONResponse:
+    verified_user = db.query(VerifiedSignUp).filter(VerifiedSignUp.verification_code == id).first()
+    if verified_user is None:
+        raise HTTPException(status_code=401, detail="Unrecognized user.")
+    result = {}
+    recipe_schedule: List[RecipeSchedule] = db.query(RecipeSchedule).order_by(
+        RecipeSchedule.schedule_start_date.asc()).all()
+    for item in recipe_schedule:
+        recipe: Recipe = db.query(Recipe).filter(Recipe.id == item.recipe_id).first()
+        if recipe is None:
+            logger.error("Schedule has invalid recipe_id: {} {}".format(item.id, item.recipe_id))
+        else:
+            if item.schedule_start_date not in result:
+                result[item.schedule_start_date] = []
+            result[item.schedule_start_date].append({
+                "name": recipe.name,
+                "description": recipe.description,
+                "image_url": recipe.image_url
+            })
+
     return JSONResponse(content=jsonable_encoder(result))
 
 
