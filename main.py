@@ -11,6 +11,7 @@ from sqladmin import Admin
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, Session
 from starlette.middleware.sessions import SessionMiddleware
+from starlette.middleware.wsgi import WSGIMiddleware
 from starlette.responses import JSONResponse
 
 from admin_auth.basic.base import AdminAuth
@@ -18,6 +19,7 @@ from api.event import SiteEvent
 from api.recipes import CandidateRecipe, StarRecipe
 from api.signup import SignUpViaEmail
 from config import Settings
+from dashapp.dashapp import create_dash_app
 from emails.base import VerifySignUpEmail, send_email
 from middleware.request_logger import RequestContextLogMiddleware
 from models.base import Base
@@ -52,6 +54,9 @@ admin.add_view(StarredRecipeAdmin)
 Base.metadata.create_all(engine)  # Create tables
 
 smtp_server: SMTP = SMTP('smtp.gmail.com', 587)
+
+dash_app = create_dash_app(requests_pathname_prefix="/dash/")
+app.mount("/dash", WSGIMiddleware(dash_app.server))
 
 
 def get_db():
