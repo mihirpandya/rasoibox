@@ -268,6 +268,20 @@ async def toggle_star_recipe(recipe_to_star: StarRecipe, db: Session = Depends(g
     return
 
 
+@app.get("/api/recipe/stars")
+async def get_stars_for_user(id: str, db: Session = Depends(get_db)) -> JSONResponse:
+    verified_user = db.query(VerifiedSignUp).filter(VerifiedSignUp.verification_code == id).first()
+    if verified_user is None:
+        raise HTTPException(status_code=401, detail="Unrecognized user.")
+
+    starred_recipes: List[StarredRecipe] = db.query(StarredRecipe).filter(StarredRecipe.verified_sign_up_id == id).all()
+    result = []
+    for starred_recipe in starred_recipes:
+        recipe: Recipe = db.query(Recipe).filter(Recipe.id == starred_recipe.recipe_id).first()
+        result.append(recipe.name)
+    return JSONResponse(content=jsonable_encoder(result))
+
+
 if __name__ == "__main__":
     import uvicorn
 
