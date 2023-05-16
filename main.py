@@ -291,6 +291,8 @@ async def get_recipe_schedule(id: str, db: Session = Depends(get_db)) -> JSONRes
     result = {}
     recipe_schedule: List[RecipeSchedule] = db.query(RecipeSchedule).order_by(
         RecipeSchedule.schedule_start_date.asc()).all()
+    starred_recipe_ids: List[int] = [x.recipe_id for x in db.query(StarredRecipe).filter(
+        StarredRecipe.verified_sign_up_id == verified_user.id).all()]
     for item in recipe_schedule:
         recipe: Recipe = db.query(Recipe).filter(Recipe.id == item.recipe_id).first()
         if recipe is None:
@@ -302,7 +304,8 @@ async def get_recipe_schedule(id: str, db: Session = Depends(get_db)) -> JSONRes
                 "id": recipe.id,
                 "name": recipe.name,
                 "description": recipe.description,
-                "image_url": recipe.image_url
+                "image_url": recipe.image_url,
+                "starred": True if recipe.id in starred_recipe_ids else False
             })
 
     return JSONResponse(content=jsonable_encoder(result))
