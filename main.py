@@ -8,7 +8,7 @@ from fastapi import FastAPI, Depends, HTTPException
 from fastapi.encoders import jsonable_encoder
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 from sqladmin import Admin
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, and_
 from sqlalchemy.orm import sessionmaker, Session
 from starlette.middleware.sessions import SessionMiddleware
 from starlette.responses import JSONResponse
@@ -103,8 +103,8 @@ async def event(site_event: SiteEvent, db: Session = Depends(get_db)):
 async def signup_via_email(sign_up_via_email: SignUpViaEmail, db: Session = Depends(get_db)):
     try:
         verified_sign_up: Optional[VerifiedSignUp] = db.query(VerifiedSignUp).filter(
-            VerifiedSignUp.email == sign_up_via_email.email
-            and VerifiedSignUp.zipcode == sign_up_via_email.zipcode).first()
+            and_(VerifiedSignUp.email == sign_up_via_email.email,
+                 VerifiedSignUp.zipcode == sign_up_via_email.zipcode)).first()
 
         if verified_sign_up is not None:
             logger.info("User already verified.")
@@ -116,8 +116,8 @@ async def signup_via_email(sign_up_via_email: SignUpViaEmail, db: Session = Depe
             }))
 
         unverified_sign_up: Optional[UnverifiedSignUp] = db.query(UnverifiedSignUp).filter(
-            UnverifiedSignUp.email == sign_up_via_email.email
-            and UnverifiedSignUp.zipcode == sign_up_via_email.zipcode).first()
+            and_(UnverifiedSignUp.email == sign_up_via_email.email,
+            UnverifiedSignUp.zipcode == sign_up_via_email.zipcode)).first()
 
         message: str
         status_code: int
@@ -251,8 +251,8 @@ async def toggle_star_recipe(recipe_to_star: StarRecipe, db: Session = Depends(g
     if starred_by is None:
         raise HTTPException(status_code=401, detail="Unverified user.")
 
-    existing_star: StarredRecipe = db.query(StarredRecipe).filter(
-        StarredRecipe.recipe_id == recipe.id and StarredRecipe.verified_sign_up_id == starred_by.id).first()
+    existing_star: StarredRecipe = db.query(StarredRecipe).filter(and_(
+        StarredRecipe.recipe_id == recipe.id, StarredRecipe.verified_sign_up_id == starred_by.id)).first()
 
     event_type: str
     if existing_star is None:
