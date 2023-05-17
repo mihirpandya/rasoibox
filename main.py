@@ -241,12 +241,12 @@ async def add_recipes(recipes: List[CandidateRecipe], db: Session = Depends(get_
 @app.post("/api/recipe/star")
 async def toggle_star_recipe(recipe_to_star: StarRecipe, db: Session = Depends(get_db)):
     star_date = datetime.datetime.now()
-    recipe: Recipe = db.query(Recipe).filter(Recipe.name == recipe_to_star.recipe_name).first()
+    recipe: Recipe = db.query(Recipe).filter(Recipe.id == recipe_to_star.recipe_id).first()
     starred_by: VerifiedSignUp = db.query(VerifiedSignUp).filter(
         VerifiedSignUp.verification_code == recipe_to_star.verification_code).first()
 
     if recipe is None:
-        raise HTTPException(status_code=404, detail="Unrecognized recipe: {}.".format(recipe_to_star.recipe_name))
+        raise HTTPException(status_code=404, detail="Unrecognized recipe id: {}.".format(recipe_to_star.recipe_id))
 
     if starred_by is None:
         raise HTTPException(status_code=401, detail="Unverified user.")
@@ -254,7 +254,9 @@ async def toggle_star_recipe(recipe_to_star: StarRecipe, db: Session = Depends(g
     existing_star: StarredRecipe = db.query(StarredRecipe).filter(
         StarredRecipe.recipe_id == recipe.id and StarredRecipe.verified_sign_up_id == starred_by.id).first()
 
+    event_type: str
     if existing_star is None:
+        event_type = "STAR"
         db.add(
             StarredRecipe(
                 recipe_id=recipe.id,
@@ -263,9 +265,13 @@ async def toggle_star_recipe(recipe_to_star: StarRecipe, db: Session = Depends(g
             )
         )
     else:
+        event_type = "UNSTAR"
         db.delete(existing_star)
 
     db.commit()
+
+    emit_event(db, event_type, star_date, recipe_to_star.verification_code, None)
+
     return
 
 
