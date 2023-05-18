@@ -13,7 +13,7 @@ class CandidateRecipe(BaseModel):
 
 class StarRecipe(BaseModel):
     verification_code: str
-    recipe_name: str
+    recipe_id: int
 
     class Config:
         orm_mode = True

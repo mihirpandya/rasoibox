@@ -1,6 +1,6 @@
 from sqladmin import ModelView
 
-from models.recipes import RecipeContributor, StarredRecipe, Recipe
+from models.recipes import RecipeContributor, StarredRecipe, Recipe, RecipeSchedule
 
 
 class RecipeContributorAdmin(ModelView, model=RecipeContributor):
@@ -29,3 +29,13 @@ class StarredRecipeAdmin(ModelView, model=StarredRecipe):
         StarredRecipe.recipe_id,
         StarredRecipe.verified_sign_up_id
     ]
+
+
+class RecipeScheduleAdmin(ModelView, model=RecipeSchedule):
+    column_list = [
+        RecipeSchedule.id,
+        RecipeSchedule.recipe_id,
+        RecipeSchedule.schedule_start_date
+    ]
+
+    column_sortable_list = [RecipeSchedule.schedule_start_date]

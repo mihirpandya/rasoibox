@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, DateTime
+from sqlalchemy import Column, Integer, String, DateTime, Date
 
 from models.base import Base
 
@@ -26,3 +26,10 @@ class StarredRecipe(Base):
     starred_date = Column(DateTime)
     recipe_id = Column(Integer)  # ForeignKey("recipes.id"))
     verified_sign_up_id = Column(Integer)  # ForeignKey("verified_sign_ups.id"))
+
+
+class RecipeSchedule(Base):
+    __tablename__ = "recipe_schedules"
+    id = Column(Integer, primary_key=True)
+    recipe_id = Column(Integer)  # ForeignKey("recipes.id"))
+    schedule_start_date = Column(Date)

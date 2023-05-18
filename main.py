@@ -8,7 +8,7 @@ from fastapi import FastAPI, Depends, HTTPException
 from fastapi.encoders import jsonable_encoder
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 from sqladmin import Admin
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, and_
 from sqlalchemy.orm import sessionmaker, Session
 from starlette.middleware.sessions import SessionMiddleware
 from starlette.middleware.wsgi import WSGIMiddleware
@@ -24,10 +24,10 @@ from emails.base import VerifySignUpEmail, send_email
 from middleware.request_logger import RequestContextLogMiddleware
 from models.base import Base
 from models.event import Event
-from models.recipes import RecipeContributor, Recipe, StarredRecipe
+from models.recipes import RecipeContributor, Recipe, StarredRecipe, RecipeSchedule
 from models.signups import UnverifiedSignUp, VerifiedSignUp
 from views.event import EventAdmin
-from views.recipes import RecipeContributorAdmin, RecipeAdmin, StarredRecipeAdmin
+from views.recipes import RecipeContributorAdmin, RecipeAdmin, StarredRecipeAdmin, RecipeScheduleAdmin
 from views.user import VerifiedUserAdmin, UnverifiedUserAdmin
 
 logger = logging.getLogger("rasoibox")
@@ -50,6 +50,7 @@ admin.add_view(EventAdmin)
 admin.add_view(RecipeContributorAdmin)
 admin.add_view(RecipeAdmin)
 admin.add_view(StarredRecipeAdmin)
+admin.add_view(RecipeScheduleAdmin)
 
 Base.metadata.create_all(engine)  # Create tables
 
@@ -107,8 +108,8 @@ async def event(site_event: SiteEvent, db: Session = Depends(get_db)):
 async def signup_via_email(sign_up_via_email: SignUpViaEmail, db: Session = Depends(get_db)):
     try:
         verified_sign_up: Optional[VerifiedSignUp] = db.query(VerifiedSignUp).filter(
-            VerifiedSignUp.email == sign_up_via_email.email
-            and VerifiedSignUp.zipcode == sign_up_via_email.zipcode).first()
+            and_(VerifiedSignUp.email == sign_up_via_email.email,
+                 VerifiedSignUp.zipcode == sign_up_via_email.zipcode)).first()
 
         if verified_sign_up is not None:
             logger.info("User already verified.")
@@ -120,8 +121,8 @@ async def signup_via_email(sign_up_via_email: SignUpViaEmail, db: Session = Depe
             }))
 
         unverified_sign_up: Optional[UnverifiedSignUp] = db.query(UnverifiedSignUp).filter(
-            UnverifiedSignUp.email == sign_up_via_email.email
-            and UnverifiedSignUp.zipcode == sign_up_via_email.zipcode).first()
+            and_(UnverifiedSignUp.email == sign_up_via_email.email,
+            UnverifiedSignUp.zipcode == sign_up_via_email.zipcode)).first()
 
         message: str
         status_code: int
@@ -245,20 +246,22 @@ async def add_recipes(recipes: List[CandidateRecipe], db: Session = Depends(get_
 @app.post("/api/recipe/star")
 async def toggle_star_recipe(recipe_to_star: StarRecipe, db: Session = Depends(get_db)):
     star_date = datetime.datetime.now()
-    recipe: Recipe = db.query(Recipe).filter(Recipe.name == recipe_to_star.recipe_name).first()
+    recipe: Recipe = db.query(Recipe).filter(Recipe.id == recipe_to_star.recipe_id).first()
     starred_by: VerifiedSignUp = db.query(VerifiedSignUp).filter(
         VerifiedSignUp.verification_code == recipe_to_star.verification_code).first()
 
     if recipe is None:
-        raise HTTPException(status_code=404, detail="Unrecognized recipe: {}.".format(recipe_to_star.recipe_name))
+        raise HTTPException(status_code=404, detail="Unrecognized recipe id: {}.".format(recipe_to_star.recipe_id))
 
     if starred_by is None:
         raise HTTPException(status_code=401, detail="Unverified user.")
 
-    existing_star: StarredRecipe = db.query(StarredRecipe).filter(
-        StarredRecipe.recipe_id == recipe.id and StarredRecipe.verified_sign_up_id == starred_by.id).first()
+    existing_star: StarredRecipe = db.query(StarredRecipe).filter(and_(
+        StarredRecipe.recipe_id == recipe.id, StarredRecipe.verified_sign_up_id == starred_by.id)).first()
 
+    event_type: str
     if existing_star is None:
+        event_type = "STAR"
         db.add(
             StarredRecipe(
                 recipe_id=recipe.id,
@@ -267,10 +270,56 @@ async def toggle_star_recipe(recipe_to_star: StarRecipe, db: Session = Depends(g
             )
         )
     else:
+        event_type = "UNSTAR"
         db.delete(existing_star)
 
     db.commit()
+
+    emit_event(db, event_type, star_date, recipe_to_star.verification_code, None)
+
     return
+
+
+@app.get("/api/recipe/stars")
+async def get_stars_for_user(id: str, db: Session = Depends(get_db)) -> JSONResponse:
+    verified_user = db.query(VerifiedSignUp).filter(VerifiedSignUp.verification_code == id).first()
+    if verified_user is None:
+        raise HTTPException(status_code=401, detail="Unrecognized user.")
+
+    starred_recipes: List[StarredRecipe] = db.query(StarredRecipe).filter(StarredRecipe.verified_sign_up_id == id).all()
+    result = []
+    for starred_recipe in starred_recipes:
+        recipe: Recipe = db.query(Recipe).filter(Recipe.id == starred_recipe.recipe_id).first()
+        result.append(recipe.name)
+    return JSONResponse(content=jsonable_encoder(result))
+
+
+@app.get("/api/recipe/schedule")
+async def get_recipe_schedule(id: str, db: Session = Depends(get_db)) -> JSONResponse:
+    verified_user = db.query(VerifiedSignUp).filter(VerifiedSignUp.verification_code == id).first()
+    if verified_user is None:
+        raise HTTPException(status_code=401, detail="Unrecognized user.")
+    result = {}
+    recipe_schedule: List[RecipeSchedule] = db.query(RecipeSchedule).order_by(
+        RecipeSchedule.schedule_start_date.asc()).all()
+    starred_recipe_ids: List[int] = [x.recipe_id for x in db.query(StarredRecipe).filter(
+        StarredRecipe.verified_sign_up_id == verified_user.id).all()]
+    for item in recipe_schedule:
+        recipe: Recipe = db.query(Recipe).filter(Recipe.id == item.recipe_id).first()
+        if recipe is None:
+            logger.error("Schedule has invalid recipe_id: {} {}".format(item.id, item.recipe_id))
+        else:
+            if item.schedule_start_date not in result:
+                result[item.schedule_start_date] = []
+            result[item.schedule_start_date].append({
+                "id": recipe.id,
+                "name": recipe.name,
+                "description": recipe.description,
+                "image_url": recipe.image_url,
+                "starred": True if recipe.id in starred_recipe_ids else False
+            })
+
+    return JSONResponse(content=jsonable_encoder(result))
 
 
 if __name__ == "__main__":
