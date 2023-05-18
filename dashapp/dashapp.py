@@ -1,7 +1,6 @@
 import logging
 
 import dash
-import plotly.graph_objs as go
 from dash import dcc, html
 from dash.dependencies import Input, Output
 from sqlalchemy.orm import Session
@@ -20,8 +19,6 @@ def update_verified_signups_graph(db: Session):
     data = db.execute(statement).all()
     timestamps = [x[0] for x in data]
     signups_count = [x[1] for x in data]
-    print(timestamps)
-    print(signups_count)
     return {
         'data': [{
             'x': timestamps,
@@ -31,6 +28,29 @@ def update_verified_signups_graph(db: Session):
                 'shape': 'spline'
             }
         }],
+        'layout': {
+            'margin': {
+                'l': 30,
+                'r': 20,
+                'b': 30,
+                't': 20
+            }
+        }
+    }
+
+
+def recipe_likes(db):
+    statement = "select count(a.recipe_id) as num_likes, b.name " \
+                "from starred_recipes a left join recipes b " \
+                "on a.recipe_id = b.id " \
+                "group by recipe_id;"
+    data = db.execute(statement).all()
+    num_likes = [x[0] for x in data]
+    liked_recipes = [x[1] for x in data]
+    return {
+        'data': [
+            {'x': liked_recipes, 'y': num_likes, 'type': 'bar'}
+        ],
         'layout': {
             'margin': {
                 'l': 30,
@@ -66,7 +86,12 @@ def create_dash_app(db: Session, requests_pathname_prefix: str = None) -> dash.D
         dcc.Graph(id='verified-signups-graph', figure=update_verified_signups_graph(db))
     ], className="verified_signups")
 
-    app.layout = html.Div([verified_signups_graph_div, events_graph_div], className="container")
+    recipe_likes_div = html.Div([
+        html.H1('Liked Recipes'),
+        dcc.Graph(id='liked-recipes-graph', figure=recipe_likes(db))
+    ], className="recipe-likes")
+
+    app.layout = html.Div([verified_signups_graph_div, recipe_likes_div, events_graph_div], className="container")
 
     @app.callback(Output('events-graph', 'figure'),
                   [Input('events-dropdown', 'value')])
