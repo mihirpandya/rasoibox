@@ -38,7 +38,7 @@ def create_dash_app(db: Session, requests_pathname_prefix: str = None) -> dash.D
                   [Input('my-dropdown', 'value')])
     def update_graph(selected_dropdown_value):
         statement = "select date_format(event_timestamp,'%Y-%m-%d %H-%I'), count(1) " \
-                    "from events where event_type=\"{}\"group by 1".format(selected_dropdown_value)
+                    "from events where event_type=\"{}\" group by 1".format(selected_dropdown_value)
         data = db.execute(statement).all()
         print(data)
         timestamps = [x[0] for x in data]
