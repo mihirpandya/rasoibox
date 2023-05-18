@@ -56,7 +56,7 @@ Base.metadata.create_all(engine)  # Create tables
 
 smtp_server: SMTP = SMTP('smtp.gmail.com', 587)
 
-dash_app = create_dash_app(requests_pathname_prefix="/dash/")
+dash_app = create_dash_app(SessionLocal(), requests_pathname_prefix="/dash/")
 app.mount("/dash", WSGIMiddleware(dash_app.server))
 
 
@@ -122,7 +122,7 @@ async def signup_via_email(sign_up_via_email: SignUpViaEmail, db: Session = Depe
 
         unverified_sign_up: Optional[UnverifiedSignUp] = db.query(UnverifiedSignUp).filter(
             and_(UnverifiedSignUp.email == sign_up_via_email.email,
-            UnverifiedSignUp.zipcode == sign_up_via_email.zipcode)).first()
+                 UnverifiedSignUp.zipcode == sign_up_via_email.zipcode)).first()
 
         message: str
         status_code: int
