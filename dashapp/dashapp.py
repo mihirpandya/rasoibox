@@ -62,6 +62,32 @@ def recipe_likes(db):
     }
 
 
+def unverified_traffic(db):
+    statement = "select date_format(event_timestamp, '%Y-%m-%d %H'), count(1) " \
+                "from events where code not in (select verification_code from verified_sign_ups) group by 1;"
+    data = db.execute(statement).all()
+    timestamps = [x[0] for x in data]
+    unverified = [x[1] for x in data]
+    return {
+        'data': [{
+            'x': timestamps,
+            'y': unverified,
+            'line': {
+                'width': 3,
+                'shape': 'linear'
+            }
+        }],
+        'layout': {
+            'margin': {
+                'l': 30,
+                'r': 20,
+                'b': 30,
+                't': 20
+            }
+        }
+    }
+
+
 def create_dash_app(db: Session, requests_pathname_prefix: str = None) -> dash.Dash:
     event_types_rows = db.query(Event.event_type).distinct(Event.event_type).all()
     event_types = [x[0] for x in event_types_rows]
@@ -91,7 +117,17 @@ def create_dash_app(db: Session, requests_pathname_prefix: str = None) -> dash.D
         dcc.Graph(id='liked-recipes-graph', figure=recipe_likes(db))
     ], className="recipe-likes")
 
-    app.layout = html.Div([verified_signups_graph_div, recipe_likes_div, events_graph_div], className="container")
+    unverified_traffic_graph_div = html.Div([
+        html.H1('Unverified Traffic'),
+        dcc.Graph(id='unverified-traffic-graph', figure=unverified_traffic(db))
+    ], className="unverified_traffic")
+
+    app.layout = html.Div([
+        verified_signups_graph_div,
+        recipe_likes_div,
+        events_graph_div,
+        unverified_traffic_graph_div
+    ], className="container")
 
     @app.callback(Output('events-graph', 'figure'),
                   [Input('events-dropdown', 'value')])
