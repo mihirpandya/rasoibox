@@ -16,6 +16,7 @@ class VerifiedUserAdmin(ModelView, model=VerifiedSignUp):
 
     column_searchable_list = [VerifiedSignUp.email, VerifiedSignUp.zipcode]
     column_sortable_list = [VerifiedSignUp.signup_date, VerifiedSignUp.verify_date, VerifiedSignUp.zipcode]
+    column_default_sort = [(VerifiedSignUp.verify_date, True)]
 
 
 class UnverifiedUserAdmin(ModelView, model=UnverifiedSignUp):
@@ -30,3 +31,4 @@ class UnverifiedUserAdmin(ModelView, model=UnverifiedSignUp):
 
     column_searchable_list = [UnverifiedSignUp.email, UnverifiedSignUp.zipcode]
     column_sortable_list = [UnverifiedSignUp.signup_date, UnverifiedSignUp.zipcode]
+    column_default_sort = [(UnverifiedSignUp.signup_date, True)]

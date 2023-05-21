@@ -14,3 +14,4 @@ class EventAdmin(ModelView, model=Event):
 
     column_searchable_list = [Event.referrer, Event.code, Event.event_type]
     column_sortable_list = [Event.event_timestamp]
+    column_default_sort = [(Event.event_timestamp, True)]
