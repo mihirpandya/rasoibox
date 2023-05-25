@@ -95,7 +95,8 @@ async def get_stars_for_user(id: str, db: Session = Depends(get_db)) -> JSONResp
     if verified_user is None:
         raise HTTPException(status_code=401, detail="Unrecognized user.")
 
-    starred_recipes: List[StarredRecipe] = db.query(StarredRecipe).filter(StarredRecipe.verified_sign_up_id == id).all()
+    starred_recipes: List[StarredRecipe] = db.query(StarredRecipe).filter(
+        StarredRecipe.verified_sign_up_id == verified_user.id).all()
     result = []
     for starred_recipe in starred_recipes:
         recipe: Recipe = db.query(Recipe).filter(Recipe.id == starred_recipe.recipe_id).first()

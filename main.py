@@ -10,6 +10,7 @@ from starlette.middleware.wsgi import WSGIMiddleware
 from admin_auth.basic.base import AdminAuth
 from config import Settings
 from dashapp.dashapp import create_dash_app
+from dependencies.database import get_engine, get_db
 from middleware.request_logger import RequestContextLogMiddleware
 from models.base import Base
 from routers import recipe, signup
@@ -20,13 +21,11 @@ from views.user import VerifiedUserAdmin, UnverifiedUserAdmin
 logger = logging.getLogger("rasoibox")
 
 settings: Settings = Settings()
-engine = create_engine(
-    settings.db_path,
-)
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 app = FastAPI()
 app.add_middleware(SessionMiddleware, secret_key="test")
 app.add_middleware(RequestContextLogMiddleware, request_logger=logger)
+
+engine = get_engine()
 
 admin: Admin = Admin(app, engine, authentication_backend=AdminAuth(user=settings.admin_user,
                                                                    password=settings.admin_password, secret_key="test"))
@@ -40,7 +39,7 @@ admin.add_view(RecipeScheduleAdmin)
 
 Base.metadata.create_all(engine)  # Create tables
 
-dash_app = create_dash_app(SessionLocal(), requests_pathname_prefix="/dash/")
+dash_app = create_dash_app(next(get_db()), requests_pathname_prefix="/dash/")
 app.mount("/dash", WSGIMiddleware(dash_app.server))
 
 app.include_router(recipe.router)
