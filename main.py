@@ -2,8 +2,6 @@ import logging
 
 from fastapi import FastAPI
 from sqladmin import Admin
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
 from starlette.middleware.sessions import SessionMiddleware
 from starlette.middleware.wsgi import WSGIMiddleware
 
