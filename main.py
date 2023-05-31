@@ -19,12 +19,12 @@ from views.user import VerifiedUserAdmin, UnverifiedUserAdmin
 logger = logging.getLogger("rasoibox")
 
 settings: Settings = Settings()
+
 app = FastAPI()
 app.add_middleware(SessionMiddleware, secret_key="test")
 app.add_middleware(RequestContextLogMiddleware, request_logger=logger)
 
 engine = get_engine()
-
 admin: Admin = Admin(app, engine, authentication_backend=AdminAuth(user=settings.admin_user,
                                                                    password=settings.admin_password, secret_key="test"))
 admin.add_view(VerifiedUserAdmin)
@@ -39,6 +39,8 @@ Base.metadata.create_all(engine)  # Create tables
 
 dash_app = create_dash_app(next(get_db()), requests_pathname_prefix="/dash/")
 app.mount("/dash", WSGIMiddleware(dash_app.server))
+
+# API Routers
 
 app.include_router(recipe.router)
 app.include_router(signup.router)
