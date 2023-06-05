@@ -17,6 +17,7 @@ from config import Settings
 from dependencies.database import get_db
 from dependencies.events import emit_event
 from emails.base import VerifySignUpEmail, send_email
+from models.customers import Customer
 from models.signups import VerifiedSignUp, UnverifiedSignUp
 
 logger = logging.getLogger("rasoibox")
@@ -26,7 +27,7 @@ jinjaEnv = Environment(loader=FileSystemLoader("templates"), autoescape=select_a
 
 router = APIRouter(
     prefix="/api",
-    tags=["recipe"]
+    tags=["signup"]
 )
 
 
@@ -122,6 +123,8 @@ async def verify_email(id: str, db: Session = Depends(get_db)) -> JSONResponse:
                 verification_code=unverified_sign_up.verification_code
             )
         )
+
+        db.query(Customer).filter(Customer.email == unverified_sign_up.email).update({'verified': True})
 
         db.delete(unverified_sign_up)
         db.commit()

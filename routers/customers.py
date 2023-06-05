@@ -6,13 +6,18 @@ from fastapi import APIRouter, Depends, HTTPException
 from fastapi.security import OAuth2PasswordRequestForm
 from jose import jwt, JWTError
 from passlib.context import CryptContext
+from pydantic import BaseModel
 from sqlalchemy.orm import Session
 from starlette import status
 
+from api.customers import NewCustomer
 from config import Settings
 from dependencies.database import get_db
 from dependencies.oauth import oauth2_scheme
+from emails.base import VerifySignUpEmail, send_email
 from models.customers import Customer
+from models.signups import VerifiedSignUp, UnverifiedSignUp
+from routers.signup import jinjaEnv, smtp_server
 
 logger = logging.getLogger("rasoibox")
 
@@ -44,16 +49,18 @@ def get_password_hash(password):
 
 
 def get_user(db: Session, username: str) -> Customer:
-    customer: Customer = db.query(Customer).filter(Customer.email == username)
-    if customer:
+    customer: Customer = db.query(Customer).filter(Customer.email == username).first()
+    if customer is not None:
         return customer
 
 
 def authenticate_user(username: str, password: str, db: Session):
     user = get_user(db, username)
-    if not user:
+    if user is None:
         return False
     if not verify_password(password, user.hashed_password):
+        return False
+    if not user.verified:
         return False
     return user
 
@@ -114,3 +121,54 @@ async def login_for_access_token(
         data={"sub": user.username}, expires_delta=access_token_expires
     )
     return {"access_token": access_token, "token_type": "bearer"}
+
+
+@router.post("/create")
+async def create_user_account(new_customer: NewCustomer, db: Session = Depends(get_db)):
+    user = db.query(Customer).filter(Customer.email == new_customer.email).first()
+
+    if user is not None and user.verified:
+        logger.info("User already exists and verified: {}".format(new_customer.email))
+        return
+    elif user is None:
+        verified_user = db.query(VerifiedSignUp).filter(VerifiedSignUp.email == new_customer.email).first()
+        hashed_password = get_password_hash(new_customer.password)
+        db.add(
+            Customer(
+                first_name=new_customer.first_name,
+                last_name=new_customer.last_name,
+                email=new_customer.email,
+                hashed_password=hashed_password,
+                join_date=new_customer.join_date,
+                verified=(verified_user is not None)
+            )
+        )
+        db.commit()
+
+        if verified_user is None:
+            # add to unverified table
+            db.add(
+                UnverifiedSignUp(
+                    email=new_customer.email,
+                    signup_date=new_customer.join_date,
+                    signup_from="CREATE_ACCOUNT",
+                    zipcode=new_customer.zipcode,
+                    verification_code=new_customer.verification_code,
+                )
+            )
+            db.commit()
+
+            # send email with verification link
+            url_base: str = settings.frontend_url_base[0:-1] if settings.frontend_url_base.endswith(
+                "/") else settings.frontend_url_base
+            verification_email: VerifySignUpEmail = VerifySignUpEmail(url_base,
+                                                                      new_customer.verification_code,
+                                                                      new_customer.email,
+                                                                      settings.from_email)
+
+            # send email best effort
+            try:
+                send_email(jinjaEnv, verification_email, smtp_server, settings.email, settings.email_app_password)
+            except Exception as e:
+                logger.error("Failed to send email.")
+                logger.error(e)

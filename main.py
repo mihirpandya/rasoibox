@@ -11,7 +11,8 @@ from dashapp.dashapp import create_dash_app
 from dependencies.database import get_engine, get_db
 from middleware.request_logger import RequestContextLogMiddleware
 from models.base import Base
-from routers import recipe, signup
+from routers import recipe, signup, customers
+from views.customers import CustomerAdmin
 from views.event import EventAdmin
 from views.recipes import RecipeContributorAdmin, RecipeAdmin, StarredRecipeAdmin, RecipeScheduleAdmin
 from views.user import VerifiedUserAdmin, UnverifiedUserAdmin
@@ -36,6 +37,7 @@ admin.add_view(RecipeContributorAdmin)
 admin.add_view(RecipeAdmin)
 admin.add_view(StarredRecipeAdmin)
 admin.add_view(RecipeScheduleAdmin)
+admin.add_view(CustomerAdmin)
 
 # Create tables
 Base.metadata.create_all(engine)
@@ -47,6 +49,7 @@ app.mount("/dash", WSGIMiddleware(dash_app.server))
 # API Routers
 app.include_router(recipe.router)
 app.include_router(signup.router)
+app.include_router(customers.router)
 
 
 @app.on_event("startup")

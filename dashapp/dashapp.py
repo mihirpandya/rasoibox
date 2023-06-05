@@ -97,12 +97,17 @@ def create_dash_app(db: Session, requests_pathname_prefix: str = None) -> dash.D
     app.scripts.config.serve_locally = False
     dcc._js_dist[0]['external_url'] = 'https://cdn.plot.ly/plotly-basic-latest.min.js'
 
+    if len(event_types) == 0:
+        initial_value = "No event types found"
+    else:
+        initial_value = event_types[0]
+
     events_graph_div = html.Div([
         html.H1('Site Events'),
         dcc.Dropdown(
             id='events-dropdown',
             options=[{'label': x, 'value': x} for x in event_types],
-            value=event_types[0]
+            value=initial_value
         ),
         dcc.Graph(id='events-graph')
     ], className="events")
