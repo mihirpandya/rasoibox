@@ -134,16 +134,6 @@ def send_reset_email_best_effort(email: str, reset_code: str):
         logger.error(e)
 
 
-@router.get("/items/")
-async def read_items(token: Annotated[str, Depends(oauth2_scheme)]):
-    return {"token": token}
-
-
-@router.get("/users/me")
-async def read_users_me(current_user: Annotated[Customer, Depends(get_current_customer)]):
-    return current_user
-
-
 @router.post("/token", response_model=Token)
 async def login_for_access_token(
         form_data: Annotated[OAuth2PasswordRequestForm, Depends()], db: Session = Depends(get_db)
