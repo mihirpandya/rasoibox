@@ -14,6 +14,7 @@ class Settings(BaseSettings):
     db_path: str
     admin_user: str
     admin_password: str
+    secret_key: str
 
     class Config:
         env_file = ".env"

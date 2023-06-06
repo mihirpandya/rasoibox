@@ -11,9 +11,11 @@ from dashapp.dashapp import create_dash_app
 from dependencies.database import get_engine, get_db
 from middleware.request_logger import RequestContextLogMiddleware
 from models.base import Base
-from routers import recipe, signup
+from routers import recipe, signup, customers
+from views.customers import CustomerAdmin
 from views.event import EventAdmin
 from views.recipes import RecipeContributorAdmin, RecipeAdmin, StarredRecipeAdmin, RecipeScheduleAdmin
+from views.reset_passwords import ResetPasswordsAdmin
 from views.user import VerifiedUserAdmin, UnverifiedUserAdmin
 
 logger = logging.getLogger("rasoibox")
@@ -25,6 +27,8 @@ app.add_middleware(SessionMiddleware, secret_key="test")
 app.add_middleware(RequestContextLogMiddleware, request_logger=logger)
 
 engine = get_engine()
+
+# Admin views
 admin: Admin = Admin(app, engine, authentication_backend=AdminAuth(user=settings.admin_user,
                                                                    password=settings.admin_password, secret_key="test"))
 admin.add_view(VerifiedUserAdmin)
@@ -34,16 +38,20 @@ admin.add_view(RecipeContributorAdmin)
 admin.add_view(RecipeAdmin)
 admin.add_view(StarredRecipeAdmin)
 admin.add_view(RecipeScheduleAdmin)
+admin.add_view(CustomerAdmin)
+admin.add_view(ResetPasswordsAdmin)
 
-Base.metadata.create_all(engine)  # Create tables
+# Create tables
+Base.metadata.create_all(engine)
 
+# Dashboard
 dash_app = create_dash_app(next(get_db()), requests_pathname_prefix="/dash/")
 app.mount("/dash", WSGIMiddleware(dash_app.server))
 
 # API Routers
-
 app.include_router(recipe.router)
 app.include_router(signup.router)
+app.include_router(customers.router)
 
 
 @app.on_event("startup")
