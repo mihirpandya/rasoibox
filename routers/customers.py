@@ -14,11 +14,11 @@ from sqlalchemy.orm import Session
 from starlette import status
 from starlette.responses import JSONResponse
 
-from api.customers import CustomerPayload, ChangePasswordPayload, ResetPasswordPayload
+from api.customers import CustomerPayload, ChangePasswordPayload, ResetPasswordPayload, UpdateCustomerPayload
 from config import Settings
 from dependencies.database import get_db
 from dependencies.oauth import oauth2_scheme
-from emails.base import VerifySignUpEmail, send_email, ResetPasswordEmail
+from emails.base import VerifySignUpEmail, send_email, ResetPasswordEmail, ResetPasswordCompleteEmail
 from models.customers import Customer
 from models.reset_passwords import ResetPassword
 from models.signups import VerifiedSignUp, UnverifiedSignUp
@@ -117,7 +117,7 @@ def send_verify_email_best_effort(email: str, verification_code: str):
         logger.error(e)
 
 
-def send_reset_email_best_effort(email: str, reset_code: str):
+def send_reset_password_email_best_effort(email: str, reset_code: str):
     # send email with password reset link
     url_base: str = settings.frontend_url_base[0:-1] if settings.frontend_url_base.endswith(
         "/") else settings.frontend_url_base
@@ -134,12 +134,25 @@ def send_reset_email_best_effort(email: str, reset_code: str):
         logger.error(e)
 
 
+def send_reset_password_complete_email_best_effort(email: str, first_name: str):
+    reset_password_complete_email: ResetPasswordCompleteEmail = ResetPasswordCompleteEmail(first_name,
+                                                                                           email,
+                                                                                           settings.from_email)
+
+    # send email best effort
+    try:
+        send_email(jinjaEnv, reset_password_complete_email, smtp_server, settings.email, settings.email_app_password)
+    except Exception as e:
+        logger.error("Failed to send email.")
+        logger.error(e)
+
+
 @router.post("/token", response_model=Token)
 async def login_for_access_token(
         form_data: Annotated[OAuth2PasswordRequestForm, Depends()], db: Session = Depends(get_db)
 ):
-    user = authenticate_customer(form_data.username, form_data.password, db)
-    if not user:
+    customer = authenticate_customer(form_data.username, form_data.password, db)
+    if not customer:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect username or password",
@@ -147,7 +160,7 @@ async def login_for_access_token(
         )
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(
-        data={"sub": user.username}, expires_delta=access_token_expires
+        data={"sub": customer.email}, expires_delta=access_token_expires
     )
     return {"access_token": access_token, "token_type": "bearer"}
 
@@ -192,7 +205,7 @@ async def create_user_account(new_customer: CustomerPayload, db: Session = Depen
 
 
 @router.post("/update")
-async def update_user_account(update_customer: CustomerPayload,
+async def update_user_account(update_customer: UpdateCustomerPayload,
                               current_customer: Annotated[Customer, Depends(get_current_customer)],
                               db: Session = Depends(get_db)):
     verified_sign_up: VerifiedSignUp = db.query(VerifiedSignUp).filter(
@@ -201,11 +214,11 @@ async def update_user_account(update_customer: CustomerPayload,
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not verified.")
     changes = {}
     # build changes dictionary
-    if update_customer.first_name != current_customer.first_name:
+    if update_customer.first_name and update_customer.first_name != current_customer.first_name:
         changes['first_name'] = update_customer.first_name
-    if update_customer.last_name != current_customer.last_name:
+    if update_customer.last_name and update_customer.last_name != current_customer.last_name:
         changes['last_name'] = update_customer.last_name
-    if update_customer.email != current_customer.email:
+    if update_customer.email and update_customer.email != current_customer.email:
         # if email changes, send another verification email
         changes['email'] = update_customer.email
         changes['verified'] = False
@@ -213,7 +226,7 @@ async def update_user_account(update_customer: CustomerPayload,
         db.add(
             UnverifiedSignUp(
                 email=update_customer.email,
-                signup_date=update_customer.join_date,
+                signup_date=datetime.now(),
                 signup_from="CHANGE_EMAIL",
                 zipcode=verified_sign_up.zipcode,
                 verification_code=verified_sign_up.verification_code,
@@ -230,8 +243,7 @@ async def update_user_account(update_customer: CustomerPayload,
 async def change_password(change_password_payload: ChangePasswordPayload,
                           current_customer: Annotated[Customer, Depends(get_current_customer)],
                           db: Session = Depends(get_db)):
-    old_password_hash: str = get_password_hash(change_password_payload.old_password)
-    if old_password_hash != current_customer.hashed_password:
+    if not verify_password(change_password_payload.old_password, current_customer.hashed_password):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Could not validate credentials",
@@ -265,7 +277,7 @@ async def initiate_reset_password(email: str, db: Session = Depends(get_db)):
     db.commit()
 
     # send email with link to reset password
-    send_reset_email_best_effort(customer.email, reset_code)
+    send_reset_password_email_best_effort(customer.email, reset_code)
 
 
 @router.post("/is-reset-password-allowed")
@@ -306,3 +318,4 @@ async def complete_reset_password(reset_password: ResetPasswordPayload, db: Sess
     db.query(ResetPassword).filter(ResetPassword.reset_code == reset_password.reset_code).update(
         {'reset_complete': True})
     db.commit()
+    send_reset_password_complete_email_best_effort(customer.email, customer.first_name)

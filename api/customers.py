@@ -1,5 +1,6 @@
 import logging
 from datetime import datetime
+from typing import Optional
 
 from pydantic import BaseModel
 
@@ -14,6 +15,15 @@ class CustomerPayload(BaseModel):
     zipcode: str
     join_date: datetime
     verification_code: str
+
+    class Config:
+        orm_mode = True
+
+
+class UpdateCustomerPayload(BaseModel):
+    email: Optional[str]
+    first_name: Optional[str]
+    last_name: Optional[str]
 
     class Config:
         orm_mode = True
