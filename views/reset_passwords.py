@@ -9,6 +9,6 @@ class ResetPasswordsAdmin(ModelView, model=ResetPassword):
         ResetPassword.email,
         ResetPassword.reset_date,
         ResetPassword.reset_code,
-        ResetPassword.active
+        ResetPassword.reset_complete
     ]
     column_sortable_list = [ResetPassword.reset_date]
