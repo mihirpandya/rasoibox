@@ -2,7 +2,7 @@ import logging
 import random
 import string
 from datetime import datetime, timedelta
-from typing import Annotated, Union
+from typing import Union
 
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.encoders import jsonable_encoder
@@ -70,7 +70,7 @@ def authenticate_customer(username: str, password: str, db: Session):
     return user
 
 
-async def get_current_customer(token: Annotated[str, Depends(oauth2_scheme)], db: Session = Depends(get_db)):
+async def get_current_customer(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)) -> Customer:
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",
@@ -149,7 +149,7 @@ def send_reset_password_complete_email_best_effort(email: str, first_name: str):
 
 @router.post("/token", response_model=Token)
 async def login_for_access_token(
-        form_data: Annotated[OAuth2PasswordRequestForm, Depends()], db: Session = Depends(get_db)
+        form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)
 ):
     customer = authenticate_customer(form_data.username, form_data.password, db)
     if not customer:
@@ -206,7 +206,7 @@ async def create_user_account(new_customer: CustomerPayload, db: Session = Depen
 
 @router.post("/update")
 async def update_user_account(update_customer: UpdateCustomerPayload,
-                              current_customer: Annotated[Customer, Depends(get_current_customer)],
+                              current_customer: Customer = Depends(get_current_customer),
                               db: Session = Depends(get_db)):
     verified_sign_up: VerifiedSignUp = db.query(VerifiedSignUp).filter(
         VerifiedSignUp.email == current_customer.email).first()
@@ -241,7 +241,7 @@ async def update_user_account(update_customer: UpdateCustomerPayload,
 
 @router.post("/change-password")
 async def change_password(change_password_payload: ChangePasswordPayload,
-                          current_customer: Annotated[Customer, Depends(get_current_customer)],
+                          current_customer: Customer = Depends(get_current_customer),
                           db: Session = Depends(get_db)):
     if not verify_password(change_password_payload.old_password, current_customer.hashed_password):
         raise HTTPException(
