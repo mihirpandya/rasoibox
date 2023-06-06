@@ -1,21 +1,26 @@
 import logging
+import random
+import string
 from datetime import datetime, timedelta
 from typing import Annotated, Union
 
 from fastapi import APIRouter, Depends, HTTPException
+from fastapi.encoders import jsonable_encoder
 from fastapi.security import OAuth2PasswordRequestForm
 from jose import jwt, JWTError
 from passlib.context import CryptContext
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 from starlette import status
+from starlette.responses import JSONResponse
 
-from api.customers import NewCustomer
+from api.customers import CustomerPayload, ChangePasswordPayload, ResetPasswordPayload
 from config import Settings
 from dependencies.database import get_db
 from dependencies.oauth import oauth2_scheme
-from emails.base import VerifySignUpEmail, send_email
+from emails.base import VerifySignUpEmail, send_email, ResetPasswordEmail
 from models.customers import Customer
+from models.reset_passwords import ResetPassword
 from models.signups import VerifiedSignUp, UnverifiedSignUp
 from routers.signup import jinjaEnv, smtp_server
 
@@ -48,14 +53,14 @@ def get_password_hash(password):
     return pwd_context.hash(password)
 
 
-def get_user(db: Session, username: str) -> Customer:
+def get_customer(db: Session, username: str) -> Customer:
     customer: Customer = db.query(Customer).filter(Customer.email == username).first()
     if customer is not None:
         return customer
 
 
-def authenticate_user(username: str, password: str, db: Session):
-    user = get_user(db, username)
+def authenticate_customer(username: str, password: str, db: Session):
+    user = get_customer(db, username)
     if user is None:
         return False
     if not verify_password(password, user.hashed_password):
@@ -65,7 +70,7 @@ def authenticate_user(username: str, password: str, db: Session):
     return user
 
 
-async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)], db: Session = Depends(get_db)):
+async def get_current_customer(token: Annotated[str, Depends(oauth2_scheme)], db: Session = Depends(get_db)):
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",
@@ -78,10 +83,10 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)], db: Se
             raise credentials_exception
     except JWTError:
         raise credentials_exception
-    user = get_user(db, username=username)
-    if user is None:
+    customer = get_customer(db, username=username)
+    if customer is None:
         raise credentials_exception
-    return user
+    return customer
 
 
 def create_access_token(data: dict, expires_delta: Union[timedelta, None] = None):
@@ -95,13 +100,47 @@ def create_access_token(data: dict, expires_delta: Union[timedelta, None] = None
     return encoded_jwt
 
 
+def send_verify_email_best_effort(email: str, verification_code: str):
+    # send email with verification link
+    url_base: str = settings.frontend_url_base[0:-1] if settings.frontend_url_base.endswith(
+        "/") else settings.frontend_url_base
+    verification_email: VerifySignUpEmail = VerifySignUpEmail(url_base,
+                                                              verification_code,
+                                                              email,
+                                                              settings.from_email)
+
+    # send email best effort
+    try:
+        send_email(jinjaEnv, verification_email, smtp_server, settings.email, settings.email_app_password)
+    except Exception as e:
+        logger.error("Failed to send email.")
+        logger.error(e)
+
+
+def send_reset_email_best_effort(email: str, reset_code: str):
+    # send email with password reset link
+    url_base: str = settings.frontend_url_base[0:-1] if settings.frontend_url_base.endswith(
+        "/") else settings.frontend_url_base
+    reset_password_email: ResetPasswordEmail = ResetPasswordEmail(url_base,
+                                                                  reset_code,
+                                                                  email,
+                                                                  settings.from_email)
+
+    # send email best effort
+    try:
+        send_email(jinjaEnv, reset_password_email, smtp_server, settings.email, settings.email_app_password)
+    except Exception as e:
+        logger.error("Failed to send email.")
+        logger.error(e)
+
+
 @router.get("/items/")
 async def read_items(token: Annotated[str, Depends(oauth2_scheme)]):
     return {"token": token}
 
 
 @router.get("/users/me")
-async def read_users_me(current_user: Annotated[Customer, Depends(get_current_user)]):
+async def read_users_me(current_user: Annotated[Customer, Depends(get_current_customer)]):
     return current_user
 
 
@@ -109,7 +148,7 @@ async def read_users_me(current_user: Annotated[Customer, Depends(get_current_us
 async def login_for_access_token(
         form_data: Annotated[OAuth2PasswordRequestForm, Depends()], db: Session = Depends(get_db)
 ):
-    user = authenticate_user(form_data.username, form_data.password, db)
+    user = authenticate_customer(form_data.username, form_data.password, db)
     if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -124,7 +163,7 @@ async def login_for_access_token(
 
 
 @router.post("/create")
-async def create_user_account(new_customer: NewCustomer, db: Session = Depends(get_db)):
+async def create_user_account(new_customer: CustomerPayload, db: Session = Depends(get_db)):
     user = db.query(Customer).filter(Customer.email == new_customer.email).first()
 
     if user is not None and user.verified:
@@ -140,6 +179,7 @@ async def create_user_account(new_customer: NewCustomer, db: Session = Depends(g
                 email=new_customer.email,
                 hashed_password=hashed_password,
                 join_date=new_customer.join_date,
+                last_updated=new_customer.join_date,
                 verified=(verified_user is not None)
             )
         )
@@ -158,17 +198,121 @@ async def create_user_account(new_customer: NewCustomer, db: Session = Depends(g
             )
             db.commit()
 
-            # send email with verification link
-            url_base: str = settings.frontend_url_base[0:-1] if settings.frontend_url_base.endswith(
-                "/") else settings.frontend_url_base
-            verification_email: VerifySignUpEmail = VerifySignUpEmail(url_base,
-                                                                      new_customer.verification_code,
-                                                                      new_customer.email,
-                                                                      settings.from_email)
+            send_verify_email_best_effort(new_customer.email, new_customer.verification_code)
 
-            # send email best effort
-            try:
-                send_email(jinjaEnv, verification_email, smtp_server, settings.email, settings.email_app_password)
-            except Exception as e:
-                logger.error("Failed to send email.")
-                logger.error(e)
+
+@router.post("/update")
+async def update_user_account(update_customer: CustomerPayload,
+                              current_customer: Annotated[Customer, Depends(get_current_customer)],
+                              db: Session = Depends(get_db)):
+    verified_sign_up: VerifiedSignUp = db.query(VerifiedSignUp).filter(
+        VerifiedSignUp.email == current_customer.email).first()
+    if verified_sign_up is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not verified.")
+    changes = {}
+    # build changes dictionary
+    if update_customer.first_name != current_customer.first_name:
+        changes['first_name'] = update_customer.first_name
+    if update_customer.last_name != current_customer.last_name:
+        changes['last_name'] = update_customer.last_name
+    if update_customer.email != current_customer.email:
+        # if email changes, send another verification email
+        changes['email'] = update_customer.email
+        changes['verified'] = False
+        # add to unverified table, remove from verified table
+        db.add(
+            UnverifiedSignUp(
+                email=update_customer.email,
+                signup_date=update_customer.join_date,
+                signup_from="CHANGE_EMAIL",
+                zipcode=verified_sign_up.zipcode,
+                verification_code=verified_sign_up.verification_code,
+            )
+        )
+        db.delete(verified_sign_up)
+        send_verify_email_best_effort(update_customer.email, verified_sign_up.verification_code)
+
+    db.query(Customer).filter(Customer.email == current_customer.email).update(changes)
+    db.commit()
+
+
+@router.post("/change-password")
+async def change_password(change_password_payload: ChangePasswordPayload,
+                          current_customer: Annotated[Customer, Depends(get_current_customer)],
+                          db: Session = Depends(get_db)):
+    old_password_hash: str = get_password_hash(change_password_payload.old_password)
+    if old_password_hash != current_customer.hashed_password:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Could not validate credentials",
+        )
+    new_password_hash: str = get_password_hash(change_password_payload.new_password)
+    db.query(Customer).filter(Customer.email == current_customer.email).update({'hashed_password': new_password_hash})
+    db.commit()
+    # return new access token
+    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token = create_access_token(
+        data={"sub": current_customer.email}, expires_delta=access_token_expires
+    )
+    return {"access_token": access_token, "token_type": "bearer"}
+
+
+@router.post("/initiate-reset-password")
+async def initiate_reset_password(email: str, db: Session = Depends(get_db)):
+    customer: Customer = db.query(Customer).filter(Customer.email == email).first()
+    if customer is None or not customer.verified:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found.")
+    reset_code: str = ''.join(random.choices(string.ascii_letters + string.digits, k=50))
+
+    db.add(
+        ResetPassword(
+            email=customer.email,
+            reset_code=reset_code,
+            reset_date=datetime.now(),
+            reset_complete=False
+        )
+    )
+    db.commit()
+
+    # send email with link to reset password
+    send_reset_email_best_effort(customer.email, reset_code)
+
+
+@router.post("/is-reset-password-allowed")
+async def is_reset_password_allowed(reset_code: str, db: Session = Depends(get_db)) -> JSONResponse:
+    now = datetime.now()
+    reset_password: ResetPassword = db.query(ResetPassword).filter(ResetPassword.reset_code == reset_code).first()
+    if reset_password is None:
+        return JSONResponse(content=jsonable_encoder({
+            "status": -1,
+            "message": "Unknown reset request"
+        }))
+    time_since_password_requested = now - reset_password.reset_date
+    if time_since_password_requested.total_seconds() > 1 * 60 * 60:
+        return JSONResponse(content=jsonable_encoder({
+            "status": -2,
+            "message": "Reset request expired"
+        }))
+    return JSONResponse(content=jsonable_encoder({
+        "status": 0,
+        "message": "Reset allowed"
+    }))
+
+
+@router.post("/complete-reset-password")
+async def complete_reset_password(reset_password: ResetPasswordPayload, db: Session = Depends(get_db)):
+    reset_password_entry: ResetPassword = db.query(ResetPassword).filter(
+        ResetPassword.reset_code == reset_password.reset_code).first()
+
+    if reset_password_entry is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Unrecognized password reset request.")
+
+    customer: Customer = db.query(Customer).filter(Customer.email == reset_password_entry.email).first()
+    if customer is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Unrecognized customer.")
+
+    hashed_password: str = get_password_hash(reset_password.new_password)
+    db.query(Customer).filter(Customer.email == reset_password_entry.email).update({'hashed_password': hashed_password})
+    db.query(ResetPassword).filter(ResetPassword.reset_code == reset_password.reset_code).update(
+        {'reset_complete': True})
+    db.commit()

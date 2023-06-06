@@ -15,6 +15,7 @@ from routers import recipe, signup, customers
 from views.customers import CustomerAdmin
 from views.event import EventAdmin
 from views.recipes import RecipeContributorAdmin, RecipeAdmin, StarredRecipeAdmin, RecipeScheduleAdmin
+from views.reset_passwords import ResetPasswordsAdmin
 from views.user import VerifiedUserAdmin, UnverifiedUserAdmin
 
 logger = logging.getLogger("rasoibox")
@@ -38,6 +39,7 @@ admin.add_view(RecipeAdmin)
 admin.add_view(StarredRecipeAdmin)
 admin.add_view(RecipeScheduleAdmin)
 admin.add_view(CustomerAdmin)
+admin.add_view(ResetPasswordsAdmin)
 
 # Create tables
 Base.metadata.create_all(engine)

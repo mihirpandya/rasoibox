@@ -13,3 +13,4 @@ class Customer(Base):
     hashed_password = Column(String(1000))
     verified = Column(Boolean)
     join_date = Column(DateTime)
+    last_updated = Column(DateTime)
