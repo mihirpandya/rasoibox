@@ -166,13 +166,15 @@ async def login_for_access_token(
 
 
 @router.post("/create")
-async def create_user_account(new_customer: CustomerPayload, db: Session = Depends(get_db)):
-    user = db.query(Customer).filter(Customer.email == new_customer.email).first()
+async def create_user_account(new_customer: CustomerPayload, db: Session = Depends(get_db)) -> JSONResponse:
+    existing_customer = db.query(Customer).filter(Customer.email == new_customer.email).first()
 
-    if user is not None and user.verified:
-        logger.info("User already exists and verified: {}".format(new_customer.email))
-        return
-    elif user is None:
+    if existing_customer is not None:
+        return JSONResponse(content=jsonable_encoder({
+            "status": -1,
+            "message": "A user with this email already exists."
+        }))
+    else:
         verified_user = db.query(VerifiedSignUp).filter(VerifiedSignUp.email == new_customer.email).first()
         hashed_password = get_password_hash(new_customer.password)
         db.add(
@@ -202,6 +204,16 @@ async def create_user_account(new_customer: CustomerPayload, db: Session = Depen
             db.commit()
 
             send_verify_email_best_effort(new_customer.email, new_customer.verification_code)
+
+            return JSONResponse(content=jsonable_encoder({
+                "status": 0,
+                "message": "Account created. Verification needed."
+            }))
+        else:
+            return JSONResponse(content=jsonable_encoder({
+                "status": 1,
+                "message": "Account created. No verification needed."
+            }))
 
 
 @router.post("/update")
