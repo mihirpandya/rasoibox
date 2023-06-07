@@ -297,6 +297,7 @@ async def is_reset_password_allowed(reset_code: str, db: Session = Depends(get_d
         }))
     return JSONResponse(content=jsonable_encoder({
         "status": 0,
+        "email": reset_password.email,
         "message": "Reset allowed"
     }))
 
