@@ -15,7 +15,10 @@ logger = logging.getLogger("rasoibox")
 
 
 def update_verified_signups_graph(db: Session):
-    statement = "select date_format(verify_date, '%Y-%m-%d'), count(1) from verified_sign_ups group by 1"
+    statement = "select t.day, sum(t2.sign_ups) as cum_sum from (select date_format(verify_date, '%Y-%m-%d') as day, " \
+                "count(1) as sign_ups from verified_sign_ups group by 1) t join " \
+                "(select date_format(verify_date, '%Y-%m-%d') as day, count(1) as sign_ups from " \
+                "verified_sign_ups group by 1) t2 on t.day >= t2.day group by t.day, t.sign_ups order by t.day;"
     data = db.execute(statement).all()
     timestamps = [x[0] for x in data]
     signups_count = [x[1] for x in data]
