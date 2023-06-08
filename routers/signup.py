@@ -124,7 +124,9 @@ async def verify_email(id: str, db: Session = Depends(get_db)) -> JSONResponse:
             )
         )
 
-        db.query(Customer).filter(Customer.email == unverified_sign_up.email).update({'verified': True})
+        customer: Customer = db.query(Customer).filter(Customer.email == unverified_sign_up.email).first()
+        if customer is not None:
+            db.query(Customer).filter(Customer.email == unverified_sign_up.email).update({'verified': True})
 
         db.delete(unverified_sign_up)
         db.commit()
