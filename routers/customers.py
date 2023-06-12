@@ -166,6 +166,11 @@ async def login_for_access_token(
     return {"access_token": access_token, "token_type": "bearer", "status": 0}
 
 
+@router.post("/check")
+async def is_authenticated(_current_customer: Customer = Depends(get_current_customer)):
+    return
+
+
 @router.post("/create")
 async def create_user_account(new_customer: CustomerPayload, db: Session = Depends(get_db)) -> JSONResponse:
     existing_customer = db.query(Customer).filter(Customer.email == new_customer.email).first()
