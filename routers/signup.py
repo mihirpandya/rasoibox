@@ -146,6 +146,9 @@ async def is_verified_sign_up(id: str, db: Session = Depends(get_db)) -> JSONRes
         VerifiedSignUp.verification_code == id).first()
 
     verified: bool = True if verified_sign_up is not None else False
+    response = {"verified": verified}
+    if verified:
+        response["email"] = verified_sign_up.email
+        response["zipcode"] = verified_sign_up.zipcode
 
-    return JSONResponse(content=jsonable_encoder(
-        {"verified": verified, "email": verified_sign_up.email, "zipcode": verified_sign_up.zipcode}))
+    return JSONResponse(content=jsonable_encoder(response))
