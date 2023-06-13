@@ -1,4 +1,29 @@
+from typing import List, Optional
+
 from pydantic import BaseModel
+
+
+class Ingredient(BaseModel):
+    name: str
+    quantity: int
+    unit: str
+
+    class Config:
+        orm_mode = True
+
+
+class InYourKitchen(BaseModel):
+    name: str
+    or_: List[str]
+
+    class Config:
+        orm_mode = True
+
+
+class CandidateRecipeMetadata(BaseModel):
+    recipe_name: str
+    ingredients: List[Ingredient]
+    in_your_kitchens: List[InYourKitchen]
 
 
 class CandidateRecipe(BaseModel):
@@ -6,6 +31,8 @@ class CandidateRecipe(BaseModel):
     recipe_name: str
     description: str
     image_url: str
+    prep_time_minutes: int
+    cook_time_minutes: int
 
     class Config:
         orm_mode = True
@@ -17,3 +44,14 @@ class StarRecipe(BaseModel):
 
     class Config:
         orm_mode = True
+
+
+class CandidateRecipeStep(BaseModel):
+    step_number: int
+    title: str
+    instructions: List[str]
+    tips: List[str]
+    chefs_hats: List[str]
+    ingredients: List[str]
+    in_your_kitchen: List[str]
+    gif_url: Optional[str]

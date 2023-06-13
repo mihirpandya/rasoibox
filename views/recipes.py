@@ -1,6 +1,7 @@
 from sqladmin import ModelView
 
-from models.recipes import RecipeContributor, StarredRecipe, Recipe, RecipeSchedule
+from models.recipes import RecipeContributor, StarredRecipe, Recipe, RecipeSchedule, InYourKitchen, Ingredient, \
+    RecipeIngredient, RecipeInYourKitchen, RecipeStep
 
 
 class RecipeContributorAdmin(ModelView, model=RecipeContributor):
@@ -18,7 +19,9 @@ class RecipeAdmin(ModelView, model=Recipe):
         Recipe.created_date,
         Recipe.description,
         Recipe.image_url,
-        Recipe.recipe_contributor_id
+        Recipe.recipe_contributor_id,
+        Recipe.prep_time_minutes,
+        Recipe.cook_time_minutes
     ]
 
 
@@ -39,3 +42,60 @@ class RecipeScheduleAdmin(ModelView, model=RecipeSchedule):
     ]
 
     column_sortable_list = [RecipeSchedule.schedule_start_date]
+
+
+class InYourKitchenAdmin(ModelView, model=InYourKitchen):
+    column_list = [
+        InYourKitchen.id,
+        InYourKitchen.name
+    ]
+
+    column_searchable_list = [InYourKitchen.name]
+
+
+class IngredientsAdmin(ModelView, model=Ingredient):
+    column_list = [
+        Ingredient.id,
+        Ingredient.name,
+        Ingredient.description
+    ]
+
+    column_searchable_list = [Ingredient.name]
+
+
+class RecipeIngredientsAdmin(ModelView, model=RecipeIngredient):
+    column_list = [
+        RecipeIngredient.id,
+        RecipeIngredient.recipe_id,
+        RecipeIngredient.ingredient_id,
+        RecipeIngredient.quantity,
+        RecipeIngredient.unit
+    ]
+
+    column_sortable_list = [RecipeIngredient.recipe_id]
+
+
+class RecipeInYourKitchenAdmin(ModelView, model=RecipeInYourKitchen):
+    column_list = [
+        RecipeInYourKitchen.id,
+        RecipeInYourKitchen.recipe_id,
+        RecipeInYourKitchen.in_your_kitchen_id,
+        RecipeInYourKitchen.or_ids
+    ]
+
+    column_sortable_list = [RecipeIngredient.recipe_id]
+
+
+class RecipeStepAdmin(ModelView, model=RecipeStep):
+    column_list = [
+        RecipeStep.id,
+        RecipeStep.step_number,
+        RecipeStep.recipe_id,
+        RecipeStep.title,
+        RecipeStep.instructions,
+        RecipeStep.in_your_kitchens,
+        RecipeStep.tips,
+        RecipeStep.chefs_hats,
+        RecipeStep.ingredients,
+        RecipeStep.gif_url
+    ]

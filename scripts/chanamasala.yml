@@ -1,0 +1,100 @@
+recipe_name: chana masala
+description: classic chickpea curry with a flavorful blend of spices.
+image_url: https://static.wixstatic.com/media/bbf858_7cf3c205476a4ec8bc78b6efb13b6de4~mv2.png
+recipe_contributor_name: rasoi box
+prep_time_minutes: 10
+cook_time_minutes: 20
+ingredients:
+  - name: onion
+    quantity: 1
+    unit: piece
+  - name: tomato
+    quantity: 1
+    unit: piece
+  - name: green chili
+    quantity: 1
+    unit: piece
+  - name: spice blend
+    quantity: 1
+    unit: piece
+  - name: cumin-coriander powder
+    quantity: 1
+    unit: piece
+  - name: garam masala
+    quantity: 1
+    unit: piece
+  - name: aamchur powder
+    quantity: 1
+    unit: piece
+  - name: sprig coriander leaf
+    quantity: 2
+    unit: piece
+in_your_kitchen:
+  - name: water
+  - name: oil
+    or:
+      - ghee
+  - name: wooden spoon
+    or:
+      - rubber spatula
+steps:
+  - step_number: 1
+    title: prep vegetables
+    instructions:
+      - Wash and dry all produce. Chop onions, dice tomatoes, de-stem, remove seeds, and slit green chili crosswise.
+      - Gather all spices in a medium bowl (spice blend, cumin-coriander powder, garam masala, aamchur powder).
+    tips:
+      - If you have a spicier palate, dice chillis small and keep the seeds in.
+    chefs_hats: []
+    ingredients:
+      - onion
+      - tomato
+      - green chili
+      - spice blend
+      - cumin-coriander powder
+      - garam masala
+      - aamchur powder
+    in_your_kitchen: []
+  - step_number: 2
+    title: temper spices and aromatics
+    instructions:
+      - Heat a large skillet or pot over medium heat and add 3 tbsp oil.
+      - Once the oil is hot, about 2-3 minutes, add cumin seeds, bay leaves, and green chili. Let them cook for a few seconds, until they sizzle.
+      - Add chopped onions and a pinch of salt. Cook until the onions are slightly browned, stirring to prevent sticking or burning, about 5-7 minutes.
+    tips:
+      - Signs that your oil is hot:<br /><ul><li>it flows smoothly, quickly coating the pan.</li><li>the surface glistens and shimmers.</li><li>a small piece of food sizzles immediately when added to the pan.</li></ul>
+    chefs_hats: []
+    ingredients:
+      - oil
+      - cumin seed
+      - bay leaf
+      - green chili
+      - onion
+    in_your_kitchen:
+      - oil
+  - step_number: 3
+    title: cook the chickpea mixture
+    instructions:
+      - Mix in the ginger-garlic paste, diced tomatoes, and all the spices. Stir properly and cook for an additional 3-4 minutes.
+      - Add 2 cups of water and bring to a simmer. Add the chickpeas and stir well. Cover and let cook for 6-8 minutes.
+    tips:
+      - Things may stick to your pot; Keep things moving and deglaze with water.
+    chefs_hats: []
+    ingredients:
+      - ginger-garlic paste
+      - tomato
+      - chickpea
+    in_your_kitchen: []
+  - step_number: 4
+    title: finish the chana masala
+    instructions:
+      - After 6-8 minutes, remove the cover and gently mash the chickpeas with a potato masher or the back of a wooden spoon a few times to thicken the gravy.
+      - Garnish with chopped coriander leaves. Adjust for salt if necessary. Serve hot!
+    tips: []
+    chefs_hats:
+      - Put your chef hat on! Like your gravy thin? Add water! Thicker? Simmer uncovered for 5 min.<br /><br />Eat with roti, paratha, or naan, or over rice. You can also wrap in a flaky paratha for an on-the-go meal.
+    ingredients:
+      - sprig coriander leaf
+    in_your_kitchen:
+      - water
+      - wooden spoon

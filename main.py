@@ -14,7 +14,8 @@ from models.base import Base
 from routers import recipe, signup, customers
 from views.customers import CustomerAdmin
 from views.event import EventAdmin
-from views.recipes import RecipeContributorAdmin, RecipeAdmin, StarredRecipeAdmin, RecipeScheduleAdmin
+from views.recipes import RecipeContributorAdmin, RecipeAdmin, StarredRecipeAdmin, RecipeScheduleAdmin, \
+    InYourKitchenAdmin, IngredientsAdmin, RecipeIngredientsAdmin, RecipeInYourKitchenAdmin, RecipeStepAdmin
 from views.reset_passwords import ResetPasswordsAdmin
 from views.user import VerifiedUserAdmin, UnverifiedUserAdmin
 
@@ -38,6 +39,11 @@ admin.add_view(RecipeContributorAdmin)
 admin.add_view(RecipeAdmin)
 admin.add_view(StarredRecipeAdmin)
 admin.add_view(RecipeScheduleAdmin)
+admin.add_view(InYourKitchenAdmin)
+admin.add_view(IngredientsAdmin)
+admin.add_view(RecipeIngredientsAdmin)
+admin.add_view(RecipeInYourKitchenAdmin)
+admin.add_view(RecipeStepAdmin)
 admin.add_view(CustomerAdmin)
 admin.add_view(ResetPasswordsAdmin)
 
