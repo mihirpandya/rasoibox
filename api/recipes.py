@@ -3,9 +3,17 @@ from typing import List, Optional
 from pydantic import BaseModel
 
 
+class Quantity(BaseModel):
+    amount: int
+    serving_size: int
+
+    class Config:
+        orm_mode = True
+
+
 class Ingredient(BaseModel):
     name: str
-    quantity: int
+    quantities: List[Quantity]
     unit: str
 
     class Config:

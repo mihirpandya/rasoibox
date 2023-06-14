@@ -69,6 +69,7 @@ class RecipeIngredientsAdmin(ModelView, model=RecipeIngredient):
         RecipeIngredient.recipe_id,
         RecipeIngredient.ingredient_id,
         RecipeIngredient.quantity,
+        RecipeIngredient.serving_size,
         RecipeIngredient.unit
     ]
 

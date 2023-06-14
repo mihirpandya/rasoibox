@@ -6,29 +6,50 @@ prep_time_minutes: 10
 cook_time_minutes: 20
 ingredients:
   - name: onion
-    quantity: 1
+    quantities:
+      - amount: 1
+        serving_size: 4
     unit: piece
   - name: tomato
-    quantity: 1
+    quantities:
+      - amount: 3
+        serving_size: 4
     unit: piece
   - name: green chili
-    quantity: 1
+    quantities:
+      - amount: 1
+        serving_size: 4
     unit: piece
   - name: spice blend
-    quantity: 1
+    quantities:
+      - amount: 1
+        serving_size: 4
     unit: piece
   - name: cumin-coriander powder
-    quantity: 1
-    unit: piece
+    quantities:
+      - amount: 2
+        serving_size: 4
+    unit: tsp
   - name: garam masala
-    quantity: 1
+    quantities:
+      - amount: 1
+        serving_size: 4
     unit: piece
   - name: aamchur powder
-    quantity: 1
+    quantities:
+      - amount: 1
+        serving_size: 4
     unit: piece
   - name: sprig coriander leaf
-    quantity: 2
+    quantities:
+      - amount: 2
+        serving_size: 4
     unit: piece
+  - name: cumin seed
+    quantities:
+      - amount: 1
+        serving_size: 4
+    unit: tsp
 in_your_kitchen:
   - name: water
   - name: oil
@@ -45,7 +66,7 @@ steps:
       - Gather all spices in a medium bowl (spice blend, cumin-coriander powder, garam masala, aamchur powder).
     tips:
       - If you have a spicier palate, dice chillis small and keep the seeds in.
-    chefs_hats: []
+    chefs_hats: [ ]
     ingredients:
       - onion
       - tomato
@@ -54,7 +75,7 @@ steps:
       - cumin-coriander powder
       - garam masala
       - aamchur powder
-    in_your_kitchen: []
+    in_your_kitchen: [ ]
   - step_number: 2
     title: temper spices and aromatics
     instructions:
@@ -63,9 +84,8 @@ steps:
       - Add chopped onions and a pinch of salt. Cook until the onions are slightly browned, stirring to prevent sticking or burning, about 5-7 minutes.
     tips:
       - Signs that your oil is hot:<br /><ul><li>it flows smoothly, quickly coating the pan.</li><li>the surface glistens and shimmers.</li><li>a small piece of food sizzles immediately when added to the pan.</li></ul>
-    chefs_hats: []
+    chefs_hats: [ ]
     ingredients:
-      - oil
       - cumin seed
       - bay leaf
       - green chili
@@ -79,18 +99,18 @@ steps:
       - Add 2 cups of water and bring to a simmer. Add the chickpeas and stir well. Cover and let cook for 6-8 minutes.
     tips:
       - Things may stick to your pot; Keep things moving and deglaze with water.
-    chefs_hats: []
+    chefs_hats: [ ]
     ingredients:
       - ginger-garlic paste
       - tomato
       - chickpea
-    in_your_kitchen: []
+    in_your_kitchen: [ ]
   - step_number: 4
     title: finish the chana masala
     instructions:
       - After 6-8 minutes, remove the cover and gently mash the chickpeas with a potato masher or the back of a wooden spoon a few times to thicken the gravy.
       - Garnish with chopped coriander leaves. Adjust for salt if necessary. Serve hot!
-    tips: []
+    tips: [ ]
     chefs_hats:
       - Put your chef hat on! Like your gravy thin? Add water! Thicker? Simmer uncovered for 5 min.<br /><br />Eat with roti, paratha, or naan, or over rice. You can also wrap in a flaky paratha for an on-the-go meal.
     ingredients:

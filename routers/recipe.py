@@ -10,7 +10,7 @@ from sqlalchemy import and_
 from sqlalchemy.orm import Session
 from starlette.responses import JSONResponse
 
-from api.recipes import CandidateRecipe, StarRecipe, CandidateRecipeStep, CandidateRecipeMetadata
+from api.recipes import CandidateRecipe, StarRecipe, CandidateRecipeStep, CandidateRecipeMetadata, Quantity
 from dependencies.database import get_db
 from dependencies.events import emit_event
 from models.recipes import Recipe, RecipeContributor, StarredRecipe, RecipeSchedule, RecipeStep, Ingredient, \
@@ -68,15 +68,18 @@ async def add_recipe_metadata(recipes: List[CandidateRecipeMetadata], db: Sessio
 
         ingredient_units: Dict[str, str] = reduce(lambda d1, d2: {**d1, **d2},
                                                   [{x.name: x.unit} for x in recipe.ingredients], {})
-        ingredient_quantities: Dict[str, int] = reduce(lambda d1, d2: {**d1, **d2},
-                                                       [{x.name: x.quantity} for x in recipe.ingredients], {})
+        ingredient_quantities: Dict[str, List[Quantity]] = reduce(lambda d1, d2: {**d1, **d2},
+                                                                  [{x.name: x.quantities} for x in recipe.ingredients],
+                                                                  {})
         ingredient_ids: Dict[str, int] = get_ingredient_ids([x.name for x in recipe.ingredients], db)
 
         for ingredient_name, ingredient_id in ingredient_ids.items():
-            recipes_ingredients_to_add.append(
-                RecipeIngredient(recipe_id=existing_recipe.id, ingredient_id=ingredient_id,
-                                 quantity=ingredient_quantities[ingredient_name],
-                                 unit=ingredient_units[ingredient_name]))
+            quantities: List[Quantity] = ingredient_quantities[ingredient_name]
+            for quantity in quantities:
+                recipes_ingredients_to_add.append(
+                    RecipeIngredient(recipe_id=existing_recipe.id, ingredient_id=ingredient_id,
+                                     quantity=quantity.amount, serving_size=quantity.serving_size,
+                                     unit=ingredient_units[ingredient_name]))
 
         in_your_kitchen_or_ids: Dict[str, List[str]] = reduce(lambda d1, d2: {**d1, **d2},
                                                               [{x.name: x.or_} for x in recipe.in_your_kitchens], {})
@@ -92,6 +95,40 @@ async def add_recipe_metadata(recipes: List[CandidateRecipeMetadata], db: Sessio
     db.add_all(recipes_in_your_kitchens_to_add)
     db.commit()
     return
+
+
+@router.post("/add_recipe_steps")
+async def add_recipe_steps(recipe_id: int, steps: List[CandidateRecipeStep], db: Session = Depends(get_db)):
+    recipe: Recipe = db.query(Recipe).filter(Recipe.id == recipe_id).first()
+    if recipe is None:
+        raise HTTPException(status_code=404, detail="Unknown recipe")
+    all_steps: List[RecipeStep] = []
+    unique_ingredient_ids = set()
+    unique_in_your_kitchen_ids = set()
+    for step in steps:
+        ingredient_ids: List[int] = list(get_ingredient_ids(step.ingredients, db).values())
+        in_your_kitchen_ids: List[int] = list(get_in_your_kitchen_ids(step.in_your_kitchen, db).values())
+        unique_ingredient_ids.update(ingredient_ids)
+        unique_in_your_kitchen_ids.update(in_your_kitchen_ids)
+        all_steps.append(RecipeStep(
+            step_number=step.step_number,
+            recipe_id=recipe.id,
+            title=step.title,
+            instructions=json.dumps(step.instructions),
+            tips=json.dumps(step.tips),
+            chefs_hats=json.dumps(step.chefs_hats),
+            ingredients=json.dumps(ingredient_ids),
+            in_your_kitchens=json.dumps(in_your_kitchen_ids),
+            gif_url=step.gif_url
+        ))
+    ingredients_to_update: List[RecipeIngredient] = get_ingredients_to_update(recipe_id, unique_ingredient_ids, db)
+    in_your_kitchens_to_update: List[RecipeInYourKitchen] = get_in_your_kitchens_to_update(recipe_id,
+                                                                                           unique_in_your_kitchen_ids,
+                                                                                           db)
+    db.add_all(all_steps)
+    db.add_all(ingredients_to_update)
+    db.add_all(in_your_kitchens_to_update)
+    db.commit()
 
 
 @router.get("/get")
@@ -183,40 +220,6 @@ async def get_recipe_schedule(id: str, db: Session = Depends(get_db)) -> JSONRes
             })
 
     return JSONResponse(content=jsonable_encoder(result))
-
-
-@router.post("/add_recipe_steps")
-async def add_recipe_steps(recipe_id: int, steps: List[CandidateRecipeStep], db: Session = Depends(get_db)):
-    recipe: Recipe = db.query(Recipe).filter(Recipe.id == recipe_id).first()
-    if recipe is None:
-        raise HTTPException(status_code=404, detail="Unknown recipe")
-    all_steps: List[RecipeStep] = []
-    unique_ingredient_ids = set()
-    unique_in_your_kitchen_ids = set()
-    for step in steps:
-        ingredient_ids: List[int] = list(get_ingredient_ids(step.ingredients, db).values())
-        in_your_kitchen_ids: List[int] = list(get_in_your_kitchen_ids(step.in_your_kitchen, db).values())
-        unique_ingredient_ids.update(ingredient_ids)
-        unique_in_your_kitchen_ids.update(in_your_kitchen_ids)
-        all_steps.append(RecipeStep(
-            step_number=step.step_number,
-            recipe_id=recipe.id,
-            title=step.title,
-            instructions=json.dumps(step.instructions),
-            tips=json.dumps(step.tips),
-            chefs_hats=json.dumps(step.chefs_hats),
-            ingredients=json.dumps(ingredient_ids),
-            in_your_kitchens=json.dumps(in_your_kitchen_ids),
-            gif_url=step.gif_url
-        ))
-    ingredients_to_update: List[RecipeIngredient] = get_ingredients_to_update(recipe_id, unique_ingredient_ids, db)
-    in_your_kitchens_to_update: List[RecipeInYourKitchen] = get_in_your_kitchens_to_update(recipe_id,
-                                                                                           unique_in_your_kitchen_ids,
-                                                                                           db)
-    db.add_all(all_steps)
-    db.add_all(ingredients_to_update)
-    db.add_all(in_your_kitchens_to_update)
-    db.commit()
 
 
 def get_ingredients_to_update(recipe_id: int, unique_ingredient_ids: Set[int], db: Session) -> List[RecipeIngredient]:

@@ -46,7 +46,7 @@ def add_recipe_steps(yml_file, url_base):
     r = requests.get(get_recipe_url)
     recipe_id = r.json()['recipe_id']
     add_recipe_metadata_url = url_base + "/api/recipe/add_recipe_metadata"
-    ingredients = [{"name": x['name'], "quantity": x['quantity'], "unit": x['unit']} for x in recipe['ingredients']]
+    ingredients = [{"name": x['name'], "quantities": x['quantities'], "unit": x['unit']} for x in recipe['ingredients']]
     in_your_kitchens = [{"name": x['name'], "or_": x["or"] if "or" in x else []} for x in recipe['in_your_kitchen']]
     payload = {
         "recipe_name": recipe['recipe_name'],

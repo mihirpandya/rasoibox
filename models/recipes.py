@@ -58,6 +58,7 @@ class RecipeIngredient(Base):
     ingredient_id = Column(Integer)  # ForeignKey("ingredients.id")
     quantity = Column(Integer)
     unit = Column(String(100))
+    serving_size = Column(Integer)
 
 
 class RecipeInYourKitchen(Base):
