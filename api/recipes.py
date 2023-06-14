@@ -54,7 +54,7 @@ class StarRecipe(BaseModel):
         orm_mode = True
 
 
-class CandidateRecipeStep(BaseModel):
+class RecipeStep(BaseModel):
     step_number: int
     title: str
     instructions: List[str]

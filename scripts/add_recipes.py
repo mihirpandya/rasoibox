@@ -76,3 +76,7 @@ def add_recipe_steps(yml_file, url_base):
 
 def get_recipe_metadata(url_base, recipe_name):
     return requests.get(url_base + '/api/recipe/get_recipe_metadata?name=' + recipe_name)
+
+
+def get_recipe_steps(url_base, recipe_name):
+    return requests.get(url_base + '/api/recipe/get_recipe_steps?name=' + recipe_name)

@@ -11,7 +11,8 @@ from sqlalchemy.orm import Session
 from starlette.responses import JSONResponse
 
 import api.recipes
-from api.recipes import CandidateRecipe, StarRecipe, CandidateRecipeStep, RecipeMetadata, Quantity
+import models.recipes
+from api.recipes import CandidateRecipe, StarRecipe, RecipeStep, RecipeMetadata, Quantity
 from dependencies.database import get_db
 from dependencies.events import emit_event
 from models.recipes import Recipe, RecipeContributor, StarredRecipe, RecipeSchedule, RecipeStep, \
@@ -99,7 +100,7 @@ async def add_recipe_metadata(recipes: List[RecipeMetadata], db: Session = Depen
 
 
 @router.post("/add_recipe_steps")
-async def add_recipe_steps(recipe_id: int, steps: List[CandidateRecipeStep], db: Session = Depends(get_db)):
+async def add_recipe_steps(recipe_id: int, steps: List[api.recipes.RecipeStep], db: Session = Depends(get_db)):
     recipe: Recipe = db.query(Recipe).filter(Recipe.id == recipe_id).first()
     if recipe is None:
         raise HTTPException(status_code=404, detail="Unknown recipe")
@@ -194,9 +195,24 @@ async def get_recipe_metadata(name: str, db: Session = Depends(get_db)) -> Recip
     )
 
 
-@router.get("/get-recipe-steps")
-async def get_recipe_steps(name: str, db: Session = Depends(get_db)):
-    pass
+@router.get("/get_recipe_steps")
+async def get_recipe_steps(name: str, db: Session = Depends(get_db)) -> List[api.recipes.RecipeStep]:
+    recipe: Recipe = db.query(Recipe).filter(Recipe.name == name).first()
+    if recipe is None:
+        raise HTTPException(status_code=404, detail="Unrecognized recipe: {}".format(name))
+    recipe_steps: List[models.recipes.RecipeStep] = db.query(models.recipes.RecipeStep).filter(
+        models.recipes.RecipeStep.recipe_id == recipe.id).all()
+    return [api.recipes.RecipeStep(
+        step_number=x.step_number,
+        title=x.title,
+        instructions=json.loads(x.instructions),
+        tips=json.loads(x.tips),
+        chefs_hats=json.loads(x.chefs_hats),
+        ingredients=[x.name for x in db.query(Ingredient).filter(Ingredient.id.in_(json.loads(x.ingredients))).all()],
+        in_your_kitchen=[x.name for x in
+                         db.query(InYourKitchen).filter(InYourKitchen.id.in_(json.loads(x.in_your_kitchens))).all()],
+        gif_url=x.gif_url
+    ) for x in recipe_steps]
 
 
 @router.post("/star")
