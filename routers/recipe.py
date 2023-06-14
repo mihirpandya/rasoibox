@@ -10,11 +10,12 @@ from sqlalchemy import and_
 from sqlalchemy.orm import Session
 from starlette.responses import JSONResponse
 
-from api.recipes import CandidateRecipe, StarRecipe, CandidateRecipeStep, CandidateRecipeMetadata, Quantity
+import api.recipes
+from api.recipes import CandidateRecipe, StarRecipe, CandidateRecipeStep, RecipeMetadata, Quantity
 from dependencies.database import get_db
 from dependencies.events import emit_event
-from models.recipes import Recipe, RecipeContributor, StarredRecipe, RecipeSchedule, RecipeStep, Ingredient, \
-    RecipeIngredient, InYourKitchen, RecipeInYourKitchen
+from models.recipes import Recipe, RecipeContributor, StarredRecipe, RecipeSchedule, RecipeStep, \
+    RecipeIngredient, InYourKitchen, RecipeInYourKitchen, Ingredient
 from models.signups import VerifiedSignUp
 
 logger = logging.getLogger("rasoibox")
@@ -58,7 +59,7 @@ async def add_recipes(recipes: List[CandidateRecipe], db: Session = Depends(get_
 
 
 @router.post("/add_recipe_metadata")
-async def add_recipe_metadata(recipes: List[CandidateRecipeMetadata], db: Session = Depends(get_db)):
+async def add_recipe_metadata(recipes: List[RecipeMetadata], db: Session = Depends(get_db)):
     recipes_ingredients_to_add: List[RecipeIngredient] = []
     recipes_in_your_kitchens_to_add: List[RecipeInYourKitchen] = []
     for recipe in recipes:
@@ -140,6 +141,62 @@ async def get_recipe_by_name(name: str, db: Session = Depends(get_db)):
         return {
             "recipe_id": recipe.id
         }
+
+
+@router.get("/get_recipe_metadata")
+async def get_recipe_metadata(name: str, db: Session = Depends(get_db)) -> RecipeMetadata:
+    recipe: Recipe = db.query(Recipe).filter(Recipe.name == name).first()
+    if recipe is None:
+        raise HTTPException(status_code=404, detail="Unrecognized recipe: {}".format(name))
+    recipe_ingredients: List[RecipeIngredient] = db.query(RecipeIngredient).filter(
+        RecipeIngredient.recipe_id == recipe.id).all()
+    recipe_in_your_kitchens: List[RecipeInYourKitchen] = db.query(RecipeInYourKitchen).filter(
+        RecipeInYourKitchen.recipe_id == recipe.id).all()
+    recipe_ingredients_ids = [x.ingredient_id for x in recipe_ingredients]
+    recipe_in_your_kitchens_ids = [x.in_your_kitchen_id for x in recipe_in_your_kitchens]
+    ingredients_to_units: Dict[int, str] = reduce(lambda d1, d2: {**d1, **d2},
+                                                  [{x.ingredient_id: x.unit} for x in recipe_ingredients], {})
+    ingredients_to_quantities: Dict[int, List[Quantity]] = \
+        reduce(lambda d1, d2: {**d1, **d2},
+               [{x.ingredient_id: [Quantity(amount=y.quantity,
+                                            serving_size=y.serving_size)
+                                   for y in recipe_ingredients if
+                                   y.ingredient_id == x.ingredient_id]}
+                for x in recipe_ingredients], {})
+    in_your_kitchen_to_ors_ids: Dict[int, List[int]] = \
+        reduce(lambda d1, d2: {**d1, **d2},
+               [{x.in_your_kitchen_id: x.or_ids} for x in
+                recipe_in_your_kitchens],
+               {})
+    ingredients: List[Ingredient] = db.query(Ingredient).filter(Ingredient.id.in_(recipe_ingredients_ids)).all()
+    in_your_kitchens: List[InYourKitchen] = db.query(InYourKitchen).filter(
+        InYourKitchen.id.in_(recipe_in_your_kitchens_ids)).all()
+
+    ingredients_metadata: List[api.recipes.Ingredient] = \
+        [api.recipes.Ingredient(name=ingredient.name, quantities=ingredients_to_quantities[ingredient.id],
+                                unit=ingredients_to_units[ingredient.id]) for ingredient in ingredients]
+
+    in_your_kitchens_metadata: List[api.recipes.InYourKitchen] = []
+    for in_your_kitchen in in_your_kitchens:
+        or_names: List[str] = [x.name for x in db.query(InYourKitchen).filter(
+            InYourKitchen.id.in_(in_your_kitchen_to_ors_ids[in_your_kitchen.id])).all()]
+        in_your_kitchens_metadata.append(
+            api.recipes.InYourKitchen(
+                name=in_your_kitchen.name,
+                or_=or_names
+            )
+        )
+
+    return RecipeMetadata(
+        recipe_name=recipe.name,
+        ingredients=ingredients_metadata,
+        in_your_kitchens=in_your_kitchens_metadata
+    )
+
+
+@router.get("/get-recipe-steps")
+async def get_recipe_steps(name: str, db: Session = Depends(get_db)):
+    pass
 
 
 @router.post("/star")

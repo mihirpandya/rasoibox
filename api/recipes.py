@@ -28,7 +28,7 @@ class InYourKitchen(BaseModel):
         orm_mode = True
 
 
-class CandidateRecipeMetadata(BaseModel):
+class RecipeMetadata(BaseModel):
     recipe_name: str
     ingredients: List[Ingredient]
     in_your_kitchens: List[InYourKitchen]

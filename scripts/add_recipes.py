@@ -72,3 +72,7 @@ def add_recipe_steps(yml_file, url_base):
 
     r = requests.post(add_recipe_steps_url, json=payload)
     return r
+
+
+def get_recipe_metadata(url_base, recipe_name):
+    return requests.get(url_base + '/api/recipe/get_recipe_metadata?name=' + recipe_name)
