@@ -144,6 +144,17 @@ async def get_recipe_by_name(name: str, db: Session = Depends(get_db)):
         }
 
 
+@router.get("/get_by_id")
+async def get_recipe_by_id(id: int, db: Session = Depends(get_db)):
+    recipe: Recipe = db.query(Recipe).filter(Recipe.id == id).first()
+    if recipe is None:
+        raise HTTPException(status_code=404, detail="Recipe not found.")
+    else:
+        return {
+            "recipe_name": recipe.name
+        }
+
+
 @router.get("/get_recipe_metadata")
 async def get_recipe_metadata(name: str, db: Session = Depends(get_db)) -> RecipeMetadata:
     recipe: Recipe = db.query(Recipe).filter(Recipe.name == name).first()

@@ -22,7 +22,7 @@ def add_recipes(csv_file, url_base):
     return res
 
 
-def add_recipe_steps(yml_file, url_base):
+def add_recipe_steps(yml_file, url_base, proceed=False):
     with open(yml_file, 'r') as file:
         recipe = yaml.safe_load(file)
 
@@ -40,7 +40,8 @@ def add_recipe_steps(yml_file, url_base):
 
     if not r.ok:
         print("Failed to create recipe.")
-        return r
+        if not proceed:
+            return r
 
     get_recipe_url = url_base + "/api/recipe/get?name=" + recipe['recipe_name']
     r = requests.get(get_recipe_url)
