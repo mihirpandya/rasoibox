@@ -326,7 +326,7 @@ def get_in_your_kitchens_to_update(recipe_id: int, unique_in_your_kitchen_ids: S
     for unique_in_your_kitchen in unique_in_your_kitchen_ids:
         if unique_in_your_kitchen not in existing_recipe_in_your_kitchen_ids:
             in_your_kitchens_to_update.append(
-                RecipeInYourKitchen(recipe_id=recipe_id, ingredient_id=unique_in_your_kitchen))
+                RecipeInYourKitchen(recipe_id=recipe_id, in_your_kitchen_id=unique_in_your_kitchen))
     return in_your_kitchens_to_update
 
 

@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, DateTime, Date, JSON
+from sqlalchemy import Column, Integer, String, DateTime, Date, JSON, Float
 
 from models.base import Base
 
@@ -56,7 +56,7 @@ class RecipeIngredient(Base):
     id = Column(Integer, primary_key=True)
     recipe_id = Column(Integer)  # ForeignKey("recipes.id")
     ingredient_id = Column(Integer)  # ForeignKey("ingredients.id")
-    quantity = Column(Integer)
+    quantity = Column(Float)
     unit = Column(String(100))
     serving_size = Column(Integer)
 

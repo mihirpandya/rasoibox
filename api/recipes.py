@@ -4,7 +4,7 @@ from pydantic import BaseModel
 
 
 class Quantity(BaseModel):
-    amount: int
+    amount: float
     serving_size: int
 
     class Config:
