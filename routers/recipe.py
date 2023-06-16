@@ -73,7 +73,7 @@ async def add_recipe_metadata(recipes: List[RecipeMetadata], db: Session = Depen
         ingredient_quantities: Dict[str, List[Quantity]] = reduce(lambda d1, d2: {**d1, **d2},
                                                                   [{x.name: x.quantities} for x in recipe.ingredients],
                                                                   {})
-        ingredient_ids: Dict[str, int] = get_ingredient_ids([x.name for x in recipe.ingredients], db)
+        ingredient_ids: Dict[str, int] = upsert_ingredient_ids([x.name for x in recipe.ingredients], db)
 
         for ingredient_name, ingredient_id in ingredient_ids.items():
             quantities: List[Quantity] = ingredient_quantities[ingredient_name]
@@ -85,7 +85,7 @@ async def add_recipe_metadata(recipes: List[RecipeMetadata], db: Session = Depen
 
         in_your_kitchen_or_ids: Dict[str, List[str]] = reduce(lambda d1, d2: {**d1, **d2},
                                                               [{x.name: x.or_} for x in recipe.in_your_kitchens], {})
-        in_your_kitchen_ids: Dict[str, int] = get_in_your_kitchen_ids([x.name for x in recipe.in_your_kitchens], db)
+        in_your_kitchen_ids: Dict[str, int] = upsert_in_your_kitchen_ids([x.name for x in recipe.in_your_kitchens], db)
         for in_your_kitchen_name, in_your_kitchen_id in in_your_kitchen_ids.items():
             or_in_your_kitchen_ids: Dict[str, int] = get_in_your_kitchen_ids(
                 in_your_kitchen_or_ids[in_your_kitchen_name], db)
@@ -349,3 +349,31 @@ def get_in_your_kitchen_ids(in_your_kitchens: List[str], db: Session) -> Dict[st
             raise HTTPException(status_code=400, detail="Invalid in-your-kitchen item {}".format(in_your_kitchen_name))
         in_your_kitchen_ids[in_your_kitchen_name] = in_your_kitchen.id
     return in_your_kitchen_ids
+
+
+def upsert_ingredient_ids(ingredients: List[str], db: Session) -> Dict[str, int]:
+    existing_ingredients: List[str] = [x.name for x in
+                                       db.query(Ingredient).filter(Ingredient.name.in_(ingredients)).all()]
+    ingredients_to_insert = []
+    for ingredient in ingredients:
+        if ingredient not in existing_ingredients:
+            ingredients_to_insert.append(Ingredient(name=ingredient))
+    db.add_all(ingredients_to_insert)
+    db.commit()
+    return reduce(lambda d1, d2: {**d1, **d2},
+                  [{x.name: x.id} for x in db.query(Ingredient).filter(Ingredient.name.in_(ingredients)).all()], {})
+
+
+def upsert_in_your_kitchen_ids(in_your_kitchens: List[str], db: Session) -> Dict[str, int]:
+    existing_in_your_kitchens: List[str] = [x.name for x in
+                                            db.query(InYourKitchen).filter(
+                                                InYourKitchen.name.in_(in_your_kitchens)).all()]
+    in_your_kitchens_to_insert = []
+    for in_your_kitchen in in_your_kitchens:
+        if in_your_kitchen not in existing_in_your_kitchens:
+            in_your_kitchens_to_insert.append(InYourKitchen(name=in_your_kitchen))
+    db.add_all(in_your_kitchens_to_insert)
+    db.commit()
+    return reduce(lambda d1, d2: {**d1, **d2},
+                  [{x.name: x.id} for x in
+                   db.query(InYourKitchen).filter(InYourKitchen.name.in_(in_your_kitchens)).all()], {})
