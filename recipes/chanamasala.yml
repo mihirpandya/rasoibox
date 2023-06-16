@@ -45,12 +45,12 @@ ingredients:
       - amount: 2
         serving_size: 4
     unit: tbsp
-  - name: cumin seed
+  - name: cumin seeds
     quantities:
       - amount: 1
         serving_size: 4
     unit: tsp
-  - name: bay leaf
+  - name: bay leaves
     quantities:
       - amount: 2
         serving_size: 4
@@ -60,7 +60,7 @@ ingredients:
       - amount: 2
         serving_size: 4
     unit: tbsp
-  - name: chickpea
+  - name: chickpeas
     quantities:
       - amount: 31
         serving_size: 4
@@ -101,8 +101,8 @@ steps:
       - Signs that your oil is hot:<br /><ul><li>it flows smoothly, quickly coating the pan.</li><li>the surface glistens and shimmers.</li><li>a small piece of food sizzles immediately when added to the pan.</li></ul>
     chefs_hats: [ ]
     ingredients:
-      - cumin seed
-      - bay leaf
+      - cumin seeds
+      - bay leaves
       - green chili
       - onion
     in_your_kitchen:
@@ -118,7 +118,7 @@ steps:
     ingredients:
       - ginger-garlic paste
       - tomato
-      - chickpea
+      - chickpeas
     in_your_kitchen: [ ]
   - step_number: 4
     title: finish the chana masala
