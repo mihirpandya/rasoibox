@@ -335,9 +335,7 @@ def get_ingredient_ids(ingredients: List[str], db: Session) -> Dict[str, int]:
     for ingredient_name in ingredients:
         ingredient: Ingredient = db.query(Ingredient).filter(Ingredient.name == ingredient_name).first()
         if ingredient is None:
-            db.add(Ingredient(name=ingredient_name, description=""))
-            db.commit()
-            ingredient = db.query(Ingredient).filter(Ingredient.name == ingredient_name).first()
+            raise HTTPException(status_code=400, detail="Invalid ingredient {}".format(ingredient_name))
         ingredient_ids[ingredient_name] = ingredient.id
     return ingredient_ids
 
@@ -348,8 +346,6 @@ def get_in_your_kitchen_ids(in_your_kitchens: List[str], db: Session) -> Dict[st
         in_your_kitchen: InYourKitchen = db.query(InYourKitchen).filter(
             InYourKitchen.name == in_your_kitchen_name).first()
         if in_your_kitchen is None:
-            db.add(InYourKitchen(name=in_your_kitchen_name))
-            db.commit()
-            in_your_kitchen = db.query(InYourKitchen).filter(InYourKitchen.name == in_your_kitchen_name).first()
+            raise HTTPException(status_code=400, detail="Invalid in-your-kitchen item {}".format(in_your_kitchen_name))
         in_your_kitchen_ids[in_your_kitchen_name] = in_your_kitchen.id
     return in_your_kitchen_ids
