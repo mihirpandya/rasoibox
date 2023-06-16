@@ -87,7 +87,7 @@ async def add_recipe_metadata(recipes: List[RecipeMetadata], db: Session = Depen
                                                               [{x.name: x.or_} for x in recipe.in_your_kitchens], {})
         in_your_kitchen_ids: Dict[str, int] = upsert_in_your_kitchen_ids([x.name for x in recipe.in_your_kitchens], db)
         for in_your_kitchen_name, in_your_kitchen_id in in_your_kitchen_ids.items():
-            or_in_your_kitchen_ids: Dict[str, int] = get_in_your_kitchen_ids(
+            or_in_your_kitchen_ids: Dict[str, int] = upsert_in_your_kitchen_ids(
                 in_your_kitchen_or_ids[in_your_kitchen_name], db)
             recipes_in_your_kitchens_to_add.append(
                 RecipeInYourKitchen(recipe_id=existing_recipe.id, in_your_kitchen_id=in_your_kitchen_id,
