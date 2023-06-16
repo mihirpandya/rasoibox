@@ -40,11 +40,11 @@ ingredients:
       - amount: 1
         serving_size: 4
     unit: piece
-  - name: sprig coriander leaf
+  - name: coriander leaves
     quantities:
       - amount: 2
         serving_size: 4
-    unit: piece
+    unit: tbsp
   - name: cumin seed
     quantities:
       - amount: 1
@@ -129,7 +129,7 @@ steps:
     chefs_hats:
       - Put your chef hat on! Like your gravy thin? Add water! Thicker? Simmer uncovered for 5 min.<br /><br />Eat with roti, paratha, or naan, or over rice. You can also wrap in a flaky paratha for an on-the-go meal.
     ingredients:
-      - sprig coriander leaf
+      - coriander leaves
     in_your_kitchen:
       - water
       - wooden spoon

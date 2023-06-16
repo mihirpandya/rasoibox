@@ -61,6 +61,7 @@ class IngredientsAdmin(ModelView, model=Ingredient):
     ]
 
     column_searchable_list = [Ingredient.name]
+    column_sortable_list = [Ingredient.name]
 
 
 class RecipeIngredientsAdmin(ModelView, model=RecipeIngredient):
@@ -84,7 +85,7 @@ class RecipeInYourKitchenAdmin(ModelView, model=RecipeInYourKitchen):
         RecipeInYourKitchen.or_ids
     ]
 
-    column_sortable_list = [RecipeIngredient.recipe_id]
+    column_sortable_list = [RecipeInYourKitchen.recipe_id]
 
 
 class RecipeStepAdmin(ModelView, model=RecipeStep):
