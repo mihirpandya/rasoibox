@@ -68,7 +68,7 @@ def add_recipe_steps(yml_file, url_base, proceed=False):
         "chefs_hats": x['chefs_hats'],
         "ingredients": x['ingredients'],
         "in_your_kitchen": x['in_your_kitchen'],
-        "gif_url": x['gif_url'] if 'gif_url' in x else ""
+        "gif_url": x['gif_url'] if 'gif_url' in x else []
     } for x in recipe["steps"]]
 
     r = requests.post(add_recipe_steps_url, json=payload)

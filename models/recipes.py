@@ -81,4 +81,4 @@ class RecipeStep(Base):
     ingredients = Column(JSON)  # list<ForeignKey("ingredients.id")> of ingredients needed in this step
     in_your_kitchens = Column(
         JSON)  # list<ForeignKey("in_your_kitchen.id")> of items needed in this step that are not provided in the box
-    gif_url = Column(String(10_000))
+    gif_url = Column(JSON)  # list of gif urls for this step

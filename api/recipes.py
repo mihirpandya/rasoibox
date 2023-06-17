@@ -62,4 +62,4 @@ class RecipeStep(BaseModel):
     chefs_hats: List[str]
     ingredients: List[str]
     in_your_kitchen: List[str]
-    gif_url: Optional[str]
+    gif_url: Optional[List[str]]

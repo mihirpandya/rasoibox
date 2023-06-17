@@ -121,7 +121,7 @@ async def add_recipe_steps(recipe_id: int, steps: List[api.recipes.RecipeStep], 
             chefs_hats=json.dumps(step.chefs_hats),
             ingredients=json.dumps(ingredient_ids),
             in_your_kitchens=json.dumps(in_your_kitchen_ids),
-            gif_url=step.gif_url
+            gif_url=json.dumps(step.gif_url)
         ))
     ingredients_to_update: List[RecipeIngredient] = get_ingredients_to_update(recipe_id, unique_ingredient_ids, db)
     in_your_kitchens_to_update: List[RecipeInYourKitchen] = get_in_your_kitchens_to_update(recipe_id,
@@ -222,7 +222,7 @@ async def get_recipe_steps(name: str, db: Session = Depends(get_db)) -> List[api
         ingredients=[x.name for x in db.query(Ingredient).filter(Ingredient.id.in_(json.loads(x.ingredients))).all()],
         in_your_kitchen=[x.name for x in
                          db.query(InYourKitchen).filter(InYourKitchen.id.in_(json.loads(x.in_your_kitchens))).all()],
-        gif_url=x.gif_url
+        gif_url=json.loads(x.gif_url)
     ) for x in recipe_steps]
 
 
