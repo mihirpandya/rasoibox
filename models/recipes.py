@@ -22,6 +22,14 @@ class Recipe(Base):
     cook_time_minutes = Column(Integer)
 
 
+class RecipePrice(Base):
+    __tablename__ = "recipe_prices"
+    id = Column(Integer, primary_key=True)
+    recipe_id = Column(Integer)  # ForeignKey("recipes.id")
+    serving_size = Column(Integer)
+    price = Column(Float)
+
+
 class StarredRecipe(Base):
     __tablename__ = "starred_recipes"
     id = Column(Integer, primary_key=True)

@@ -1,14 +1,11 @@
 import logging
 import random
 import string
-from datetime import datetime, timedelta
-from typing import Union
+from datetime import datetime
 
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.encoders import jsonable_encoder
 from fastapi.security import OAuth2PasswordRequestForm
-from jose import jwt, JWTError
-from passlib.context import CryptContext
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 from starlette import status
@@ -16,8 +13,9 @@ from starlette.responses import JSONResponse
 
 from api.customers import CustomerPayload, ChangePasswordPayload, ResetPasswordPayload, UpdateCustomerPayload
 from config import Settings
+from dependencies.customers import authenticate_customer, get_current_customer, get_password_hash, verify_password, \
+    create_access_token
 from dependencies.database import get_db
-from dependencies.oauth import oauth2_scheme
 from emails.base import VerifySignUpEmail, send_email, ResetPasswordEmail, ResetPasswordCompleteEmail
 from models.customers import Customer
 from models.reset_passwords import ResetPassword
@@ -28,77 +26,16 @@ logger = logging.getLogger("rasoibox")
 
 settings: Settings = Settings()
 
-SECRET_KEY = settings.secret_key
-ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
-
 router = APIRouter(
     prefix="/api/users",
     tags=["users"]
 )
-
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
 class Token(BaseModel):
     access_token: str
     token_type: str
     status: int
-
-
-def verify_password(plain_password, hashed_password):
-    return pwd_context.verify(plain_password, hashed_password)
-
-
-def get_password_hash(password):
-    return pwd_context.hash(password)
-
-
-def get_customer(db: Session, username: str) -> Customer:
-    customer: Customer = db.query(Customer).filter(Customer.email == username).first()
-    if customer is not None:
-        return customer
-
-
-def authenticate_customer(username: str, password: str, db: Session):
-    user = get_customer(db, username)
-    if user is None:
-        return False
-    if not verify_password(password, user.hashed_password):
-        return False
-    if not user.verified:
-        return False
-    return user
-
-
-async def get_current_customer(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)) -> Customer:
-    credentials_exception = HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Could not validate credentials",
-        headers={"WWW-Authenticate": "Bearer"},
-    )
-    try:
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        username: str = payload.get("sub")
-        if username is None:
-            raise credentials_exception
-    except JWTError:
-        raise credentials_exception
-    customer = get_customer(db, username=username)
-    if customer is None:
-        raise credentials_exception
-    return customer
-
-
-def create_access_token(data: dict, expires_delta: Union[timedelta, None] = None):
-    to_encode = data.copy()
-    if expires_delta:
-        expire = datetime.utcnow() + expires_delta
-    else:
-        expire = datetime.utcnow() + timedelta(minutes=15)
-    to_encode.update({"exp": expire})
-    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
-    return encoded_jwt
 
 
 def send_verify_email_best_effort(email: str, verification_code: str):
@@ -159,11 +96,8 @@ async def login_for_access_token(
             detail="Incorrect username or password",
             headers={"WWW-Authenticate": "Bearer"},
         )
-    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-    access_token = create_access_token(
-        data={"sub": customer.email}, expires_delta=access_token_expires
-    )
-    return {"access_token": access_token, "token_type": "bearer", "status": 0}
+    access_token = create_access_token(data={"sub": customer.email})
+    return Token(access_token=access_token, token_type="bearer", status=0)
 
 
 @router.post("/check")
@@ -270,10 +204,7 @@ async def change_password(change_password_payload: ChangePasswordPayload,
     db.query(Customer).filter(Customer.email == current_customer.email).update({'hashed_password': new_password_hash})
     db.commit()
     # return new access token
-    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-    access_token = create_access_token(
-        data={"sub": current_customer.email}, expires_delta=access_token_expires
-    )
+    access_token = create_access_token(data={"sub": current_customer.email})
     return {"access_token": access_token, "token_type": "bearer"}
 
 
