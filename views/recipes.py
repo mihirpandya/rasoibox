@@ -1,7 +1,7 @@
 from sqladmin import ModelView
 
 from models.recipes import RecipeContributor, StarredRecipe, Recipe, RecipeSchedule, InYourKitchen, Ingredient, \
-    RecipeIngredient, RecipeInYourKitchen, RecipeStep
+    RecipeIngredient, RecipeInYourKitchen, RecipeStep, RecipePrice
 
 
 class RecipeContributorAdmin(ModelView, model=RecipeContributor):
@@ -100,4 +100,13 @@ class RecipeStepAdmin(ModelView, model=RecipeStep):
         RecipeStep.chefs_hats,
         RecipeStep.ingredients,
         RecipeStep.gif_url
+    ]
+
+
+class RecipePriceAdmin(ModelView, model=RecipePrice):
+    column_list = [
+        RecipePrice.id,
+        RecipePrice.recipe_id,
+        RecipePrice.serving_size,
+        RecipePrice.price
     ]
