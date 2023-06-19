@@ -16,7 +16,8 @@ from views.customers import CustomerAdmin
 from views.event import EventAdmin
 from views.orders import OrderAdmin, CartAdmin, CouponAdmin
 from views.recipes import RecipeContributorAdmin, RecipeAdmin, StarredRecipeAdmin, RecipeScheduleAdmin, \
-    InYourKitchenAdmin, IngredientsAdmin, RecipeIngredientsAdmin, RecipeInYourKitchenAdmin, RecipeStepAdmin
+    InYourKitchenAdmin, IngredientsAdmin, RecipeIngredientsAdmin, RecipeInYourKitchenAdmin, RecipeStepAdmin, \
+    RecipePriceAdmin
 from views.reset_passwords import ResetPasswordsAdmin
 from views.user import VerifiedUserAdmin, UnverifiedUserAdmin
 
@@ -45,6 +46,7 @@ admin.add_view(IngredientsAdmin)
 admin.add_view(RecipeIngredientsAdmin)
 admin.add_view(RecipeInYourKitchenAdmin)
 admin.add_view(RecipeStepAdmin)
+admin.add_view(RecipePriceAdmin)
 admin.add_view(CustomerAdmin)
 admin.add_view(ResetPasswordsAdmin)
 admin.add_view(OrderAdmin)
