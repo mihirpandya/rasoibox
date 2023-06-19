@@ -28,6 +28,8 @@ class RecipePrice(Base):
     recipe_id = Column(Integer)  # ForeignKey("recipes.id")
     serving_size = Column(Integer)
     price = Column(Float)
+    stripe_product_id = Column(String(100))
+    stripe_price_id = Column(String(100))
 
 
 class StarredRecipe(Base):

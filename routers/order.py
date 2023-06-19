@@ -16,8 +16,9 @@ import models.orders
 from api.orders import Order, CartItem, PricedCartItem
 from dependencies.customers import get_current_customer
 from dependencies.database import get_db
+from dependencies.stripe_utils import create_checkout_session
 from models.customers import Customer
-from models.orders import Cart, Coupon
+from models.orders import Cart, Coupon, PaymentStatusEnum
 from models.recipes import Recipe, RecipePrice
 
 logger = logging.getLogger("rasoibox")
@@ -34,9 +35,9 @@ def generate_order_id() -> str:
     return res.lower()
 
 
-@router.post("/place_order")
-async def place_order(order: Order, current_customer: Customer = Depends(get_current_customer),
-                      db: Session = Depends(get_db)):
+@router.post("/initiate_place_order")
+async def initiate_place_order(order: Order, current_customer: Customer = Depends(get_current_customer),
+                               db: Session = Depends(get_db)):
     recipe_names: List[str] = order.recipe_names
     recipe_ids: List[int] = [x.id for x in db.query(Recipe).filter(Recipe.name.in_(recipe_names)).all()]
     if len(recipe_ids) is not len(recipe_names):
@@ -50,23 +51,34 @@ async def place_order(order: Order, current_customer: Customer = Depends(get_cur
         raise HTTPException(status_code=400, detail="Invalid coupons.")
 
     recipes_serving_size_map: Dict[int, int] = {}
+    recipe_prices_ordered: List[RecipePrice] = []
 
     for recipe_id in recipe_ids:
         if recipe_id not in cart_items_by_recipe_id:
             raise HTTPException(status_code=400, detail="Recipe not in user cart.")
         else:
+            serving_size = cart_items_by_recipe_id[recipe_id].serving_size
+            recipes_serving_size_map[recipe_id] = serving_size
+            recipe_price: RecipePrice = db.query(RecipePrice).filter(
+                and_(RecipePrice.recipe_id == recipe_id, RecipePrice.serving_size == serving_size)).first()
+            if recipe_price is None:
+                raise HTTPException(status_code=404, detail="Invalid recipe serving size combo")
+            recipe_prices_ordered.append(recipe_price)
             db.delete(cart_items_by_recipe_id[recipe_id])
-            recipes_serving_size_map[recipe_id] = cart_items_by_recipe_id[recipe_id].serving_size
 
-    order_total_dollars = 0
-    order_breakdown_dollars = {}
+    order_total_dollars = reduce(lambda p1, p2: p1 + p2, [x.price for x in recipe_prices_ordered], 0)
+    order_breakdown_dollars = reduce(lambda d1, d2: {**d1, **d2}, [{x.id: x.price} for x in recipe_prices_ordered], {})
+    stripe_price_ids = [x.stripe_price_id for x in recipe_prices_ordered]
+    user_facing_order_id = generate_order_id()
+    order_date = datetime.now()
 
     db.add(models.orders.Order(
-        user_facing_order_id=generate_order_id(),
-        order_date=datetime.now(),
-        recipes=recipes_serving_size_map,
+        user_facing_order_id=user_facing_order_id,
+        order_date=order_date,
+        recipes=json.dumps(recipes_serving_size_map),
         recipient_first_name=order.recipient_first_name,
         recipient_last_name=order.recipient_last_name,
+        payment_status=PaymentStatusEnum.INITIATED,
         customer=current_customer.id,
         delivered=False,
         order_total_dollars=order_total_dollars,
@@ -77,6 +89,33 @@ async def place_order(order: Order, current_customer: Customer = Depends(get_cur
     ))
 
     db.commit()
+
+    try:
+        checkout_session = create_checkout_session(stripe_price_ids, "/success", "/cancel")
+        logger.info("Successfully created checkout session {}".format(checkout_session))
+        return JSONResponse(content=jsonable_encoder({"session_url": checkout_session.url}))
+    except Exception as e:
+        logger.error("Failed to create checkout session.", e)
+        db.query(models.orders.Order).filter(and_(models.orders.Order.user_facing_order_id == user_facing_order_id,
+                                                  models.orders.Order.order_date == order_date)).update(
+            models.orders.Order(
+                user_facing_order_id=user_facing_order_id,
+                order_date=order_date,
+                recipes=json.dumps(recipes_serving_size_map),
+                recipient_first_name=order.recipient_first_name,
+                recipient_last_name=order.recipient_last_name,
+                payment_status=PaymentStatusEnum.FAILED,
+                customer=current_customer.id,
+                delivered=False,
+                order_total_dollars=order_total_dollars,
+                order_breakdown_dollars=json.dumps(order_breakdown_dollars),
+                delivery_address=json.dumps(order.delivery_address),
+                phone_number=order.phone_number,
+                coupons=json.dumps(coupon_ids)
+            )
+        )
+        db.commit()
+        raise HTTPException(status_code=400, detail="Failed to create Stripe checkout session")
 
 
 @router.get("/get_cart")

@@ -15,6 +15,7 @@ class Settings(BaseSettings):
     admin_user: str
     admin_password: str
     secret_key: str
+    stripe_secret_key: str
 
     class Config:
         env_file = ".env"

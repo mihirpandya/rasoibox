@@ -1,6 +1,15 @@
-from sqlalchemy import Column, Integer, DateTime, String, JSON, Boolean, Float
+import enum
+
+from sqlalchemy import Column, Integer, DateTime, String, JSON, Boolean, Float, Enum
 
 from models.base import Base
+
+
+class PaymentStatusEnum(str, enum.Enum):
+    INITIATED = "INITIATED"
+    COMPLETED = "COMPLETED"
+    FAILED = "FAILED"
+    CANCELED = "CANCELED"
 
 
 class Order(Base):
@@ -12,6 +21,7 @@ class Order(Base):
     customer = Column(Integer)  # ForeignKey("customers.id")
     recipient_first_name = Column(String(100))
     recipient_last_name = Column(String(100))
+    payment_status = Column(Enum(PaymentStatusEnum))
     delivered = Column(Boolean)
     order_total_dollars = Column(Float)
     order_breakdown_dollars = Column(JSON)  # map<string, float> of all line items e.g. tax, delivery, coupon codes
