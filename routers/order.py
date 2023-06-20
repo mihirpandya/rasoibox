@@ -91,31 +91,39 @@ async def initiate_place_order(order: Order, current_customer: Customer = Depend
     db.commit()
 
     try:
-        checkout_session = create_checkout_session(stripe_price_ids, "/success", "/cancel")
+        checkout_session = create_checkout_session(stripe_price_ids, "/success?orderId=" + user_facing_order_id,
+                                                   "/cancel?orderId=" + user_facing_order_id)
         logger.info("Successfully created checkout session {}".format(checkout_session))
         return JSONResponse(content=jsonable_encoder({"session_url": checkout_session.url}))
     except Exception as e:
         logger.error("Failed to create checkout session.", e)
         db.query(models.orders.Order).filter(and_(models.orders.Order.user_facing_order_id == user_facing_order_id,
                                                   models.orders.Order.order_date == order_date)).update(
-            models.orders.Order(
-                user_facing_order_id=user_facing_order_id,
-                order_date=order_date,
-                recipes=json.dumps(recipes_serving_size_map),
-                recipient_first_name=order.recipient_first_name,
-                recipient_last_name=order.recipient_last_name,
-                payment_status=PaymentStatusEnum.FAILED,
-                customer=current_customer.id,
-                delivered=False,
-                order_total_dollars=order_total_dollars,
-                order_breakdown_dollars=json.dumps(order_breakdown_dollars),
-                delivery_address=json.dumps(order.delivery_address),
-                phone_number=order.phone_number,
-                coupons=json.dumps(coupon_ids)
-            )
-        )
+            {"payment_status": PaymentStatusEnum.FAILED})
         db.commit()
-        raise HTTPException(status_code=400, detail="Failed to create Stripe checkout session")
+    raise HTTPException(status_code=400, detail="Failed to create Stripe checkout session")
+
+
+@router.post("/complete_place_order")
+async def complete_place_order(order_id: str, current_customer: Customer = Depends(get_current_customer),
+                               db: Session = Depends(get_db)):
+    order = db.query(models.orders.Order).filter(models.orders.Order.user_facing_order_id == order_id).first()
+    if order is None or order.customer != current_customer.id:
+        raise HTTPException(status_code=404, detail="Unknown order")
+    db.query(models.orders.Order).filter(models.orders.Order.user_facing_order_id == order_id).update(
+        {"payment_status": PaymentStatusEnum.COMPLETED})
+    db.commit()
+
+
+@router.post("/cancel_place_order")
+async def cancel_place_order(order_id: str, current_customer: Customer = Depends(get_current_customer),
+                             db: Session = Depends(get_db)):
+    order = db.query(models.orders.Order).filter(models.orders.Order.user_facing_order_id == order_id).first()
+    if order is None or order.customer != current_customer.id:
+        raise HTTPException(status_code=404, detail="Unknown order")
+    db.query(models.orders.Order).filter(models.orders.Order.user_facing_order_id == order_id).update(
+        {"payment_status": PaymentStatusEnum.CANCELED})
+    db.commit()
 
 
 @router.get("/get_cart")

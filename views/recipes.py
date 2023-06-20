@@ -108,5 +108,7 @@ class RecipePriceAdmin(ModelView, model=RecipePrice):
         RecipePrice.id,
         RecipePrice.recipe_id,
         RecipePrice.serving_size,
-        RecipePrice.price
+        RecipePrice.price,
+        RecipePrice.stripe_product_id,
+        RecipePrice.stripe_price_id
     ]
