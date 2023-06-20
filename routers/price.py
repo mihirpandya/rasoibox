@@ -21,11 +21,13 @@ router = APIRouter(
 @router.post("/add_prices")
 async def add_prices(prices: List[RecipeServingPrice], db: Session = Depends(get_db)):
     unique_recipe_names = list(set([x.recipe_name for x in prices]))
-    recipes: Dict[str, Recipe] = reduce(lambda d1, d2: {**d1, **d2}, [{x.name: x.id} for x in db.query(Recipe).filter(
+    recipes: Dict[str, Recipe] = reduce(lambda d1, d2: {**d1, **d2}, [{x.name: x} for x in db.query(Recipe).filter(
         Recipe.name.in_(unique_recipe_names)).all()], {})
     recipe_prices: List[RecipePrice] = []
     for price in prices:
+        print(price)
         recipe = recipes[price.recipe_name]
+
         stripe_product = create_stripe_product(recipe.name, recipe.description, recipe.image_url, price.serving_size,
                                                price.price)
         recipe_prices.append(

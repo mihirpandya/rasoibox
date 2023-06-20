@@ -17,12 +17,12 @@ settings: Settings = Settings()
 
 SECRET_KEY = settings.secret_key
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
+ACCESS_TOKEN_EXPIRE_HOURS = 3
 
 
 def create_access_token(data: dict):
     to_encode = data.copy()
-    expires_delta = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    expires_delta = timedelta(hours=ACCESS_TOKEN_EXPIRE_HOURS)
     if expires_delta:
         expire = datetime.utcnow() + expires_delta
     else:

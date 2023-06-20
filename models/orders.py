@@ -26,7 +26,7 @@ class Order(Base):
     order_total_dollars = Column(Float)
     order_breakdown_dollars = Column(JSON)  # map<string, float> of all line items e.g. tax, delivery, coupon codes
     delivery_address = Column(JSON)  # api.orders.Address
-    phone_number = Column(Integer)
+    phone_number = Column(String(10))
     coupons = Column(JSON)  # list<ForeignKey("coupons.id")> of applied coupons
 
 

@@ -12,6 +12,7 @@ class OrderAdmin(ModelView, model=Order):
         Order.customer,
         Order.recipient_first_name,
         Order.recipient_last_name,
+        Order.payment_status,
         Order.delivered,
         Order.order_total_dollars,
         Order.order_breakdown_dollars,

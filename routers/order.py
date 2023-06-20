@@ -14,6 +14,7 @@ from starlette.responses import JSONResponse
 
 import models.orders
 from api.orders import Order, CartItem, PricedCartItem
+from config import Settings
 from dependencies.customers import get_current_customer
 from dependencies.database import get_db
 from dependencies.stripe_utils import create_checkout_session
@@ -27,6 +28,8 @@ router = APIRouter(
     prefix="/api/order",
     tags=["order"]
 )
+
+settings: Settings = Settings()
 
 
 def generate_order_id() -> str:
@@ -83,7 +86,7 @@ async def initiate_place_order(order: Order, current_customer: Customer = Depend
         delivered=False,
         order_total_dollars=order_total_dollars,
         order_breakdown_dollars=json.dumps(order_breakdown_dollars),
-        delivery_address=json.dumps(order.delivery_address),
+        delivery_address=jsonable_encoder(order.delivery_address),
         phone_number=order.phone_number,
         coupons=json.dumps(coupon_ids)
     ))
@@ -91,17 +94,18 @@ async def initiate_place_order(order: Order, current_customer: Customer = Depend
     db.commit()
 
     try:
-        checkout_session = create_checkout_session(stripe_price_ids, "/success?orderId=" + user_facing_order_id,
-                                                   "/cancel?orderId=" + user_facing_order_id)
+        checkout_session = create_checkout_session(stripe_price_ids,
+                                                   settings.frontend_url_base + "success?orderId=" + user_facing_order_id,
+                                                   settings.frontend_url_base + "cancel?orderId=" + user_facing_order_id)
         logger.info("Successfully created checkout session {}".format(checkout_session))
         return JSONResponse(content=jsonable_encoder({"session_url": checkout_session.url}))
-    except Exception as e:
-        logger.error("Failed to create checkout session.", e)
-        db.query(models.orders.Order).filter(and_(models.orders.Order.user_facing_order_id == user_facing_order_id,
-                                                  models.orders.Order.order_date == order_date)).update(
-            {"payment_status": PaymentStatusEnum.FAILED})
+    except Exception:
+        logger.exception("Failed to create checkout session.")
+        db.query(models.orders.Order).filter(models.orders.Order.user_facing_order_id == user_facing_order_id) \
+            .update({models.orders.Order.payment_status: PaymentStatusEnum.FAILED})
         db.commit()
-    raise HTTPException(status_code=400, detail="Failed to create Stripe checkout session")
+        logger.info("updated payment status")
+        raise HTTPException(status_code=400, detail="Failed to create Stripe checkout session")
 
 
 @router.post("/complete_place_order")

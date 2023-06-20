@@ -65,7 +65,7 @@ def create_stripe_product(recipe_name: str, description: str, image_url: str, se
         shippable=True,
         images=[image_url],
         default_price_data=price_data,
-        unit_label="servings"
+        unit_label="item"
     )
 
 
