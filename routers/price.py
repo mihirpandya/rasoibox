@@ -25,7 +25,6 @@ async def add_prices(prices: List[RecipeServingPrice], db: Session = Depends(get
         Recipe.name.in_(unique_recipe_names)).all()], {})
     recipe_prices: List[RecipePrice] = []
     for price in prices:
-        print(price)
         recipe = recipes[price.recipe_name]
 
         stripe_product = create_stripe_product(recipe.name, recipe.description, recipe.image_url, price.serving_size,

@@ -180,7 +180,7 @@ async def get_available_items(_current_customer: Customer = Depends(get_current_
     recipe_prices: List[RecipePrice] = db.query(RecipePrice).all()
     recipe_ids: List[int] = list(set([x.recipe_id for x in recipe_prices]))
     recipes: Dict[int, Recipe] = reduce(lambda d1, d2: {**d1, **d2},
-                                        [x for x in db.query(Recipe).filter(Recipe.id.in_(recipe_ids))], {})
+                                        [{x.id: x} for x in db.query(Recipe).filter(Recipe.id.in_(recipe_ids))], {})
     result = {}
     for recipe_price in recipe_prices:
         if recipe_price.recipe_id not in recipes:
@@ -191,6 +191,7 @@ async def get_available_items(_current_customer: Customer = Depends(get_current_
             recipe: Recipe = recipes[recipe_price.recipe_id]
             result[recipe_price.recipe_id] = {
                 "recipe_name": recipe.name,
+                "description": recipe.description,
                 "image_url": recipe.image_url,
                 "serving_sizes": {
                     recipe_price.serving_size: recipe_price.price
