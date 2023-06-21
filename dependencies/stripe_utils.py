@@ -12,14 +12,6 @@ settings = Settings()
 stripe.api_key = settings.stripe_secret_key
 
 
-# stripe.api_key = "sk_test_51NKT9IDgBx8MbUKDSTPyrSFmGE33QdHD9ZUHeh2RI7OTQQ6AD8UMaIrb3dGCp0qXAj330FudB2ghm397VGFPf9va00UcNWUqQz"
-# recipe_name = "Chana Masala"
-# description = "chana masala description"
-# price = 7.99
-# serving_size = 4
-# image_url = "https://static.wixstatic.com/media/bbf858_7cf3c205476a4ec8bc78b6efb13b6de4~mv2.png"
-
-
 def to_product_name(name: str, serving_size: int) -> str:
     return "{} servings of {}".format(str(serving_size), name)
 
