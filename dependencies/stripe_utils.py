@@ -52,7 +52,7 @@ def create_stripe_product(recipe_name: str, description: str, image_url: str, se
         active=True,
         description=description,
         metadata={
-            "serving_size": serving_size
+            "serving_size": serving_size,
         },
         shippable=True,
         images=[image_url],
@@ -78,7 +78,7 @@ def get_stripe_product(recipe_name: str, serving_size: int):
     return None
 
 
-def create_checkout_session(price_ids: List[str], success_url, cancel_url):
+def create_checkout_session(price_ids: List[str], success_url: str, cancel_url: str, user_facing_order_id: str):
     line_items = [{"price": price_id, "quantity": 1} for price_id in price_ids]
     return stripe.checkout.Session.create(
         line_items=line_items,
@@ -87,5 +87,6 @@ def create_checkout_session(price_ids: List[str], success_url, cancel_url):
         cancel_url=cancel_url,
         automatic_tax={
             'enabled': True
-        }
+        },
+        client_reference_id=user_facing_order_id
     )

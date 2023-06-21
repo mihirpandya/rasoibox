@@ -96,7 +96,8 @@ async def initiate_place_order(order: Order, current_customer: Customer = Depend
     try:
         checkout_session = create_checkout_session(stripe_price_ids,
                                                    settings.frontend_url_base + "success?orderId=" + user_facing_order_id,
-                                                   settings.frontend_url_base + "cancel?orderId=" + user_facing_order_id)
+                                                   settings.frontend_url_base + "cancel?orderId=" + user_facing_order_id,
+                                                   user_facing_order_id)
         logger.info("Successfully created checkout session {}".format(checkout_session))
         return JSONResponse(content=jsonable_encoder({"session_url": checkout_session.url}))
     except Exception:
@@ -133,7 +134,7 @@ async def cancel_place_order(order_id: str, current_customer: Customer = Depends
 @router.get("/get_cart")
 async def get_cart(current_customer: Customer = Depends(get_current_customer),
                    db: Session = Depends(get_db)):
-    cart_items: List[Cart] = db.query(Cart).get(Cart.customer_id == current_customer.id).all()
+    cart_items: List[Cart] = db.query(Cart).filter(Cart.customer_id == current_customer.id).all()
     cart_recipe_ids: List[str] = [x.recipe_id for x in cart_items]
     recipe_names: Dict[int, str] = reduce(lambda d1, d2: {**d1, **d2}, [{x.id: x.name} for x in db.query(Recipe).filter(
         Recipe.id.in_(cart_recipe_ids))], {})
