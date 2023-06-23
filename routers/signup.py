@@ -175,5 +175,7 @@ async def in_deliverable_zipcode(id: str, db: Session = Depends(get_db)):
             result["zipcode"] = deliverable_zipcode.zipcode
         else:
             result["status"] = -1
+    else:
+        result["status"] = -2
 
     return JSONResponse(content=jsonable_encoder(result))
