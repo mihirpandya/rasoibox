@@ -18,7 +18,7 @@ from dependencies.database import get_db
 from dependencies.events import emit_event
 from emails.base import VerifySignUpEmail, send_email
 from models.customers import Customer
-from models.signups import VerifiedSignUp, UnverifiedSignUp
+from models.signups import VerifiedSignUp, UnverifiedSignUp, DeliverableZipcode
 
 logger = logging.getLogger("rasoibox")
 settings: Settings = Settings()
@@ -152,3 +152,28 @@ async def is_verified_sign_up(id: str, db: Session = Depends(get_db)) -> JSONRes
         response["zipcode"] = verified_sign_up.zipcode
 
     return JSONResponse(content=jsonable_encoder(response))
+
+
+@router.get("/in_deliverable_zipcode")
+async def in_deliverable_zipcode(id: str, db: Session = Depends(get_db)):
+    verified_sign_up = db.query(VerifiedSignUp).filter(VerifiedSignUp.verification_code == id).first()
+
+    zipcode = None
+    if verified_sign_up is not None:
+        zipcode = verified_sign_up.zipcode
+    else:
+        unverified_sign_up = db.query(UnverifiedSignUp).filter(UnverifiedSignUp.verification_code == id).first()
+        if unverified_sign_up is not None:
+            zipcode = unverified_sign_up.zipcode
+
+    result = {}
+    if zipcode is not None:
+        deliverable_zipcode = db.query(DeliverableZipcode).filter(DeliverableZipcode.zipcode == zipcode).first()
+        if deliverable_zipcode is not None:
+            result["status"] = 0
+            result["delivery_start_date"] = deliverable_zipcode.delivery_start_date
+            result["zipcode"] = deliverable_zipcode.zipcode
+        else:
+            result["status"] = -1
+
+    return JSONResponse(content=jsonable_encoder(result))

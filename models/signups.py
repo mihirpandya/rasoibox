@@ -23,3 +23,10 @@ class VerifiedSignUp(Base):
     verify_date = Column(DateTime)
     zipcode = Column(String(20))
     verification_code = Column(String(100))
+
+
+class DeliverableZipcode(Base):
+    __tablename__ = "deliverable_zipcodes"
+    id = Column(Integer, primary_key=True)
+    zipcode = Column(String(20))
+    delivery_start_date = Column(DateTime)
