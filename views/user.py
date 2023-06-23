@@ -1,6 +1,6 @@
 from sqladmin import ModelView
 
-from models.signups import VerifiedSignUp, UnverifiedSignUp
+from models.signups import VerifiedSignUp, UnverifiedSignUp, DeliverableZipcode
 
 
 class VerifiedUserAdmin(ModelView, model=VerifiedSignUp):
@@ -32,3 +32,11 @@ class UnverifiedUserAdmin(ModelView, model=UnverifiedSignUp):
     column_searchable_list = [UnverifiedSignUp.email, UnverifiedSignUp.zipcode]
     column_sortable_list = [UnverifiedSignUp.signup_date, UnverifiedSignUp.zipcode]
     column_default_sort = [(UnverifiedSignUp.signup_date, True)]
+
+
+class DeliverableZipcodeAdmin(ModelView, model=DeliverableZipcode):
+    column_list = [
+        DeliverableZipcode.id,
+        DeliverableZipcode.zipcode,
+        DeliverableZipcode.delivery_start_date
+    ]

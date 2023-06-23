@@ -19,7 +19,7 @@ from views.recipes import RecipeContributorAdmin, RecipeAdmin, StarredRecipeAdmi
     InYourKitchenAdmin, IngredientsAdmin, RecipeIngredientsAdmin, RecipeInYourKitchenAdmin, RecipeStepAdmin, \
     RecipePriceAdmin
 from views.reset_passwords import ResetPasswordsAdmin
-from views.user import VerifiedUserAdmin, UnverifiedUserAdmin
+from views.user import VerifiedUserAdmin, UnverifiedUserAdmin, DeliverableZipcodeAdmin
 
 logger = logging.getLogger("rasoibox")
 
@@ -36,6 +36,7 @@ admin: Admin = Admin(app, engine, authentication_backend=AdminAuth(user=settings
                                                                    password=settings.admin_password, secret_key="test"))
 admin.add_view(VerifiedUserAdmin)
 admin.add_view(UnverifiedUserAdmin)
+admin.add_view(DeliverableZipcodeAdmin)
 admin.add_view(EventAdmin)
 admin.add_view(RecipeContributorAdmin)
 admin.add_view(RecipeAdmin)
