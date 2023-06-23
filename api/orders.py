@@ -63,6 +63,7 @@ class CartItem(BaseModel):
 
 class PricedCartItem(BaseModel):
     recipe_name: str
+    image_url: str
     serving_size: int
     price: float
 

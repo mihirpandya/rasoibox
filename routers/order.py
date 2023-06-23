@@ -136,18 +136,22 @@ async def cancel_place_order(order_id: str, current_customer: Customer = Depends
 async def get_cart(verification_code: str, db: Session = Depends(get_db)):
     cart_items: List[Cart] = db.query(Cart).filter(Cart.verification_code == verification_code).all()
     cart_recipe_ids: List[str] = [x.recipe_id for x in cart_items]
-    recipe_names: Dict[int, str] = reduce(lambda d1, d2: {**d1, **d2}, [{x.id: x.name} for x in db.query(Recipe).filter(
-        Recipe.id.in_(cart_recipe_ids))], {})
+    recipe_info: Dict[int, Dict[str, str]] = reduce(lambda d1, d2: {**d1, **d2},
+                                                    [{x.id: {"name": x.name, "image_url": x.image_url}} for x in
+                                                     db.query(Recipe).filter(
+                                                         Recipe.id.in_(cart_recipe_ids))], {})
     result: List[PricedCartItem] = []
     for cart_item in cart_items:
-        recipe_name = recipe_names[cart_item.recipe_id]
+        recipe_name = recipe_info[cart_item.recipe_id]["name"]
+        recipe_image_url = recipe_info[cart_item.recipe_id]["image_url"]
         recipe_price: RecipePrice = db.query(RecipePrice).filter(and_(RecipePrice.recipe_id == cart_item.recipe_id,
                                                                       RecipePrice.serving_size == cart_item.serving_size)).first()
         if recipe_price is None:
             raise HTTPException(status_code=400,
                                 detail="Could not find price {}".format(recipe_name))
         result.append(
-            PricedCartItem(recipe_name=recipe_name, serving_size=recipe_price.serving_size, price=recipe_price.price))
+            PricedCartItem(recipe_name=recipe_name, image_url=recipe_image_url, serving_size=recipe_price.serving_size,
+                           price=recipe_price.price))
 
     return JSONResponse(content=jsonable_encoder(result))
 
