@@ -1,0 +1,128 @@
+recipe_name: Paneer Stuffed Besan Chilla
+description: chickpea flour crepes served with vegetables and shredded paneer.
+image_url: https://static.wixstatic.com/media/bbf858_7d1415cdc30d4d97817627353326a151~mv2.png
+recipe_contributor_name: rasoi box
+prep_time_minutes: 10
+cook_time_minutes: 10
+ingredients:
+  - name: gram flour (also known as besan)
+    quantities:
+      - amount: 1
+        serving_size: 4
+    unit: cup
+  - name: onion
+    quantities:
+      - amount: 1
+        serving_size: 4
+    unit: piece
+  - name: tomato
+    quantities:
+      - amount: 1
+        serving_size: 4
+    unit: piece
+  - name: green chili
+    quantities:
+      - amount: 1
+        serving_size: 4
+    unit: tsp
+  - name: coriander leaves
+    quantities:
+      - amount: 0.25
+        serving_size: 4
+    unit: cup
+  - name: ginger
+    quantities:
+      - amount: 0.5
+        serving_size: 4
+    unit: tsp
+  - name: carom seeds (ajwain)
+    quantities:
+      - amount: 0.5
+        serving_size: 4
+    unit: tsp
+  - name: turmeric
+    quantities:
+      - amount: 0.25
+        serving_size: 4
+    unit: tsp
+  - name: red chili powder
+    quantities:
+      - amount: 0.25
+        serving_size: 4
+    unit: tsp
+  - name: paneer
+    quantities:
+      - amount: 0.5
+        serving_size: 4
+    unit: cup
+in_your_kitchen:
+  - name: salt
+  - name: pepper
+  - name: water
+  - name: whisk
+  - name: oil
+  - name: spatula
+steps:
+  - step_number: 1
+    title: prep ingredients
+    instructions:
+      - Wash and dry all produce. Finely dice onions, tomatoes. Finely chop coriander leaves, green chili. Peel and grate ginger.
+      - Grate paneer and add to a medium sized bowl with salt and pepper to taste.
+    tips:
+      - If the vegetables are not finely chopped, the chilla will not spread on the pan.
+    chefs_hats: [ ]
+    ingredients:
+      - onion
+      - tomato
+      - coriander leaves
+      - green chili
+      - ginger
+      - paneer
+    in_your_kitchen:
+      - salt
+      - pepper
+  - step_number: 2
+    title: prepare the chilla mixture
+    instructions:
+      - Add gram flour, onion, tomato, coriander leaves, green chili, ginger, spices, carom seeds, and salt to taste to a large mixing bowl.
+      - Before mixing all of the ingrediens, add 1/2 cup water to the large mixing bowl.
+      - Whisk to combine. If the batter looks thick, then add 1 to 3 tablespoons more water until it reaches the consistency of an omelet batter.
+    tips:
+      - The batter should be smooth and flowy. Make sure to break up any lumps while mixing the batter. 
+    chefs_hats:
+      - Put your chef hat on! Adjust the green chilis or red chili powder to your spice tolerance.
+    ingredients:
+      - onion
+      - tomato
+      - coriander leaves
+      - green chili
+      - ginger
+      - carom seeds (ajwain)
+      - turmeric
+      - red chili powder 
+    in_your_kitchen:
+      - salt
+      - water
+      - whisk
+  - step_number: 3
+    title: cook the chilla
+    instructions:
+      - Heat a frying pan or skillet on low to medium-low heat. If using an iron skillet, add oil and coat the bottom of the pan.
+      - Once the pan is heated, pour a ladleful (about 1/4 cup or 1/3 cup) of batter onto the center of the pan and gentle spread it with the back of the ladle or a heat-proof measuring cup.
+    tips: [ ]
+    chefs_hats: [ ]
+    ingredients: [ ]
+    in_your_kitchen:
+      - oil
+  - step_number: 4
+    title: flip the chilla
+    instructions:
+      - Cook the chilla on a low flame until the top begins to look cooked. It will turn from glossy to matte and you will start to see some bubbles form.
+      - Drizzle oil around the edges of the chilla and continue cooking until the base gets light golden. Flip the chilla and cook the other side until golden spots appear. 
+      - Add shredded paneer to one side of the chilla. Fold in half and serve hot or warm.
+    tips: [ ]
+    chefs_hats: [ ]
+    ingredients: [ ]
+    in_your_kitchen:
+      - oil
+      - spatula

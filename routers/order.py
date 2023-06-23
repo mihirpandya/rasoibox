@@ -21,6 +21,7 @@ from dependencies.stripe_utils import create_checkout_session
 from models.customers import Customer
 from models.orders import Cart, Coupon, PaymentStatusEnum
 from models.recipes import Recipe, RecipePrice
+from models.signups import VerifiedSignUp, UnverifiedSignUp
 
 logger = logging.getLogger("rasoibox")
 
@@ -132,9 +133,8 @@ async def cancel_place_order(order_id: str, current_customer: Customer = Depends
 
 
 @router.get("/get_cart")
-async def get_cart(current_customer: Customer = Depends(get_current_customer),
-                   db: Session = Depends(get_db)):
-    cart_items: List[Cart] = db.query(Cart).filter(Cart.customer_id == current_customer.id).all()
+async def get_cart(verification_code: str, db: Session = Depends(get_db)):
+    cart_items: List[Cart] = db.query(Cart).filter(Cart.verification_code == verification_code).all()
     cart_recipe_ids: List[str] = [x.recipe_id for x in cart_items]
     recipe_names: Dict[int, str] = reduce(lambda d1, d2: {**d1, **d2}, [{x.id: x.name} for x in db.query(Recipe).filter(
         Recipe.id.in_(cart_recipe_ids))], {})
@@ -153,22 +153,26 @@ async def get_cart(current_customer: Customer = Depends(get_current_customer),
 
 
 @router.post("/update_cart")
-async def update_cart(cart_item: CartItem, current_customer: Customer = Depends(get_current_customer),
+async def update_cart(cart_item: CartItem, verification_code: str,
                       db: Session = Depends(get_db)):
+    if not is_known_verification_code(verification_code, db):
+        raise HTTPException(status_code=404, detail="Unknown user")
+
     recipe: Recipe = db.query(Recipe).filter(Recipe.name == cart_item.recipe_name).first()
     if recipe is None:
         raise HTTPException(status_code=404, detail="Unknown recipe {}".format(cart_item.recipe_name))
     existing_cart_item: Cart = db.query(Cart).filter(
-        and_(Cart.recipe_id == recipe.id, Cart.customer_id == current_customer.id)).first()
+        and_(Cart.recipe_id == recipe.id, Cart.verification_code == verification_code)).first()
 
     if existing_cart_item is None:
         if cart_item.serving_size > 0:
             # add new item
-            db.add(Cart(customer_id=current_customer.id, recipe_id=recipe.id, serving_size=cart_item.serving_size))
+            db.add(Cart(veriication_code=verification_code, recipe_id=recipe.id, serving_size=cart_item.serving_size))
     else:
         if cart_item.serving_size > 0:
-            db.query(Cart).filter(and_(Cart.recipe_id == recipe.id, Cart.customer_id == current_customer.id)).update(
-                Cart(customer_id=current_customer.id, recipe_id=recipe.id, serving_size=cart_item.serving_size))
+            db.query(Cart).filter(
+                and_(Cart.recipe_id == recipe.id, Cart.verification_code == verification_code)).update(
+                Cart(verification_code=verification_code, recipe_id=recipe.id, serving_size=cart_item.serving_size))
         else:
             db.delete(existing_cart_item)
 
@@ -176,7 +180,7 @@ async def update_cart(cart_item: CartItem, current_customer: Customer = Depends(
 
 
 @router.get("/get_available_items")
-async def get_available_items_auth(db: Session = Depends(get_db)):
+async def get_available_items(db: Session = Depends(get_db)):
     recipe_prices: List[RecipePrice] = db.query(RecipePrice).all()
     recipe_ids: List[int] = list(set([x.recipe_id for x in recipe_prices]))
     recipes: Dict[int, Recipe] = reduce(lambda d1, d2: {**d1, **d2},
@@ -187,32 +191,6 @@ async def get_available_items_auth(db: Session = Depends(get_db)):
             raise HTTPException(status_code=400, detail="Unknown recipe {}".format(recipe_price.recipe_id))
         if recipe_price.recipe_id in result:
             result[recipe_price.recipe_id]["serving_sizes"].append(recipe_price.serving_size)
-        else:
-            recipe: Recipe = recipes[recipe_price.recipe_id]
-            result[recipe_price.recipe_id] = {
-                "recipe_name": recipe.name,
-                "description": recipe.description,
-                "image_url": recipe.image_url,
-                "serving_sizes": [recipe_price.serving_size],
-            }
-
-    return JSONResponse(content=jsonable_encoder(result))
-
-
-@router.get("/get_available_items_auth")
-async def get_available_items_auth(_current_customer: Customer = Depends(get_current_customer),
-                                   db: Session = Depends(get_db)):
-    recipe_prices: List[RecipePrice] = db.query(RecipePrice).all()
-    recipe_ids: List[int] = list(set([x.recipe_id for x in recipe_prices]))
-    recipes: Dict[int, Recipe] = reduce(lambda d1, d2: {**d1, **d2},
-                                        [{x.id: x} for x in db.query(Recipe).filter(Recipe.id.in_(recipe_ids))], {})
-    result = {}
-    for recipe_price in recipe_prices:
-        if recipe_price.recipe_id not in recipes:
-            raise HTTPException(status_code=400, detail="Unknown recipe {}".format(recipe_price.recipe_id))
-        if recipe_price.recipe_id in result:
-            result[recipe_price.recipe_id]["serving_sizes"].append(recipe_price.serving_size)
-            result[recipe_price.recipe_id]["prices"].append(recipe_price.price)
         else:
             recipe: Recipe = recipes[recipe_price.recipe_id]
             result[recipe_price.recipe_id] = {
@@ -224,3 +202,13 @@ async def get_available_items_auth(_current_customer: Customer = Depends(get_cur
             }
 
     return JSONResponse(content=jsonable_encoder(result))
+
+
+def is_known_verification_code(verification_code: str, db: Session) -> bool:
+    verified_user = db.query(VerifiedSignUp).filter(VerifiedSignUp.verification_code == verification_code).first()
+    if verified_user is None:
+        unverified_user = db.query(UnverifiedSignUp).filter(
+            UnverifiedSignUp.verification_code == verification_code).first()
+        if unverified_user is None:
+            return False
+    return True

@@ -33,7 +33,7 @@ class Order(Base):
 class Cart(Base):
     __tablename__ = "carts"
     id = Column(Integer, primary_key=True)
-    customer_id = Column(Integer)  # ForeignKey("customers.id")
+    verification_code = Column(String(100))
     recipe_id = Column(Integer)  # ForeignKey("recipes.id")
     serving_size = Column(Integer)
 
