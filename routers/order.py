@@ -176,8 +176,7 @@ async def update_cart(cart_item: CartItem, current_customer: Customer = Depends(
 
 
 @router.get("/get_available_items")
-async def get_available_items(_current_customer: Customer = Depends(get_current_customer),
-                              db: Session = Depends(get_db)):
+async def get_available_items_auth(db: Session = Depends(get_db)):
     recipe_prices: List[RecipePrice] = db.query(RecipePrice).all()
     recipe_ids: List[int] = list(set([x.recipe_id for x in recipe_prices]))
     recipes: Dict[int, Recipe] = reduce(lambda d1, d2: {**d1, **d2},
@@ -187,16 +186,41 @@ async def get_available_items(_current_customer: Customer = Depends(get_current_
         if recipe_price.recipe_id not in recipes:
             raise HTTPException(status_code=400, detail="Unknown recipe {}".format(recipe_price.recipe_id))
         if recipe_price.recipe_id in result:
-            result[recipe_price.recipe_id]["serving_sizes"][recipe_price.serving_size] = recipe_price.price
+            result[recipe_price.recipe_id]["serving_sizes"].append(recipe_price.serving_size)
         else:
             recipe: Recipe = recipes[recipe_price.recipe_id]
             result[recipe_price.recipe_id] = {
                 "recipe_name": recipe.name,
                 "description": recipe.description,
                 "image_url": recipe.image_url,
-                "serving_sizes": {
-                    recipe_price.serving_size: recipe_price.price
-                }
+                "serving_sizes": [recipe_price.serving_size],
+            }
+
+    return JSONResponse(content=jsonable_encoder(result))
+
+
+@router.get("/get_available_items_auth")
+async def get_available_items_auth(_current_customer: Customer = Depends(get_current_customer),
+                                   db: Session = Depends(get_db)):
+    recipe_prices: List[RecipePrice] = db.query(RecipePrice).all()
+    recipe_ids: List[int] = list(set([x.recipe_id for x in recipe_prices]))
+    recipes: Dict[int, Recipe] = reduce(lambda d1, d2: {**d1, **d2},
+                                        [{x.id: x} for x in db.query(Recipe).filter(Recipe.id.in_(recipe_ids))], {})
+    result = {}
+    for recipe_price in recipe_prices:
+        if recipe_price.recipe_id not in recipes:
+            raise HTTPException(status_code=400, detail="Unknown recipe {}".format(recipe_price.recipe_id))
+        if recipe_price.recipe_id in result:
+            result[recipe_price.recipe_id]["serving_sizes"].append(recipe_price.serving_size)
+            result[recipe_price.recipe_id]["prices"].append(recipe_price.price)
+        else:
+            recipe: Recipe = recipes[recipe_price.recipe_id]
+            result[recipe_price.recipe_id] = {
+                "recipe_name": recipe.name,
+                "description": recipe.description,
+                "image_url": recipe.image_url,
+                "serving_sizes": [recipe_price.serving_size],
+                "prices": [recipe_price.price],
             }
 
     return JSONResponse(content=jsonable_encoder(result))
