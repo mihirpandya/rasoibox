@@ -179,3 +179,17 @@ async def in_deliverable_zipcode(id: str, db: Session = Depends(get_db)):
         result["status"] = -2
 
     return JSONResponse(content=jsonable_encoder(result))
+
+
+@router.get("/is_deliverable_zipcode")
+async def is_deliverable_zipcode(zipcode: str, db: Session = Depends(get_db)):
+    result = {}
+    deliverable_zipcode = db.query(DeliverableZipcode).filter(DeliverableZipcode.zipcode == zipcode).first()
+    if deliverable_zipcode is not None:
+        result["status"] = 0
+        result["delivery_start_date"] = deliverable_zipcode.delivery_start_date
+        result["zipcode"] = deliverable_zipcode.zipcode
+    else:
+        result["status"] = -1
+
+    return JSONResponse(content=jsonable_encoder(result))
