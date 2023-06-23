@@ -167,7 +167,7 @@ async def update_cart(cart_item: CartItem, verification_code: str,
     if existing_cart_item is None:
         if cart_item.serving_size > 0:
             # add new item
-            db.add(Cart(veriication_code=verification_code, recipe_id=recipe.id, serving_size=cart_item.serving_size))
+            db.add(Cart(verification_code=verification_code, recipe_id=recipe.id, serving_size=cart_item.serving_size))
     else:
         if cart_item.serving_size > 0:
             db.query(Cart).filter(
