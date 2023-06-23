@@ -25,7 +25,7 @@ class OrderAdmin(ModelView, model=Order):
 class CartAdmin(ModelView, model=Cart):
     column_list = [
         Cart.id,
-        Cart.customer_id,
+        Cart.verification_code,
         Cart.recipe_id,
         Cart.serving_size
     ]
