@@ -176,7 +176,7 @@ async def update_cart(cart_item: CartItem, verification_code: str,
         if cart_item.serving_size > 0:
             db.query(Cart).filter(
                 and_(Cart.recipe_id == recipe.id, Cart.verification_code == verification_code)).update(
-                Cart(verification_code=verification_code, recipe_id=recipe.id, serving_size=cart_item.serving_size))
+                {Cart.serving_size: cart_item.serving_size})
         else:
             db.delete(existing_cart_item)
 
