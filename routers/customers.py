@@ -103,8 +103,11 @@ async def login_for_access_token(
 
 
 @router.post("/check")
-async def is_authenticated(_current_customer: Customer = Depends(get_current_customer)):
-    return
+async def is_authenticated(current_customer: Customer = Depends(get_current_customer)):
+    return JSONResponse(content=jsonable_encoder({
+        "first_name": current_customer.first_name,
+        "last_name": current_customer.last_name
+    }))
 
 
 @router.post("/create")
