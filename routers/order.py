@@ -191,6 +191,7 @@ async def get_available_items(db: Session = Depends(get_db)):
             raise HTTPException(status_code=400, detail="Unknown recipe {}".format(recipe_price.recipe_id))
         if recipe_price.recipe_id in result:
             result[recipe_price.recipe_id]["serving_sizes"].append(recipe_price.serving_size)
+            result[recipe_price.recipe_id]["prices"].append(recipe_price.price)
         else:
             recipe: Recipe = recipes[recipe_price.recipe_id]
             result[recipe_price.recipe_id] = {
