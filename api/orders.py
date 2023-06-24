@@ -9,6 +9,7 @@ logger = logging.getLogger(__name__)
 
 
 class Address(BaseModel):
+    user_input: str
     street_name: str
     street_number: int
     apartment_number: Optional[str]
