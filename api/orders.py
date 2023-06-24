@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 class Address(BaseModel):
     street_name: str
     street_number: int
-    apartment_number: Optional[int]
+    apartment_number: Optional[str]
     city: str
     state: str
     zipcode: str
