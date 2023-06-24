@@ -66,7 +66,6 @@ async def initiate_place_order(order: Order, current_customer: Customer = Depend
         if recipe_price is None:
             raise HTTPException(status_code=404, detail="Invalid recipe serving size combo")
         recipe_prices_ordered.append(recipe_price)
-        db.delete(cart_items_by_recipe_id[recipe_id])
 
     order_total_dollars = reduce(lambda p1, p2: p1 + p2, [x.price for x in recipe_prices_ordered], 0)
     order_breakdown_dollars = reduce(lambda d1, d2: {**d1, **d2}, [{x.id: x.price} for x in recipe_prices_ordered], {})
@@ -114,9 +113,28 @@ async def complete_place_order(order_id: str, current_customer: Customer = Depen
     order = db.query(models.orders.Order).filter(models.orders.Order.user_facing_order_id == order_id).first()
     if order is None or order.customer != current_customer.id:
         raise HTTPException(status_code=404, detail="Unknown order")
+    verified_sign_up: VerifiedSignUp = db.query(VerifiedSignUp).filter(
+        VerifiedSignUp.email == current_customer.email).first()
+    if verified_sign_up is None:
+        raise HTTPException(status_code=400, detail="User is not verified.")
+
     db.query(models.orders.Order).filter(models.orders.Order.user_facing_order_id == order_id).update(
         {"payment_status": PaymentStatusEnum.COMPLETED})
+    db.query(Cart).filter(Cart.verification_code == verified_sign_up.verification_code).delete()
     db.commit()
+    
+    order: models.orders.Order = db.query(models.orders.Order).filter(
+        models.orders.Order.user_facing_order_id == order_id).first()
+    result = {
+        "order_number": order.user_facing_order_id,
+        "order_breakdown": json.loads(order.order_breakdown_dollars),
+        "order_date": order.order_date,
+        "order_recipient_name": order.recipient_first_name + " " + order.recipient_last_name,
+        "order_delivery_address": order.delivery_address,
+        "order_total_dollars": order.order_total_dollars
+    }
+
+    return JSONResponse(content=jsonable_encoder(result))
 
 
 @router.post("/cancel_place_order")
