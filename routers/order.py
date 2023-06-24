@@ -46,9 +46,16 @@ async def initiate_place_order(order: Order, current_customer: Customer = Depend
     recipe_ids: List[int] = [x.id for x in db.query(Recipe).filter(Recipe.name.in_(recipe_names)).all()]
     if len(recipe_ids) is not len(recipe_names):
         raise HTTPException(status_code=404, detail="Placing order for unknown recipes.")
+
+    verified_sign_up: VerifiedSignUp = db.query(VerifiedSignUp).filter(
+        VerifiedSignUp.email == current_customer.email).first()
+    if verified_sign_up is None:
+        raise HTTPException(status_code=400, detail="User is not verified.")
+
     cart_items_by_recipe_id: Dict[int, Cart] = reduce(lambda d1, d2: {**d1, **d2},
                                                       [{x.recipe_id: x} for x in db.query(Cart).filter(
-                                                          Cart.customer_id == current_customer.id).all()], {})
+                                                          Cart.verification_code == verified_sign_up.verification_code)
+                                                      .all()], {})
 
     coupon_ids: List[int] = [x.id for x in db.query(Coupon).filter(Coupon.coupon_name.in_(order.coupons)).all()]
     if len(coupon_ids) is not len(order.coupons):
