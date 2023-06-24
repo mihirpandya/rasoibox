@@ -42,11 +42,6 @@ def generate_order_id() -> str:
 @router.post("/initiate_place_order")
 async def initiate_place_order(order: Order, current_customer: Customer = Depends(get_current_customer),
                                db: Session = Depends(get_db)):
-    recipe_names: List[str] = order.recipe_names
-    recipe_ids: List[int] = [x.id for x in db.query(Recipe).filter(Recipe.name.in_(recipe_names)).all()]
-    if len(recipe_ids) is not len(recipe_names):
-        raise HTTPException(status_code=404, detail="Placing order for unknown recipes.")
-
     verified_sign_up: VerifiedSignUp = db.query(VerifiedSignUp).filter(
         VerifiedSignUp.email == current_customer.email).first()
     if verified_sign_up is None:
@@ -64,18 +59,15 @@ async def initiate_place_order(order: Order, current_customer: Customer = Depend
     recipes_serving_size_map: Dict[int, int] = {}
     recipe_prices_ordered: List[RecipePrice] = []
 
-    for recipe_id in recipe_ids:
-        if recipe_id not in cart_items_by_recipe_id:
-            raise HTTPException(status_code=400, detail="Recipe not in user cart.")
-        else:
-            serving_size = cart_items_by_recipe_id[recipe_id].serving_size
-            recipes_serving_size_map[recipe_id] = serving_size
-            recipe_price: RecipePrice = db.query(RecipePrice).filter(
-                and_(RecipePrice.recipe_id == recipe_id, RecipePrice.serving_size == serving_size)).first()
-            if recipe_price is None:
-                raise HTTPException(status_code=404, detail="Invalid recipe serving size combo")
-            recipe_prices_ordered.append(recipe_price)
-            db.delete(cart_items_by_recipe_id[recipe_id])
+    for recipe_id in cart_items_by_recipe_id.keys():
+        serving_size = cart_items_by_recipe_id[recipe_id].serving_size
+        recipes_serving_size_map[recipe_id] = serving_size
+        recipe_price: RecipePrice = db.query(RecipePrice).filter(
+            and_(RecipePrice.recipe_id == recipe_id, RecipePrice.serving_size == serving_size)).first()
+        if recipe_price is None:
+            raise HTTPException(status_code=404, detail="Invalid recipe serving size combo")
+        recipe_prices_ordered.append(recipe_price)
+        db.delete(cart_items_by_recipe_id[recipe_id])
 
     order_total_dollars = reduce(lambda p1, p2: p1 + p2, [x.price for x in recipe_prices_ordered], 0)
     order_breakdown_dollars = reduce(lambda d1, d2: {**d1, **d2}, [{x.id: x.price} for x in recipe_prices_ordered], {})

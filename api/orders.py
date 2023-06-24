@@ -30,7 +30,6 @@ class Address(BaseModel):
 
 class Order(BaseModel):
     order_date: datetime
-    recipe_names: List[str]
     recipient_first_name: str
     recipient_last_name: str
     delivery_address: Address
