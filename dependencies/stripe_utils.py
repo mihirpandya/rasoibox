@@ -3,13 +3,13 @@ from typing import List
 
 import stripe
 
-from config import Settings
+# from config import Settings
 
 logger = logging.getLogger(__name__)
 
-settings = Settings()
-
-stripe.api_key = settings.stripe_secret_key
+# settings = Settings()
+#
+# stripe.api_key = settings.stripe_secret_key
 
 
 def to_product_name(name: str, serving_size: int) -> str:
@@ -78,13 +78,16 @@ def get_stripe_product(recipe_name: str, serving_size: int):
     return None
 
 
-def create_checkout_session(price_ids: List[str], success_url: str, cancel_url: str, user_facing_order_id: str):
+def create_checkout_session(price_ids: List[str], success_url: str, cancel_url: str, user_facing_order_id: str,
+                            discounts: List[str] = None):
     line_items = [{"price": price_id, "quantity": 1} for price_id in price_ids]
+    discount_arr = [{"promotion_code": x} for x in discounts] if discounts is not None else []
     return stripe.checkout.Session.create(
         line_items=line_items,
         mode="payment",
         success_url=success_url,
         cancel_url=cancel_url,
+        discounts=discount_arr,
         automatic_tax={
             'enabled': True
         },
