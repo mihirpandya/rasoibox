@@ -4,7 +4,7 @@ import random
 import string
 from datetime import datetime
 from functools import reduce
-from typing import List, Dict
+from typing import List, Dict, Any
 
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.encoders import jsonable_encoder
@@ -68,6 +68,22 @@ async def initiate_place_order(order: Order, current_customer: Customer = Depend
         recipe_prices_ordered.append(recipe_price)
 
     order_total_dollars = reduce(lambda p1, p2: p1 + p2, [x.price for x in recipe_prices_ordered], 0)
+    # order_items = [
+    #     {
+    #         "recipe_price_id": 0,
+    #         "recipe_name": "",
+    #         "serving_size": 0,
+    #         "price": 0.0,
+    #     }
+    # ]
+    #
+    # coupons = [
+    #     {
+    #         "coupon_id": 0,
+    #
+    #     }
+    # ]
+    #
     order_breakdown_dollars = reduce(lambda d1, d2: {**d1, **d2}, [{x.id: x.price} for x in recipe_prices_ordered], {})
     stripe_price_ids = [x.stripe_price_id for x in recipe_prices_ordered]
     user_facing_order_id = generate_order_id()
@@ -122,19 +138,13 @@ async def complete_place_order(order_id: str, current_customer: Customer = Depen
         {"payment_status": PaymentStatusEnum.COMPLETED})
     db.query(Cart).filter(Cart.verification_code == verified_sign_up.verification_code).delete()
     db.commit()
-    
+
     order: models.orders.Order = db.query(models.orders.Order).filter(
         models.orders.Order.user_facing_order_id == order_id).first()
-    result = {
-        "order_number": order.user_facing_order_id,
-        "order_breakdown": json.loads(order.order_breakdown_dollars),
-        "order_date": order.order_date,
-        "order_recipient_name": order.recipient_first_name + " " + order.recipient_last_name,
-        "order_delivery_address": order.delivery_address,
-        "order_total_dollars": order.order_total_dollars
-    }
 
-    return JSONResponse(content=jsonable_encoder(result))
+    # send email
+
+    return JSONResponse(content=jsonable_encoder(to_order_dict(order)))
 
 
 @router.post("/cancel_place_order")
@@ -223,6 +233,37 @@ async def get_available_items(db: Session = Depends(get_db)):
             }
 
     return JSONResponse(content=jsonable_encoder(result))
+
+
+@router.get("/get_order")
+async def get_order_from_order_id(order_id: str, current_customer: Customer = Depends(get_current_customer),
+                                  db: Session = Depends(get_db)):
+    order = db.query(models.orders.Order).filter(and_(models.orders.Order.user_facing_order_id == order_id,
+                                                      models.orders.Order.customer == current_customer.id)).first()
+    if order is None:
+        raise HTTPException(status_code=404, detail="Unknown order")
+
+    return JSONResponse(content=jsonable_encoder(to_order_dict(order)))
+
+
+@router.get("/get_order_history")
+async def get_order_history(current_customer: Customer = Depends(get_current_customer),
+                            db: Session = Depends(get_db)):
+    orders: List[models.orders.Order] = db.query(models.orders.Order).filter(
+        models.orders.Order.customer == current_customer.id).all()
+    return JSONResponse(content=jsonable_encoder([to_order_dict(x) for x in orders]))
+
+
+def to_order_dict(order: models.orders.Order) -> Dict[str, Any]:
+    return {
+        "order_number": order.user_facing_order_id,
+        "order_breakdown": json.loads(order.order_breakdown_dollars),
+        "order_date": order.order_date,
+        "order_recipient_name": order.recipient_first_name + " " + order.recipient_last_name,
+        "order_delivery_address": order.delivery_address,
+        "order_total_dollars": order.order_total_dollars,
+        "order_delivered": order.delivered
+    }
 
 
 def is_known_verification_code(verification_code: str, db: Session) -> bool:
