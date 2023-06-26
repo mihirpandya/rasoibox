@@ -22,9 +22,9 @@ ingredients:
     unit: piece
   - name: spice blend
     quantities:
-      - amount: 1
+      - amount: 3
         serving_size: 4
-    unit: piece
+    unit: tbsp
   - name: cumin-coriander powder
     quantities:
       - amount: 2
@@ -32,14 +32,14 @@ ingredients:
     unit: tsp
   - name: garam masala
     quantities:
-      - amount: 1
+      - amount: 2
         serving_size: 4
-    unit: piece
+    unit: tsp
   - name: aamchur powder
     quantities:
-      - amount: 1
+      - amount: 0.5
         serving_size: 4
-    unit: piece
+    unit: tsp
   - name: coriander leaves
     quantities:
       - amount: 2
@@ -77,7 +77,7 @@ steps:
   - step_number: 1
     title: prep ingredients
     instructions:
-      - Wash and dry all produce. Chop onions, dice tomatoes, de-stem, remove seeds, and slit green chili lengthwise.
+      - Wash and dry all produce. Chop onions, dice tomatoes, de-stem, slit green chili lengthwise and remove seeds. Finely chop coriander leaves.
       - Gather all spices in a medium bowl (spice blend, cumin-coriander powder, garam masala, aamchur powder).
       - Drain and rinse chickpeas. Set aside for later.
     tips:
