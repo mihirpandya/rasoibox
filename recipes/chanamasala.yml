@@ -75,10 +75,11 @@ in_your_kitchen:
       - rubber spatula
 steps:
   - step_number: 1
-    title: prep vegetables
+    title: prep ingredients
     instructions:
-      - Wash and dry all produce. Chop onions, dice tomatoes, de-stem, remove seeds, and slit green chili crosswise.
+      - Wash and dry all produce. Chop onions, dice tomatoes, de-stem, remove seeds, and slit green chili lengthwise.
       - Gather all spices in a medium bowl (spice blend, cumin-coriander powder, garam masala, aamchur powder).
+      - Drain and rinse chickpeas. Set aside for later.
     tips:
       - If you have a spicier palate, dice chillis small and keep the seeds in.
     chefs_hats: [ ]
