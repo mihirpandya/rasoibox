@@ -258,6 +258,22 @@ async def get_order_history(current_customer: Customer = Depends(get_current_cus
     return JSONResponse(content=jsonable_encoder([to_order_dict(x) for x in orders]))
 
 
+@router.get("/get_active_recipes")
+async def get_active_recipes(current_customer: Customer = Depends(get_current_customer),
+                             db: Session = Depends(get_db)):
+    orders: List[models.orders.Order] = db.query(models.orders.Order).filter(
+        models.orders.Order.customer == current_customer.id).all()
+
+    active_orders: List[Dict[str, Any]] = [to_order_dict(x) for x in orders if is_active_order(x)]
+    return JSONResponse(content=jsonable_encoder(active_orders))
+
+
+def is_active_order(order: models.orders.Order) -> bool:
+    now = datetime.now()
+    difference = now - order.order_date
+    return difference.days < 30
+
+
 def to_order_dict(order: models.orders.Order) -> Dict[str, Any]:
     return {
         "order_number": order.user_facing_order_id,
