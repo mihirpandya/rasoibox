@@ -276,7 +276,7 @@ def is_active_order(order: models.orders.Order) -> bool:
 
 def to_order_dict(order: models.orders.Order, db: Session) -> Dict[str, Any]:
     recipes = json.loads(order.recipes)
-    recipe_names: Dict[str, int] = reduce(lambda d1, d2: {**d1, **d2}, [{x.name: recipes[x.id]} for x in
+    recipe_names: Dict[str, int] = reduce(lambda d1, d2: {**d1, **d2}, [{x.name: recipes[str(x.id)]} for x in
                                                                         db.query(Recipe).filter(
                                                                             Recipe.id.in_(recipes.keys())).all()], {})
     return {
