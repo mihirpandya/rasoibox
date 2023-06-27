@@ -54,10 +54,10 @@ def add_recipe_steps(yml_file, url_base, proceed=False):
         "ingredients": ingredients,
         "in_your_kitchens": in_your_kitchens,
     }
-    r = requests.post(add_recipe_metadata_url, json=[payload])
-    if not r.ok:
-        print("Failed to create recipe metadata.")
-        return r
+    # r = requests.post(add_recipe_metadata_url, json=[payload])
+    # if not r.ok:
+    #     print("Failed to create recipe metadata.")
+    #     return r
 
     add_recipe_steps_url = url_base + "/api/recipe/add_recipe_steps?recipe_id=" + str(recipe_id)
     payload = [{

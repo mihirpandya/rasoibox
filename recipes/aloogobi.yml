@@ -1,6 +1,6 @@
 recipe_name: Aloo Gobi
 description: tender potatoes and cauliflower in aromatic spices.
-image_url: https://static.wixstatic.com/media/bbf858_1f2b4da43a2c497891f108709800b795~mv2.png	
+image_url: https://static.wixstatic.com/media/bbf858_1f2b4da43a2c497891f108709800b795~mv2.png
 recipe_contributor_name: Rasoi Box
 prep_time_minutes: 10
 cook_time_minutes: 35
@@ -30,7 +30,7 @@ ingredients:
       - amount: 1
         serving_size: 4
     unit: piece
-  - name: ginger-garlic paste	
+  - name: ginger-garlic paste
     quantities:
       - amount: 1
         serving_size: 4
@@ -92,6 +92,7 @@ steps:
       - cauliflower
       - potato
       - green chili
+    in_your_kitchen: [ ]
   - step_number: 2
     title: Temper spices and aromatics
     instructions:
@@ -110,13 +111,13 @@ steps:
   - step_number: 3
     title: Cook the tomato base
     instructions:
-      - Mix in the ginger-garlic paste, diced tomatoes, and all of the spices (cumin-coriander powder, turmeric, red chili powder, amchur powder, garam masala). Stir properly and cook for an additional 3-4 minutes.
+      - Mix in the ginger-garlic paste, diced tomatoes, and all of the spices (cumin-coriander powder, turmeric, red chili powder, aamchur powder, garam masala). Stir properly and cook for an additional 3-4 minutes.
     tips:
       - Things may stick to your skillet; Keep things moving and deglaze with 1-2 tbsp of water.
     chefs_hats: [ ]
     ingredients:
       - ginger-garlic paste
-      - tomatoes
+      - tomato
       - cumin-coriander powder
       - turmeric
       - red chili powder
@@ -133,12 +134,13 @@ steps:
       - The vegetables should cook in their own juices. If you feel they are sticking to the pan, add only a bit of water to prevent burning. 
     chefs_hats: [ ]
     ingredients:
-      - potatoes
+      - potato
       - cauliflower
+    in_your_kitchen: [ ]
   - step_number: 5
     title: Finish the Aloo Gobi
     instructions:
-      - Once fully cooked (there should be a little resistence when you try to break a potato), turn the heat off. Garnish with chopped cilantro leaves.
+      - Once fully cooked (there should be a little resistence when you try to break a potato), turn the heat off. Garnish with chopped coriander leaves.
       - Adjust for salt if necessary and add a squeeze of lemon for extra tang and freshness. Serve hot!
     tips: 
       - If the vegetables are cooked to your preference and you still see moisture pooling, raise the heat to medium and cook (covered) until it reaches your preferred consistency.

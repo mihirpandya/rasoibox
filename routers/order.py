@@ -144,7 +144,7 @@ async def complete_place_order(order_id: str, current_customer: Customer = Depen
 
     # send email
 
-    return JSONResponse(content=jsonable_encoder(to_order_dict(order)))
+    return JSONResponse(content=jsonable_encoder(to_order_dict(order, db)))
 
 
 @router.post("/cancel_place_order")
@@ -247,7 +247,7 @@ async def get_order_from_order_id(order_id: str, current_customer: Customer = De
     if order is None:
         raise HTTPException(status_code=404, detail="Unknown order")
 
-    return JSONResponse(content=jsonable_encoder(to_order_dict(order)))
+    return JSONResponse(content=jsonable_encoder(to_order_dict(order, db)))
 
 
 @router.get("/get_order_history")
@@ -255,7 +255,7 @@ async def get_order_history(current_customer: Customer = Depends(get_current_cus
                             db: Session = Depends(get_db)):
     orders: List[models.orders.Order] = db.query(models.orders.Order).filter(
         models.orders.Order.customer == current_customer.id).all()
-    return JSONResponse(content=jsonable_encoder([to_order_dict(x) for x in orders]))
+    return JSONResponse(content=jsonable_encoder([to_order_dict(x, db) for x in orders]))
 
 
 @router.get("/get_active_recipes")
@@ -264,7 +264,7 @@ async def get_active_recipes(current_customer: Customer = Depends(get_current_cu
     orders: List[models.orders.Order] = db.query(models.orders.Order).filter(
         models.orders.Order.customer == current_customer.id).all()
 
-    active_orders: List[Dict[str, Any]] = [to_order_dict(x) for x in orders if is_active_order(x)]
+    active_orders: List[Dict[str, Any]] = [to_order_dict(x, db) for x in orders if is_active_order(x)]
     return JSONResponse(content=jsonable_encoder(active_orders))
 
 
@@ -274,7 +274,11 @@ def is_active_order(order: models.orders.Order) -> bool:
     return difference.days < 15
 
 
-def to_order_dict(order: models.orders.Order) -> Dict[str, Any]:
+def to_order_dict(order: models.orders.Order, db: Session) -> Dict[str, Any]:
+    recipes = json.loads(order.recipes)
+    recipe_names: Dict[str, int] = reduce(lambda d1, d2: {**d1, **d2}, [{x.name: recipes[x.id]} for x in
+                                                                        db.query(Recipe).filter(
+                                                                            Recipe.id.in_(recipes.keys())).all()], {})
     return {
         "order_number": order.user_facing_order_id,
         "order_breakdown": json.loads(order.order_breakdown_dollars),
@@ -282,7 +286,8 @@ def to_order_dict(order: models.orders.Order) -> Dict[str, Any]:
         "order_recipient_name": order.recipient_first_name + " " + order.recipient_last_name,
         "order_delivery_address": order.delivery_address,
         "order_total_dollars": order.order_total_dollars,
-        "order_delivered": order.delivered
+        "order_delivered": order.delivered,
+        "recipes": recipe_names
     }
 
 
