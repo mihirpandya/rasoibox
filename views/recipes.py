@@ -21,7 +21,8 @@ class RecipeAdmin(ModelView, model=Recipe):
         Recipe.image_url,
         Recipe.recipe_contributor_id,
         Recipe.prep_time_minutes,
-        Recipe.cook_time_minutes
+        Recipe.cook_time_minutes,
+        Recipe.tags,
     ]
 
 

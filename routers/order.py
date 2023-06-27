@@ -230,6 +230,9 @@ async def get_available_items(db: Session = Depends(get_db)):
                 "image_url": recipe.image_url,
                 "serving_sizes": [recipe_price.serving_size],
                 "prices": [recipe_price.price],
+                "cook_time": recipe.cook_time_minutes,
+                "prep_time": recipe.prep_time_minutes,
+                "tags": json.loads(recipe.tags)
             }
 
     return JSONResponse(content=jsonable_encoder(result))

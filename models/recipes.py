@@ -20,6 +20,7 @@ class Recipe(Base):
     recipe_contributor_id = Column(Integer)  # ForeignKey("recipe_contributors.id")
     prep_time_minutes = Column(Integer)
     cook_time_minutes = Column(Integer)
+    tags = Column(JSON)
 
 
 class RecipePrice(Base):
