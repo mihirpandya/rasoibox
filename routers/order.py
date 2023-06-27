@@ -224,6 +224,7 @@ async def get_available_items(db: Session = Depends(get_db)):
             result[recipe_price.recipe_id]["prices"].append(recipe_price.price)
         else:
             recipe: Recipe = recipes[recipe_price.recipe_id]
+            tags = recipe.tags if recipe.tags is not None else []
             result[recipe_price.recipe_id] = {
                 "recipe_name": recipe.name,
                 "description": recipe.description,
@@ -232,7 +233,7 @@ async def get_available_items(db: Session = Depends(get_db)):
                 "prices": [recipe_price.price],
                 "cook_time": recipe.cook_time_minutes,
                 "prep_time": recipe.prep_time_minutes,
-                "tags": json.loads(recipe.tags)
+                "tags": json.loads(tags)
             }
 
     return JSONResponse(content=jsonable_encoder(result))
