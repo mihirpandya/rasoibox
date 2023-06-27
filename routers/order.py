@@ -271,7 +271,7 @@ async def get_active_recipes(current_customer: Customer = Depends(get_current_cu
 def is_active_order(order: models.orders.Order) -> bool:
     now = datetime.now()
     difference = now - order.order_date
-    return difference.days < 30
+    return difference.days < 15
 
 
 def to_order_dict(order: models.orders.Order) -> Dict[str, Any]:
