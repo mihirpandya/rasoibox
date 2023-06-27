@@ -1,0 +1,151 @@
+recipe_name: Aloo Gobi
+description: tender potatoes and cauliflower in aromatic spices.
+image_url: https://static.wixstatic.com/media/bbf858_1f2b4da43a2c497891f108709800b795~mv2.png	
+recipe_contributor_name: Rasoi Box
+prep_time_minutes: 10
+cook_time_minutes: 35
+ingredients:
+  - name: cauliflower
+    quantities:
+      - amount: 4
+        serving_size: 4
+    unit: cup
+  - name: potato
+    quantities:
+      - amount: 2
+        serving_size: 4
+    unit: piece
+  - name: green chili
+    quantities:
+      - amount: 1
+        serving_size: 4
+    unit: piece
+  - name: cumin seeds
+    quantities:
+      - amount: 0.5
+        serving_size: 4
+    unit: tsp
+  - name: onion
+    quantities:
+      - amount: 1
+        serving_size: 4
+    unit: piece
+  - name: ginger-garlic paste	
+    quantities:
+      - amount: 1
+        serving_size: 4
+    unit: tbsp
+  - name: tomato
+    quantities:
+      - amount: 2
+        serving_size: 4
+    unit: piece
+  - name: cumin-coriander powder
+    quantities:
+      - amount: 2
+        serving_size: 4
+    unit: tsp
+  - name: turmeric
+    quantities:
+      - amount: 0.5
+        serving_size: 4
+    unit: tsp
+  - name: red chili powder
+    quantities:
+      - amount: 0.5
+        serving_size: 4
+    unit: tsp
+  - name: aamchur powder
+    quantities:
+      - amount: 0.25
+        serving_size: 4
+    unit: tsp
+  - name: garam masala
+    quantities:
+      - amount: 0.5
+        serving_size: 4
+    unit: tsp
+  - name: lemon
+    quantities:
+      - amount: 1
+        serving_size: 4
+    unit: piece
+  - name: coriander leaves
+    quantities:
+      - amount: 2
+        serving_size: 4
+    unit: tbsp
+in_your_kitchen:
+  - name: oil
+  - name: salt
+  - name: pepper
+steps:
+  - step_number: 1
+    title: Prep your vegetables
+    instructions:
+      - Wash and dry all produce. Cut your cauliflower into florets about 1-2 inches big. Dice your potatoes into similar sized cubes or chunks. Destem and slit green chili lengthwise, and remove the seeds.
+    tips:
+      - Cutting your cauliflower and potatoes into similar size pieces will help with even cooking and easy eating.
+      - If you have a spicier palate, dice green chili small and keep the seeds in.
+    chefs_hats: [ ]
+    ingredients:
+      - cauliflower
+      - potato
+      - green chili
+  - step_number: 2
+    title: Temper spices and aromatics
+    instructions:
+      - Heat a nonstick skillet or heavy bottomed pan over medium heat and add 3 tbsp oil. Once the oil is hot, about 2-3 minutes, add cumin seeds and green chili. Let them cook for a few seconds, until they sizzle.
+      - Add chopped onions and a pinch of salt. Cook until the onions are slightly browned, stirring to prevent sticking or burning, about 5-7 minutes.
+    tips:
+      - Signs that your oil is hot:<br /><ul><li>it flows smoothly, quickly coating the pan.</li><li>the surface glistens and shimmers.</li><li>a small piece of food sizzles immediately when added to the pan.</li></ul>
+    chefs_hats: [ ]
+    ingredients:
+      - cumin seeds
+      - green chili
+      - onion
+    in_your_kitchen:
+      - oil
+      - salt
+  - step_number: 3
+    title: Cook the tomato base
+    instructions:
+      - Mix in the ginger-garlic paste, diced tomatoes, and all of the spices (cumin-coriander powder, turmeric, red chili powder, amchur powder, garam masala). Stir properly and cook for an additional 3-4 minutes.
+    tips:
+      - Things may stick to your skillet; Keep things moving and deglaze with 1-2 tbsp of water.
+    chefs_hats: [ ]
+    ingredients:
+      - ginger-garlic paste
+      - tomatoes
+      - cumin-coriander powder
+      - turmeric
+      - red chili powder
+      - aamchur powder
+      - garam masala
+    in_your_kitchen:
+      - water
+  - step_number: 4
+    title: Cook potatoes and cauliflower
+    instructions:
+      - Add potatoes and cauliflower to the skillet and saute for 5 minutes until slightly softened.
+      - Turn the heat to medium-low, cover, and cook for an additional 10-15 minutes, stirring occasionally. The potatoes should be tender but not soggy.
+    tips:
+      - The vegetables should cook in their own juices. If you feel they are sticking to the pan, add only a bit of water to prevent burning. 
+    chefs_hats: [ ]
+    ingredients:
+      - potatoes
+      - cauliflower
+  - step_number: 5
+    title: Finish the Aloo Gobi
+    instructions:
+      - Once fully cooked (there should be a little resistence when you try to break a potato), turn the heat off. Garnish with chopped cilantro leaves.
+      - Adjust for salt if necessary and add a squeeze of lemon for extra tang and freshness. Serve hot!
+    tips: 
+      - If the vegetables are cooked to your preference and you still see moisture pooling, raise the heat to medium and cook (covered) until it reaches your preferred consistency.
+    chefs_hats:
+      - Put your chef hat on! Eat with roti, paratha, or naan, or with rice. You can also wrap in a flaky paratha for an on-the-go meal.
+    ingredients:
+      - coriander leaves
+      - lemon
+    in_your_kitchen:
+      - salt
