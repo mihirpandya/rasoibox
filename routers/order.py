@@ -268,6 +268,33 @@ async def get_active_recipes(current_customer: Customer = Depends(get_current_cu
     return JSONResponse(content=jsonable_encoder(active_orders))
 
 
+@router.post("/is_valid_coupon")
+async def is_valid_coupon(coupon_code: str, current_customer: Customer = Depends(get_current_customer),
+                          db: Session = Depends(get_db)):
+    verified_sign_up: VerifiedSignUp = db.query(VerifiedSignUp).filter(
+        VerifiedSignUp.email == current_customer.email).first()
+    if verified_sign_up is None:
+        raise HTTPException(status_code=404, detail="Unknown coupon")
+
+    coupon: Coupon = db.query(Coupon).filter(and_(Coupon.coupon_name == coupon_code,
+                                                  Coupon.redeemable_by_verification_code == verified_sign_up.verification_code)).first()
+
+    if coupon is None:
+        raise HTTPException(status_code=404, detail="Unknown coupon")
+
+    now = datetime.now()
+    if now > coupon.expires_on:
+        raise HTTPException(status_code=400, detail="Expired coupon")
+
+    result = {
+        "coupon_name": coupon.coupon_name,
+        "amount_off": coupon.amount_off if coupon.amount_off is not None else 0.0,
+        "percent_off": coupon.percent_off if coupon.percent_off is not None else 0.0
+    }
+
+    return JSONResponse(content=jsonable_encoder(result))
+
+
 def is_active_order(order: models.orders.Order) -> bool:
     now = datetime.now()
     difference = now - order.order_date

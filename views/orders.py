@@ -37,5 +37,9 @@ class CouponAdmin(ModelView, model=Coupon):
         Coupon.coupon_name,
         Coupon.created_on,
         Coupon.expires_on,
-        Coupon.number_times_redeemed
+        Coupon.number_times_redeemed,
+        Coupon.stripe_promo_code_id,
+        Coupon.amount_off,
+        Coupon.percent_off,
+        Coupon.redeemable_by_verification_code
     ]

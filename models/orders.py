@@ -45,3 +45,7 @@ class Coupon(Base):
     created_on = Column(DateTime)
     expires_on = Column(DateTime)
     number_times_redeemed = Column(Integer)
+    stripe_promo_code_id = Column(String)
+    amount_off = Column(Float)
+    percent_off = Column(Float)
+    redeemable_by_verification_code = Column(String(100))
