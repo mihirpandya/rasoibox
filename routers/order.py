@@ -36,7 +36,7 @@ settings: Settings = Settings()
 
 
 def generate_order_id() -> str:
-    res = ''.join(random.choices(string.digits, k=10))
+    res = ''.join(random.choices(string.digits, k=8))
     return res.lower()
 
 

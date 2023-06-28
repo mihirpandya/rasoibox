@@ -8,6 +8,14 @@
                 font-family: "Avenir";
                 text-align: center;
             }
+            table {
+                font-family: "Avenir";
+                font-size: 12px;
+            }
+            td {
+                padding-left: 20px;
+                padding-right: 20px;
+            }
             .verification_link {
               text-align: center;
               font-family: Avenir;
@@ -31,6 +39,10 @@
             .message {
                 text-align: left;
                 font-size: 15px;
+            }
+            .order-details {
+                text-align: left;
+                font-size: 12px;
             }
             .content {
                 background-color: white;
@@ -72,36 +84,56 @@
             Hi {{ first_name }},
             <br/>
             <br/>
-            Your Rasoi Box order has been successfully placed! Here are the details of your order.
-            <br/>
-            <br/>
-            Order ID: {{ order_id }}
-            <br/>
+            Your Rasoi Box order has been successfully placed! Your order number is {{ order_id }}. Here are the details of your order.
             <br/>
         </p>
+        <br />
+        <br />
         <table>
             {% for line_item in line_items %}
             <tr>
                 <td>{{ line_item.name }}</td>
-                <td>{{ line_item.serving_size }}</td>
+                <td>{{ line_item.serving_size }} servings</td>
             </tr>
             {% endfor %}
         </table>
-        <p class="message">
-            <br/>
-            Sub-total: {{ subtotal }}
-            <br/>
+        <br />
+        <br />
+        <table>
+            <tr>
+                <td>Sub-total</td>
+                <td>{{ subtotal }}</td>
+            </tr>
             {% if coupon is defined %}
-            coupon.name: coupon.discount_str
-            <br />
+            <tr>
+                <td>{{ coupon.name }}</td>
+                <td>{{ coupon.discount_str }}</td>
+            </tr>
             {% endif %}
-            Total: {{ total }}
-            <br/>
-            Shipping Address: {{ shipping_address }}
-            <br/>
-            <br/>
+            <tr>
+                <td>Total</td>
+                <td>{{ total }}</td>
+            </tr>
+            <tr>
+                <td>Shipping Address</td>
+                <td>{{ shipping_address.user_input }}</td>
+            </tr>
+        </table>
+        <br />
+        <br />
+        <p class="order-details">
             You can also view your order details <a href="{{ order_link }}">here</a>.
+            <br />
+            <br />
+            Happy cooking!
+            <br />
+            <br />
+            - Team Rasoi Box
         </p>
+       <div class="footer">
+            <br />
+            &nbsp;&copy; 2023 Rasoi Box
+        </div>
     </div>
 </div>
 </body>

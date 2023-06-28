@@ -80,6 +80,7 @@ class ReceiptEmail(RasoiBoxEmail):
             "total": total,
             "line_items": line_items,
             "shipping_address": shipping_address,
+            "order_id": order_id
         }
 
         if len(coupon) > 0:
