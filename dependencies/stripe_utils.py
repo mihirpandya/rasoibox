@@ -7,6 +7,7 @@ from config import Settings
 
 logger = logging.getLogger(__name__)
 
+
 settings = Settings()
 
 stripe.api_key = settings.stripe_secret_key
@@ -81,7 +82,8 @@ def get_stripe_product(recipe_name: str, serving_size: int):
 def create_checkout_session(price_ids: List[str], success_url: str, cancel_url: str, user_facing_order_id: str,
                             discounts: List[str] = None):
     line_items = [{"price": price_id, "quantity": 1} for price_id in price_ids]
-    discount_arr = [{"promotion_code": x} for x in discounts] if discounts is not None else []
+    promo_codes = [find_promo_code_id(x) for x in discounts] if discounts is not None else []
+    discount_arr = [{"promotion_code": x} for x in promo_codes if x is not None]
     return stripe.checkout.Session.create(
         line_items=line_items,
         mode="payment",
@@ -93,3 +95,14 @@ def create_checkout_session(price_ids: List[str], success_url: str, cancel_url: 
         },
         client_reference_id=user_facing_order_id
     )
+
+
+def find_promo_code_id(promo_code: str):
+    promo_codes = stripe.PromotionCode.list(code=promo_code)
+    if "data" in promo_codes and len(promo_codes["data"]) == 1:
+        return promo_codes["data"][0]["id"]
+    else:
+        return None
+#
+# stripe.api_key = "sk_test_51NKT9IDgBx8MbUKDSTPyrSFmGE33QdHD9ZUHeh2RI7OTQQ6AD8UMaIrb3dGCp0qXAj330FudB2ghm397VGFPf9va00UcNWUqQz"
+# create_checkout_session(["price_1NMG1dDgBx8MbUKDmtBiGXZx"], "https://www.rasoibox.com/success", "https://www.rasoibox.com/cancel", "dummy_id", ["PERCENT"])

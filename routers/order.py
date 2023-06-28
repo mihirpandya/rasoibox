@@ -99,7 +99,7 @@ async def initiate_place_order(order: Order, current_customer: Customer = Depend
         checkout_session = create_checkout_session(stripe_price_ids,
                                                    settings.frontend_url_base + "success?orderId=" + user_facing_order_id,
                                                    settings.frontend_url_base + "cancel?orderId=" + user_facing_order_id,
-                                                   user_facing_order_id)
+                                                   user_facing_order_id, [x.name for x in coupons])
         logger.info("Successfully created checkout session {}".format(checkout_session))
         return JSONResponse(content=jsonable_encoder({"session_url": checkout_session.url}))
     except Exception:
