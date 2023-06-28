@@ -71,7 +71,7 @@ async def initiate_place_order(order: Order, current_customer: Customer = Depend
     order_breakdown_dollars = reduce(lambda d1, d2: {**d1, **d2}, [{x.id: x.price} for x in recipe_prices_ordered], {})
     order_breakdown = {
         "items": order_breakdown_dollars,
-        "coupons": [{"name": x.name, "amount_off": x.amount_off, "percent_off": x.percent_off} for x in coupons]
+        "coupons": [{"name": x.coupon_name, "amount_off": x.amount_off, "percent_off": x.percent_off} for x in coupons]
     }
     stripe_price_ids = [x.stripe_price_id for x in recipe_prices_ordered]
     user_facing_order_id = generate_order_id()
