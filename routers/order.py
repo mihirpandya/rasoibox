@@ -304,9 +304,9 @@ def is_active_order(order: models.orders.Order) -> bool:
 
 def to_order_dict(order: models.orders.Order, db: Session) -> Dict[str, Any]:
     recipes = json.loads(order.recipes)
-    recipe_names: Dict[str, int] = reduce(lambda d1, d2: {**d1, **d2}, [{x.name: recipes[str(x.id)]} for x in
-                                                                        db.query(Recipe).filter(
-                                                                            Recipe.id.in_(recipes.keys())).all()], {})
+    recipe_info: Dict[str, Dict[str, Any]] = reduce(lambda d1, d2: {**d1, **d2}, [
+        {x.name: {"id": x.id, "image_url": x.image_url, "serving_size": recipes[str(x.id)]}} for x in
+        db.query(Recipe).filter(Recipe.id.in_(recipes.keys())).all()], {})
     return {
         "order_number": order.user_facing_order_id,
         "order_breakdown": json.loads(order.order_breakdown_dollars),
@@ -315,7 +315,7 @@ def to_order_dict(order: models.orders.Order, db: Session) -> Dict[str, Any]:
         "order_delivery_address": order.delivery_address,
         "order_total_dollars": order.order_total_dollars,
         "order_delivered": order.delivered,
-        "recipes": recipe_names
+        "recipes": recipe_info
     }
 
 
