@@ -29,7 +29,7 @@
                 text-align: center;
             }
             .message {
-                text-align: center;
+                text-align: left;
                 font-size: 15px;
             }
             .content {
@@ -85,8 +85,9 @@
                 <td>{{ line_item.name }}</td>
                 <td>{{ line_item.serving_size }}</td>
             </tr>
+            {% endfor %}
         </table>
-        <p>
+        <p class="message">
             <br/>
             Sub-total: {{ subtotal }}
             <br/>
