@@ -287,6 +287,7 @@ async def is_valid_coupon(coupon_code: str, current_customer: Customer = Depends
         raise HTTPException(status_code=400, detail="Expired coupon")
 
     result = {
+        "status": 0,
         "coupon_name": coupon.coupon_name,
         "amount_off": coupon.amount_off if coupon.amount_off is not None else 0.0,
         "percent_off": coupon.percent_off if coupon.percent_off is not None else 0.0
