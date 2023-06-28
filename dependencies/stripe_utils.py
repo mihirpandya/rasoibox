@@ -7,7 +7,6 @@ from config import Settings
 
 logger = logging.getLogger(__name__)
 
-
 settings = Settings()
 
 stripe.api_key = settings.stripe_secret_key
@@ -80,7 +79,7 @@ def get_stripe_product(recipe_name: str, serving_size: int):
 
 
 def create_checkout_session(price_ids: List[str], success_url: str, cancel_url: str, user_facing_order_id: str,
-                            discounts: List[str] = None):
+                            email: str, discounts: List[str] = None):
     line_items = [{"price": price_id, "quantity": 1} for price_id in price_ids]
     promo_codes = [find_promo_code_id(x)["id"] for x in discounts] if discounts is not None else []
     discount_arr = [{"promotion_code": x} for x in promo_codes if x is not None]
@@ -94,6 +93,7 @@ def create_checkout_session(price_ids: List[str], success_url: str, cancel_url: 
             'enabled': True
         },
         client_reference_id=user_facing_order_id,
+        customer_email=email,
         # shipping_address_collection={
         #     'allowed_countries': ['US']
         # }
@@ -106,4 +106,3 @@ def find_promo_code_id(promo_code: str):
         return promo_codes["data"][0]
     else:
         return None
-

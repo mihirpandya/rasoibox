@@ -18,10 +18,12 @@ from config import Settings
 from dependencies.customers import get_current_customer
 from dependencies.database import get_db
 from dependencies.stripe_utils import create_checkout_session, find_promo_code_id
+from emails.base import send_email, ReceiptEmail
 from models.customers import Customer
 from models.orders import Cart, Coupon, PaymentStatusEnum
 from models.recipes import Recipe, RecipePrice
 from models.signups import VerifiedSignUp, UnverifiedSignUp
+from routers.signup import smtp_server, jinjaEnv
 
 logger = logging.getLogger("rasoibox")
 
@@ -36,6 +38,40 @@ settings: Settings = Settings()
 def generate_order_id() -> str:
     res = ''.join(random.choices(string.digits, k=10))
     return res.lower()
+
+
+def send_receipt_email_best_effort(email: str, first_name: str, order_dict: Dict[str, Any]):
+    # send email with password reset link
+    url_base: str = settings.frontend_url_base[0:-1] if settings.frontend_url_base.endswith(
+        "/") else settings.frontend_url_base
+    recipes = order_dict["recipes"]
+    line_items: List[Dict[str, Any]] = [{"name": x, "serving_size": recipes[x]["serving_size"]} for x in recipes.keys()]
+    sub_total: float = reduce(lambda d1, d2: d1 + d2, order_dict["order_breakdown"]["items"].values(), 0)
+    coupons = order_dict["order_breakdown"]["coupons"]
+    if len(coupons) == 0:
+        coupon = {}
+    else:
+        coupon = coupons[0]
+
+    receipt_email: ReceiptEmail = ReceiptEmail(
+        url_base=url_base,
+        first_name=first_name,
+        line_items=line_items,
+        coupon=coupon,
+        total=order_dict["order_total_dollars"],
+        sub_total=sub_total,
+        shipping_address=order_dict["order_delivery_address"],
+        order_id=order_dict["order_number"],
+        to_email=email,
+        from_email=settings.from_email
+    )
+
+    # send email best effort
+    try:
+        send_email(jinjaEnv, receipt_email, smtp_server, settings.email, settings.email_app_password)
+    except Exception as e:
+        logger.error("Failed to send email.")
+        logger.error(e)
 
 
 @router.post("/initiate_place_order")
@@ -104,7 +140,8 @@ async def initiate_place_order(order: Order, current_customer: Customer = Depend
         checkout_session = create_checkout_session(stripe_price_ids,
                                                    settings.frontend_url_base + "success?orderId=" + user_facing_order_id,
                                                    settings.frontend_url_base + "cancel?orderId=" + user_facing_order_id,
-                                                   user_facing_order_id, [x.coupon_name for x in coupons])
+                                                   user_facing_order_id, current_customer.email,
+                                                   [x.coupon_name for x in coupons])
         logger.info("Successfully created checkout session {}".format(checkout_session))
         return JSONResponse(content=jsonable_encoder({"session_url": checkout_session.url}))
     except Exception:
@@ -136,8 +173,10 @@ async def complete_place_order(order_id: str, current_customer: Customer = Depen
         models.orders.Order.user_facing_order_id == order_id).first()
 
     # send email
+    result = to_order_dict(order, db)
+    send_receipt_email_best_effort(current_customer.email, current_customer.first_name, result)
 
-    return JSONResponse(content=jsonable_encoder(to_order_dict(order, db)))
+    return JSONResponse(content=jsonable_encoder(result))
 
 
 @router.post("/cancel_place_order")

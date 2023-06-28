@@ -2,7 +2,7 @@ from email.mime.image import MIMEImage
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from smtplib import SMTP
-from typing import Dict
+from typing import Dict, List, Any
 
 from jinja2 import Environment
 
@@ -64,6 +64,39 @@ class ResetPasswordCompleteEmail(RasoiBoxEmail):
             "first_name": first_name
         }
         super().__init__("reset_password_complete_email.html", template_args, to_email, self._subject, from_email)
+
+
+class ReceiptEmail(RasoiBoxEmail):
+    _subject: str = "Rasoi Box Order Confirmation"
+
+    def __init__(self, url_base: str, first_name: str, line_items: List[Dict[str, Any]], coupon: Dict[str, Any],
+                 total: float, sub_total: float, shipping_address: Dict[str, Any], order_id: str, to_email: str,
+                 from_email: str):
+        subject = self._subject + ": " + order_id
+        template_args = {
+            "order_link": self.order_link(url_base, order_id),
+            "first_name": first_name,
+            "subtotal": sub_total,
+            "total": total,
+            "line_items": line_items,
+            "shipping_address": shipping_address,
+        }
+
+        if len(coupon) > 0:
+            discount_str = ""
+            if coupon["amount_off"] is not None and coupon["amount_off"] > 0:
+                discount_str = "-$" + coupon["amount_off"]
+            elif coupon["percent_off"] is not None and coupon["percent_off"] > 0:
+                discount_str = "-" + coupon["percent_off"] + "%"
+            template_args["coupon"] = {
+                "name": coupon["name"],
+                "discount_str": discount_str
+            }
+
+        super().__init__("receipt.html", template_args, to_email, subject, from_email)
+
+    def order_link(self, url_base: str, order_id: str) -> str:
+        return "{}/order?orderId={}".format(url_base, order_id)
 
 
 def send_email(jinjaEnv: Environment, email: RasoiBoxEmail, email_server: SMTP, email_address: str,
