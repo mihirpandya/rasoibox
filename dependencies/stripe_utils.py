@@ -103,6 +103,3 @@ def find_promo_code_id(promo_code: str):
         return promo_codes["data"][0]["id"]
     else:
         return None
-#
-# stripe.api_key = "sk_test_51NKT9IDgBx8MbUKDSTPyrSFmGE33QdHD9ZUHeh2RI7OTQQ6AD8UMaIrb3dGCp0qXAj330FudB2ghm397VGFPf9va00UcNWUqQz"
-# create_checkout_session(["price_1NMG1dDgBx8MbUKDmtBiGXZx"], "https://www.rasoibox.com/success", "https://www.rasoibox.com/cancel", "dummy_id", ["PERCENT"])
