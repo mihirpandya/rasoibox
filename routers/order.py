@@ -69,9 +69,8 @@ def send_receipt_email_best_effort(email: str, first_name: str, order_dict: Dict
     # send email best effort
     try:
         send_email(jinjaEnv, receipt_email, smtp_server, settings.email, settings.email_app_password)
-    except Exception as e:
-        logger.error("Failed to send email.")
-        logger.error(e)
+    except Exception:
+        logger.exception("Failed to send email.")
 
 
 @router.post("/initiate_place_order")
@@ -149,7 +148,7 @@ async def initiate_place_order(order: Order, current_customer: Customer = Depend
         db.query(models.orders.Order).filter(models.orders.Order.user_facing_order_id == user_facing_order_id) \
             .update({models.orders.Order.payment_status: PaymentStatusEnum.FAILED})
         db.commit()
-        logger.info("updated payment status")
+        logger.info("Updated payment status")
         raise HTTPException(status_code=400, detail="Failed to create Stripe checkout session")
 
 
