@@ -156,12 +156,15 @@ async def get_recipe_by_id(id: int, db: Session = Depends(get_db)):
 
 
 @router.get("/get_recipe_metadata")
-async def get_recipe_metadata(name: str, db: Session = Depends(get_db)) -> RecipeMetadata:
+async def get_recipe_metadata(name: str, serving_size: int, db: Session = Depends(get_db)) -> RecipeMetadata:
     recipe: Recipe = db.query(Recipe).filter(Recipe.name == name).first()
     if recipe is None:
         raise HTTPException(status_code=404, detail="Unrecognized recipe: {}".format(name))
     recipe_ingredients: List[RecipeIngredient] = db.query(RecipeIngredient).filter(
-        RecipeIngredient.recipe_id == recipe.id).all()
+        and_(RecipeIngredient.recipe_id == recipe.id, RecipeIngredient.serving_size == serving_size)).all()
+    if recipe_ingredients is None or len(recipe_ingredients) == 0:
+        raise HTTPException(status_code=400,
+                            detail="Recipe does not come in this serving size: {} {}".format(name, serving_size))
     recipe_in_your_kitchens: List[RecipeInYourKitchen] = db.query(RecipeInYourKitchen).filter(
         RecipeInYourKitchen.recipe_id == recipe.id).all()
     recipe_ingredients_ids = [x.ingredient_id for x in recipe_ingredients]
