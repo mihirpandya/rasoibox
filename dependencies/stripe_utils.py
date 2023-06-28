@@ -82,7 +82,7 @@ def get_stripe_product(recipe_name: str, serving_size: int):
 def create_checkout_session(price_ids: List[str], success_url: str, cancel_url: str, user_facing_order_id: str,
                             discounts: List[str] = None):
     line_items = [{"price": price_id, "quantity": 1} for price_id in price_ids]
-    promo_codes = [find_promo_code_id(x) for x in discounts] if discounts is not None else []
+    promo_codes = [find_promo_code_id(x)["id"] for x in discounts] if discounts is not None else []
     discount_arr = [{"promotion_code": x} for x in promo_codes if x is not None]
     return stripe.checkout.Session.create(
         line_items=line_items,
@@ -100,6 +100,6 @@ def create_checkout_session(price_ids: List[str], success_url: str, cancel_url: 
 def find_promo_code_id(promo_code: str):
     promo_codes = stripe.PromotionCode.list(code=promo_code)
     if "data" in promo_codes and len(promo_codes["data"]) == 1:
-        return promo_codes["data"][0]["id"]
+        return promo_codes["data"][0]
     else:
         return None

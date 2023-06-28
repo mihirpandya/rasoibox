@@ -17,7 +17,7 @@ from api.orders import Order, CartItem, PricedCartItem
 from config import Settings
 from dependencies.customers import get_current_customer
 from dependencies.database import get_db
-from dependencies.stripe_utils import create_checkout_session
+from dependencies.stripe_utils import create_checkout_session, find_promo_code_id
 from models.customers import Customer
 from models.orders import Cart, Coupon, PaymentStatusEnum
 from models.recipes import Recipe, RecipePrice
@@ -279,12 +279,18 @@ async def is_valid_coupon(coupon_code: str, current_customer: Customer = Depends
     if now > coupon.expires_on:
         raise HTTPException(status_code=400, detail="Expired coupon")
 
-    result = {
-        "status": 0,
-        "coupon_name": coupon.coupon_name,
-        "amount_off": coupon.amount_off if coupon.amount_off is not None else 0.0,
-        "percent_off": coupon.percent_off if coupon.percent_off is not None else 0.0
-    }
+    promo_code = find_promo_code_id(coupon.coupon_name)
+    if promo_code is None or not promo_code["active"]:
+        result = {
+            "status": 1
+        }
+    else:
+        result = {
+            "status": 0,
+            "coupon_name": coupon.coupon_name,
+            "amount_off": coupon.amount_off if coupon.amount_off is not None else 0.0,
+            "percent_off": coupon.percent_off if coupon.percent_off is not None else 0.0
+        }
 
     return JSONResponse(content=jsonable_encoder(result))
 
