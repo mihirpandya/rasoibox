@@ -93,7 +93,10 @@ def create_checkout_session(price_ids: List[str], success_url: str, cancel_url: 
         automatic_tax={
             'enabled': True
         },
-        client_reference_id=user_facing_order_id
+        client_reference_id=user_facing_order_id,
+        # shipping_address_collection={
+        #     'allowed_countries': ['US']
+        # }
     )
 
 
@@ -103,3 +106,4 @@ def find_promo_code_id(promo_code: str):
         return promo_codes["data"][0]
     else:
         return None
+
