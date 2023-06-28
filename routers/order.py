@@ -51,8 +51,8 @@ async def initiate_place_order(order: Order, current_customer: Customer = Depend
                                                           Cart.verification_code == verified_sign_up.verification_code)
                                                       .all()], {})
 
-    coupon_ids: List[int] = [x.id for x in db.query(Coupon).filter(Coupon.coupon_name.in_(order.coupons)).all()]
-    if len(coupon_ids) is not len(order.coupons):
+    coupons: List[Coupon] = db.query(Coupon).filter(Coupon.coupon_name.in_(order.coupons)).all()
+    if len(coupons) is not len(order.coupons):
         raise HTTPException(status_code=400, detail="Invalid coupons.")
 
     recipes_serving_size_map: Dict[int, int] = {}
@@ -68,23 +68,11 @@ async def initiate_place_order(order: Order, current_customer: Customer = Depend
         recipe_prices_ordered.append(recipe_price)
 
     order_total_dollars = reduce(lambda p1, p2: p1 + p2, [x.price for x in recipe_prices_ordered], 0)
-    # order_items = [
-    #     {
-    #         "recipe_price_id": 0,
-    #         "recipe_name": "",
-    #         "serving_size": 0,
-    #         "price": 0.0,
-    #     }
-    # ]
-    #
-    # coupons = [
-    #     {
-    #         "coupon_id": 0,
-    #
-    #     }
-    # ]
-    #
     order_breakdown_dollars = reduce(lambda d1, d2: {**d1, **d2}, [{x.id: x.price} for x in recipe_prices_ordered], {})
+    order_breakdown = {
+        "items": order_breakdown_dollars,
+        "coupons": [{"name": x.name, "amount_off": x.amount_off, "percent_off": x.percent_off} for x in coupons]
+    }
     stripe_price_ids = [x.stripe_price_id for x in recipe_prices_ordered]
     user_facing_order_id = generate_order_id()
     order_date = datetime.now()
@@ -99,10 +87,10 @@ async def initiate_place_order(order: Order, current_customer: Customer = Depend
         customer=current_customer.id,
         delivered=False,
         order_total_dollars=order_total_dollars,
-        order_breakdown_dollars=json.dumps(order_breakdown_dollars),
+        order_breakdown_dollars=json.dumps(order_breakdown),
         delivery_address=jsonable_encoder(order.delivery_address),
         phone_number=order.phone_number,
-        coupons=json.dumps(coupon_ids)
+        coupons=json.dumps([x.id for x in coupons])
     ))
 
     db.commit()
