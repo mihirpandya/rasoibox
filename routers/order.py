@@ -268,7 +268,7 @@ async def get_active_recipes(current_customer: Customer = Depends(get_current_cu
     return JSONResponse(content=jsonable_encoder(active_orders))
 
 
-@router.post("/is_valid_coupon")
+@router.get("/is_valid_coupon")
 async def is_valid_coupon(coupon_code: str, current_customer: Customer = Depends(get_current_customer),
                           db: Session = Depends(get_db)):
     verified_sign_up: VerifiedSignUp = db.query(VerifiedSignUp).filter(
