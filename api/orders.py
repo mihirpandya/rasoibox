@@ -35,7 +35,7 @@ class Order(BaseModel):
     recipient_last_name: str
     delivery_address: Address
     phone_number: str
-    coupons: List[str]
+    promo_codes: List[str]
 
     class Config:
         orm_mode = True

@@ -69,7 +69,7 @@ class ResetPasswordCompleteEmail(RasoiBoxEmail):
 class ReceiptEmail(RasoiBoxEmail):
     _subject: str = "Rasoi Box Order Confirmation"
 
-    def __init__(self, url_base: str, first_name: str, line_items: List[Dict[str, Any]], coupon: Dict[str, Any],
+    def __init__(self, url_base: str, first_name: str, line_items: List[Dict[str, Any]], promo_code: Dict[str, Any],
                  total: float, sub_total: float, shipping_address: Dict[str, Any], order_id: str, to_email: str,
                  from_email: str):
         subject = self._subject + ": " + order_id
@@ -83,14 +83,14 @@ class ReceiptEmail(RasoiBoxEmail):
             "order_id": order_id
         }
 
-        if len(coupon) > 0:
+        if len(promo_code) > 0:
             discount_str = ""
-            if coupon["amount_off"] is not None and coupon["amount_off"] > 0:
-                discount_str = "-$" + "{:.2f}".format(coupon["amount_off"])
-            elif coupon["percent_off"] is not None and coupon["percent_off"] > 0:
-                discount_str = "-" + str(coupon["percent_off"]) + "%"
-            template_args["coupon"] = {
-                "name": coupon["name"],
+            if promo_code["amount_off"] is not None and promo_code["amount_off"] > 0:
+                discount_str = "-$" + "{:.2f}".format(promo_code["amount_off"])
+            elif promo_code["percent_off"] is not None and promo_code["percent_off"] > 0:
+                discount_str = "-" + str(promo_code["percent_off"]) + "%"
+            template_args["promo_code"] = {
+                "name": promo_code["name"],
                 "discount_str": discount_str
             }
 

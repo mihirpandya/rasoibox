@@ -1,6 +1,6 @@
 from sqladmin import ModelView
 
-from models.orders import Order, Cart, Coupon
+from models.orders import Order, Cart, PromoCode
 
 
 class OrderAdmin(ModelView, model=Order):
@@ -18,7 +18,7 @@ class OrderAdmin(ModelView, model=Order):
         Order.order_breakdown_dollars,
         Order.delivery_address,
         Order.phone_number,
-        Order.coupons
+        Order.promo_codes
     ]
 
 
@@ -31,15 +31,15 @@ class CartAdmin(ModelView, model=Cart):
     ]
 
 
-class CouponAdmin(ModelView, model=Coupon):
+class PromoCodeAdmin(ModelView, model=PromoCode):
     column_list = [
-        Coupon.id,
-        Coupon.coupon_name,
-        Coupon.created_on,
-        Coupon.expires_on,
-        Coupon.number_times_redeemed,
-        Coupon.stripe_promo_code_id,
-        Coupon.amount_off,
-        Coupon.percent_off,
-        Coupon.redeemable_by_verification_code
+        PromoCode.id,
+        PromoCode.promo_code_name,
+        PromoCode.created_on,
+        PromoCode.expires_on,
+        PromoCode.number_times_redeemed,
+        PromoCode.stripe_promo_code_id,
+        PromoCode.amount_off,
+        PromoCode.percent_off,
+        PromoCode.redeemable_by_verification_code
     ]

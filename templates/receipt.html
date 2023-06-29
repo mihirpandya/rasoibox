@@ -117,10 +117,10 @@
                 <td>Sub-total</td>
                 <td>${{ subtotal }}</td>
             </tr>
-            {% if coupon is defined %}
+            {% if promo_code is defined %}
             <tr>
-                <td>Promo: <em>{{ coupon.name }}</em></td>
-                <td><em>{{ coupon.discount_str }}</em></td>
+                <td>Promo: <em>{{ promo_code.name }}</em></td>
+                <td><em>{{ promo_code.discount_str }}</em></td>
             </tr>
             {% endif %}
             <tr>

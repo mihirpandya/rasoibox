@@ -20,7 +20,7 @@ from dependencies.database import get_db
 from dependencies.stripe_utils import create_checkout_session, find_promo_code_id
 from emails.base import send_email, ReceiptEmail
 from models.customers import Customer
-from models.orders import Cart, Coupon, PaymentStatusEnum
+from models.orders import Cart, PromoCode, PaymentStatusEnum
 from models.recipes import Recipe, RecipePrice
 from models.signups import VerifiedSignUp, UnverifiedSignUp
 from routers.signup import smtp_server, jinjaEnv
@@ -48,17 +48,17 @@ def send_receipt_email_best_effort(email: str, first_name: str, order_dict: Dict
     line_items: List[Dict[str, Any]] = [
         {"name": x, "serving_size": recipes[x]["serving_size"], "price": recipes[x]["price"]} for x in recipes.keys()]
     sub_total: float = reduce(lambda d1, d2: d1 + d2, order_dict["order_breakdown"]["items"].values(), 0)
-    coupons = order_dict["order_breakdown"]["coupons"]
-    if len(coupons) == 0:
-        coupon = {}
+    promo_codes = order_dict["order_breakdown"]["promo_codes"]
+    if len(promo_codes) == 0:
+        promo_code = {}
     else:
-        coupon = coupons[0]
+        promo_code = promo_codes[0]
 
     receipt_email: ReceiptEmail = ReceiptEmail(
         url_base=url_base,
         first_name=first_name,
         line_items=line_items,
-        coupon=coupon,
+        promo_code=promo_code,
         total=order_dict["order_total_dollars"],
         sub_total=sub_total,
         shipping_address=order_dict["order_delivery_address"],
@@ -87,9 +87,9 @@ async def initiate_place_order(order: Order, current_customer: Customer = Depend
                                                           Cart.verification_code == verified_sign_up.verification_code)
                                                       .all()], {})
 
-    coupons: List[Coupon] = db.query(Coupon).filter(Coupon.coupon_name.in_(order.coupons)).all()
-    if len(coupons) is not len(order.coupons):
-        raise HTTPException(status_code=400, detail="Invalid coupons.")
+    promo_codes: List[PromoCode] = db.query(PromoCode).filter(PromoCode.promo_code_name.in_(order.promo_codes)).all()
+    if len(promo_codes) is not len(order.promo_codes):
+        raise HTTPException(status_code=400, detail="Invalid promo codes.")
 
     recipes_serving_size_map: Dict[int, int] = {}
     recipe_prices_ordered: List[RecipePrice] = []
@@ -104,15 +104,16 @@ async def initiate_place_order(order: Order, current_customer: Customer = Depend
         recipe_prices_ordered.append(recipe_price)
 
     order_total_dollars = reduce(lambda p1, p2: p1 + p2, [x.price for x in recipe_prices_ordered], 0)
-    for coupon in coupons:
-        if coupon.amount_off is not None and coupon.amount_off > 0:
-            order_total_dollars = order_total_dollars - coupon.amount_off
-        elif coupon.percent_off is not None and coupon.percent_off > 0:
-            order_total_dollars = (1.0 - (coupon.percent_off / 100.0)) * order_total_dollars
+    for promo_code in promo_codes:
+        if promo_code.amount_off is not None and promo_code.amount_off > 0:
+            order_total_dollars = order_total_dollars - promo_code.amount_off
+        elif promo_code.percent_off is not None and promo_code.percent_off > 0:
+            order_total_dollars = (1.0 - (promo_code.percent_off / 100.0)) * order_total_dollars
     order_breakdown_dollars = reduce(lambda d1, d2: {**d1, **d2}, [{x.id: x.price} for x in recipe_prices_ordered], {})
     order_breakdown = {
         "items": order_breakdown_dollars,
-        "coupons": [{"name": x.coupon_name, "amount_off": x.amount_off, "percent_off": x.percent_off} for x in coupons]
+        "promo_codes": [{"name": x.promo_code_name, "amount_off": x.amount_off, "percent_off": x.percent_off} for x in
+                        promo_codes]
     }
     stripe_price_ids = [x.stripe_price_id for x in recipe_prices_ordered]
     user_facing_order_id = generate_order_id()
@@ -131,7 +132,7 @@ async def initiate_place_order(order: Order, current_customer: Customer = Depend
         order_breakdown_dollars=json.dumps(order_breakdown),
         delivery_address=jsonable_encoder(order.delivery_address),
         phone_number=order.phone_number,
-        coupons=json.dumps([x.id for x in coupons])
+        promo_codes=json.dumps([x.id for x in promo_codes])
     ))
 
     db.commit()
@@ -141,7 +142,7 @@ async def initiate_place_order(order: Order, current_customer: Customer = Depend
                                                    settings.frontend_url_base + "success?orderId=" + user_facing_order_id,
                                                    settings.frontend_url_base + "cancel?orderId=" + user_facing_order_id,
                                                    user_facing_order_id, current_customer.email,
-                                                   [x.coupon_name for x in coupons])
+                                                   [x.promo_code_name for x in promo_codes])
         logger.info("Successfully created checkout session {}".format(checkout_session))
         return JSONResponse(content=jsonable_encoder({"session_url": checkout_session.url}))
     except Exception:
@@ -302,25 +303,25 @@ async def get_active_recipes(current_customer: Customer = Depends(get_current_cu
     return JSONResponse(content=jsonable_encoder(active_orders))
 
 
-@router.get("/is_valid_coupon")
-async def is_valid_coupon(coupon_code: str, current_customer: Customer = Depends(get_current_customer),
-                          db: Session = Depends(get_db)):
+@router.get("/is_valid_promo_code")
+async def is_valid_promo_code(promo_code: str, current_customer: Customer = Depends(get_current_customer),
+                              db: Session = Depends(get_db)):
     verified_sign_up: VerifiedSignUp = db.query(VerifiedSignUp).filter(
         VerifiedSignUp.email == current_customer.email).first()
     if verified_sign_up is None:
-        raise HTTPException(status_code=404, detail="Unknown coupon")
+        raise HTTPException(status_code=404, detail="Unknown promo code")
 
-    coupon: Coupon = db.query(Coupon).filter(and_(Coupon.coupon_name == coupon_code,
-                                                  Coupon.redeemable_by_verification_code == verified_sign_up.verification_code)).first()
+    promo_code: PromoCode = db.query(PromoCode).filter(and_(PromoCode.promo_code_name == promo_code,
+                                                        PromoCode.redeemable_by_verification_code == verified_sign_up.verification_code)).first()
 
-    if coupon is None:
-        raise HTTPException(status_code=404, detail="Unknown coupon")
+    if promo_code is None:
+        raise HTTPException(status_code=404, detail="Unknown promo code")
 
     now = datetime.now()
-    if now > coupon.expires_on:
-        raise HTTPException(status_code=400, detail="Expired coupon")
+    if now > promo_code.expires_on:
+        raise HTTPException(status_code=400, detail="Expired promo code")
 
-    promo_code = find_promo_code_id(coupon.coupon_name)
+    promo_code = find_promo_code_id(promo_code.promo_code_name)
     if promo_code is None or not promo_code["active"]:
         result = {
             "status": 1
@@ -328,9 +329,9 @@ async def is_valid_coupon(coupon_code: str, current_customer: Customer = Depends
     else:
         result = {
             "status": 0,
-            "coupon_name": coupon.coupon_name,
-            "amount_off": coupon.amount_off if coupon.amount_off is not None else 0.0,
-            "percent_off": coupon.percent_off if coupon.percent_off is not None else 0.0
+            "promo_code_name": promo_code.promo_code_name,
+            "amount_off": promo_code.amount_off if promo_code.amount_off is not None else 0.0,
+            "percent_off": promo_code.percent_off if promo_code.percent_off is not None else 0.0
         }
 
     return JSONResponse(content=jsonable_encoder(result))

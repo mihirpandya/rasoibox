@@ -24,10 +24,10 @@ class Order(Base):
     payment_status = Column(Enum(PaymentStatusEnum))
     delivered = Column(Boolean)
     order_total_dollars = Column(Float)
-    order_breakdown_dollars = Column(JSON)  # map<string, float> of all line items e.g. tax, delivery, coupon codes
+    order_breakdown_dollars = Column(JSON)  # map<string, float> of all line items e.g. tax, delivery, promo codes
     delivery_address = Column(JSON)  # api.orders.Address
     phone_number = Column(String(10))
-    coupons = Column(JSON)  # list<ForeignKey("coupons.id")> of applied coupons
+    promo_codes = Column(JSON)  # list<ForeignKey("promo_codes.id")> of applied promo codes
 
 
 class Cart(Base):
@@ -38,10 +38,10 @@ class Cart(Base):
     serving_size = Column(Integer)
 
 
-class Coupon(Base):
-    __tablename__ = "coupons"
+class PromoCode(Base):
+    __tablename__ = "promo_codes"
     id = Column(Integer, primary_key=True)
-    coupon_name = Column(String(100))
+    promo_code_name = Column(String(100))
     created_on = Column(DateTime)
     expires_on = Column(DateTime)
     number_times_redeemed = Column(Integer)
