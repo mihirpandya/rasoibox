@@ -86,7 +86,7 @@ class ReceiptEmail(RasoiBoxEmail):
         if len(coupon) > 0:
             discount_str = ""
             if coupon["amount_off"] is not None and coupon["amount_off"] > 0:
-                discount_str = "-$" + coupon["amount_off"]
+                discount_str = "-$" + str(coupon["amount_off"])
             elif coupon["percent_off"] is not None and coupon["percent_off"] > 0:
                 discount_str = "-" + str(coupon["percent_off"]) + "%"
             template_args["coupon"] = {
