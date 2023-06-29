@@ -127,7 +127,7 @@ async def initiate_place_order(order: Order, current_customer: Customer = Depend
         payment_status=PaymentStatusEnum.INITIATED,
         customer=current_customer.id,
         delivered=False,
-        order_total_dollars=order_total_dollars,
+        order_total_dollars=round(order_total_dollars, 2),
         order_breakdown_dollars=json.dumps(order_breakdown),
         delivery_address=jsonable_encoder(order.delivery_address),
         phone_number=order.phone_number,
@@ -156,7 +156,8 @@ async def initiate_place_order(order: Order, current_customer: Customer = Depend
 @router.post("/complete_place_order")
 async def complete_place_order(order_id: str, current_customer: Customer = Depends(get_current_customer),
                                db: Session = Depends(get_db)):
-    order = db.query(models.orders.Order).filter(models.orders.Order.user_facing_order_id == order_id).first()
+    order: models.orders.Order = db.query(models.orders.Order).filter(
+        models.orders.Order.user_facing_order_id == order_id).first()
     if order is None or order.customer != current_customer.id:
         raise HTTPException(status_code=404, detail="Unknown order")
     verified_sign_up: VerifiedSignUp = db.query(VerifiedSignUp).filter(
@@ -164,19 +165,22 @@ async def complete_place_order(order_id: str, current_customer: Customer = Depen
     if verified_sign_up is None:
         raise HTTPException(status_code=400, detail="User is not verified.")
 
-    db.query(models.orders.Order).filter(models.orders.Order.user_facing_order_id == order_id).update(
-        {"payment_status": PaymentStatusEnum.COMPLETED})
-    db.query(Cart).filter(Cart.verification_code == verified_sign_up.verification_code).delete()
-    db.commit()
+    if models.orders.Order.payment_status == PaymentStatusEnum.INITIATED:
+        db.query(models.orders.Order).filter(models.orders.Order.user_facing_order_id == order_id).update(
+            {"payment_status": PaymentStatusEnum.COMPLETED})
+        db.query(Cart).filter(Cart.verification_code == verified_sign_up.verification_code).delete()
+        db.commit()
 
-    order: models.orders.Order = db.query(models.orders.Order).filter(
-        models.orders.Order.user_facing_order_id == order_id).first()
+        order: models.orders.Order = db.query(models.orders.Order).filter(
+            models.orders.Order.user_facing_order_id == order_id).first()
 
-    # send email
-    result = to_order_dict(order, db)
-    send_receipt_email_best_effort(current_customer.email, current_customer.first_name, result)
+        # send email
+        result = to_order_dict(order, db)
+        send_receipt_email_best_effort(current_customer.email, current_customer.first_name, result)
 
-    return JSONResponse(content=jsonable_encoder(result))
+        return JSONResponse(content=jsonable_encoder(result))
+    else:
+        return JSONResponse(content=jsonable_encoder(to_order_dict(order, db)))
 
 
 @router.post("/cancel_place_order")
