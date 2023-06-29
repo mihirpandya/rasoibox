@@ -36,7 +36,7 @@ def send_invitation_email_best_effort(email: str, promo_code: str, promo_amount:
         promo_code=promo_code,
         promo_amount=promo_amount,
         to_email=email,
-        from_email=settings.email
+        from_email=settings.from_email
     )
 
     # send email best effort

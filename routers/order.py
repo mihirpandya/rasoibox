@@ -317,7 +317,7 @@ async def is_valid_promo_code(promo_code: str, current_customer: Customer = Depe
         raise HTTPException(status_code=404, detail="Unknown promo code")
 
     now = datetime.now()
-    if now > promo_code.expires_on:
+    if promo_code.expires_on is not None and now > promo_code.expires_on:
         raise HTTPException(status_code=400, detail="Expired promo code")
 
     promo_code_obj = find_promo_code_id(promo_code.promo_code_name)
