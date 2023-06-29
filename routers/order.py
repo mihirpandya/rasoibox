@@ -280,7 +280,7 @@ async def get_order_from_order_id(order_id: str, current_customer: Customer = De
     if order is None:
         raise HTTPException(status_code=404, detail="Unknown order")
 
-    return JSONResponse(content=jsonable_encoder(to_order_dict(order, db)))
+    return JSONResponse(content=jsonable_encoder(to_order_dict(order, db, customer_email=current_customer.email)))
 
 
 @router.get("/get_order_history")
