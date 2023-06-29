@@ -131,4 +131,4 @@ def to_promo_amount_string(promo_code: PromoCode) -> str:
     if promo_code.amount_off is not None:
         return "${:.2f}".format(promo_code.amount_off)
     elif promo_code.percent_off is not None:
-        return "{}%".format(promo_code.percent_off)
+        return "{}%".format(int(promo_code.percent_off))

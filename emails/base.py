@@ -99,6 +99,7 @@ class ReceiptEmail(RasoiBoxEmail):
     def order_link(self, url_base: str, order_id: str) -> str:
         return "{}/order?orderId={}".format(url_base, order_id)
 
+
 class InvitationEmail(RasoiBoxEmail):
     _subject: str = "Your Rasoi Box Invitation"
 
