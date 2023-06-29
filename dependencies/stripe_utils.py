@@ -102,8 +102,12 @@ def create_checkout_session(price_ids: List[str], success_url: str, cancel_url: 
 
 def find_promo_code_id(promo_code: str):
     promo_codes = stripe.PromotionCode.list(code=promo_code)
-    if "data" in promo_codes and len(promo_codes["data"]) == 1:
-        return promo_codes["data"][0]
+    if "data" in promo_codes:
+        if len(promo_codes["data"]) == 1:
+            return promo_codes["data"][0]
+        else:
+            # TODO: choose most recently created active promo code
+            return None
     else:
         return None
 

@@ -88,7 +88,7 @@ class ReceiptEmail(RasoiBoxEmail):
             if promo_code["amount_off"] is not None and promo_code["amount_off"] > 0:
                 discount_str = "-$" + "{:.2f}".format(promo_code["amount_off"])
             elif promo_code["percent_off"] is not None and promo_code["percent_off"] > 0:
-                discount_str = "-" + str(promo_code["percent_off"]) + "%"
+                discount_str = "-" + str(int(promo_code["percent_off"])) + "%"
             template_args["promo_code"] = {
                 "name": promo_code["name"],
                 "discount_str": discount_str
