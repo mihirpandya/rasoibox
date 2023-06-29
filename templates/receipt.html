@@ -11,6 +11,7 @@
             table {
                 font-family: "Avenir";
                 font-size: 14px;
+                 border-collapse: collapse;
             }
             td {
                 text-align: left;
@@ -22,6 +23,9 @@
             }
             .narrow {
                 width: 50px;
+            }
+            .promo {
+                border-bottom: 1pt solid black;
             }
             .verification_link {
               text-align: center;
@@ -78,8 +82,6 @@
                 width: 15px;
                 height: 15px;
             }
-
-
     </style>
 </head>
 <body>
@@ -118,15 +120,15 @@
             {% if coupon is defined %}
             <tr>
                 <td>Promo: <em>{{ coupon.name }}</em></td>
-                <td>{{ coupon.discount_str }}</td>
+                <td><em>{{ coupon.discount_str }}</em></td>
             </tr>
             {% endif %}
             <tr>
-                <td>Total</td>
-                <td>${{ total }}</td>
+                <td><b>Total</b></td>
+                <td><b>${{ total }}</b></td>
             </tr>
             <tr>
-                <td>Shipping Address</td>
+                <td style="padding-top: 20px">Shipping Address</td>
                 <td>{{ shipping_address.user_input }}</td>
             </tr>
         </table>
