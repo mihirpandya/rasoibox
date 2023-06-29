@@ -322,16 +322,16 @@ async def is_valid_promo_code(promo_code: str, current_customer: Customer = Depe
         raise HTTPException(status_code=400, detail="Expired promo code")
 
     promo_code_obj = find_promo_code_id(promo_code.promo_code_name)
-    if promo_code_obj is None or not promo_code_obj["active"]:
+    if promo_code_obj is None or not promo_code_obj.active:
         result = {
             "status": 1
         }
     else:
         result = {
             "status": 0,
-            "promo_code_name": promo_code_obj["code"],
-            "amount_off": promo_code_obj["amount_off"] if promo_code_obj["amount_off"] is not None else 0.0,
-            "percent_off": promo_code_obj["percent_off"] if promo_code_obj["percent_off"] is not None else 0.0
+            "promo_code_name": promo_code.promo_code_name,
+            "amount_off": promo_code.amount_off if promo_code.amount_off is not None else 0.0,
+            "percent_off": promo_code.percent_off if promo_code.percent_off is not None else 0.0
         }
 
     return JSONResponse(content=jsonable_encoder(result))

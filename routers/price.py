@@ -52,12 +52,12 @@ async def create_promo_code(stripe_coupon_id: str, customer_facing_code: str, re
             raise HTTPException(status_code=400, detail="Created promo code is not active.")
 
         db.add(PromoCode(
-            promo_code_name=promo_code["code"],
-            created_on=datetime.fromtimestamp(promo_code["created"]),
+            promo_code_name=promo_code.code,
+            created_on=datetime.fromtimestamp(promo_code.created),
             number_times_redeemed=0,
-            stripe_promo_code_id=promo_code["id"],
-            amount_off=promo_code["amount_off"],
-            percent_off=promo_code["percent_off"],
+            stripe_promo_code_id=promo_code.id,
+            amount_off=to_dollars(promo_code.coupon.amount_off),
+            percent_off=promo_code.coupon.percent_off,
             redeemable_by_verification_code=redeemable_by
         ))
 
@@ -65,3 +65,9 @@ async def create_promo_code(stripe_coupon_id: str, customer_facing_code: str, re
     except Exception as e:
         logger.exception(e)
         raise HTTPException(status_code=400, detail="Invalid stripe coupon id {}".format(stripe_coupon_id))
+
+
+def to_dollars(cents):
+    if cents is not None:
+        return round(cents / 100.0, 2)
+    return None

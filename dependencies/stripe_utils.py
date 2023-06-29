@@ -3,13 +3,13 @@ from typing import List
 
 import stripe
 
-from config import Settings
+# from config import Settings
 
 logger = logging.getLogger(__name__)
 
-settings = Settings()
-
-stripe.api_key = settings.stripe_secret_key
+# settings = Settings()
+#
+# stripe.api_key = settings.stripe_secret_key
 
 
 def to_product_name(name: str, serving_size: int) -> str:
