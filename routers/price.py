@@ -11,6 +11,7 @@ from config import Settings
 from dependencies.database import get_db
 from dependencies.stripe_utils import create_stripe_product, create_promo_code_from_coupon, find_promo_code_id
 from emails.base import send_email, InvitationEmail
+from models.customers import Customer
 from models.orders import PromoCode
 from models.recipes import Recipe, RecipePrice
 from models.signups import VerifiedSignUp, DeliverableZipcode
@@ -99,6 +100,10 @@ async def invite_verified_user(verification_code: str, db: Session = Depends(get
         VerifiedSignUp.verification_code == verification_code).first()
     if verified_sign_up is None:
         raise HTTPException(status_code=404, detail="Unknown user")
+
+    customer: Customer = db.query(Customer).filter(Customer.email == VerifiedSignUp.email).first()
+    if customer is not None:
+        raise HTTPException(status_code=404, detail="User has already created an account.")
 
     deliverable_zip_code: DeliverableZipcode = db.query(DeliverableZipcode).filter(
         DeliverableZipcode.zipcode == verified_sign_up.zipcode).first()
