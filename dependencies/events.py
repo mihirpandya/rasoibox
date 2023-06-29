@@ -9,9 +9,10 @@ from models.event import Event
 logger = logging.getLogger("rasoibox")
 
 
-def emit_event(db: Session, event_type: str, event_timestamp: datetime, code: str, referrer_opt: Optional[str]):
+def emit_event(db: Session, event_type: str, event_timestamp: datetime, code_opt: Optional[str], referrer_opt: Optional[str]):
     try:
         referrer = referrer_opt if referrer_opt is not None else "NONE"
+        code = code_opt if code_opt is not None else "NONE"
         event = Event(event_type=event_type, event_timestamp=event_timestamp, code=code, referrer=referrer)
         db.add(event)
         db.commit()

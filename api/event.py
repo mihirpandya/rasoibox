@@ -6,7 +6,7 @@ from pydantic import BaseModel
 
 class SiteEvent(BaseModel):
     event_date: datetime
-    verification_code: str
+    verification_code: Optional[str]
     event_type: str
     referrer: Optional[str]
 
