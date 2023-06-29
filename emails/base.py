@@ -76,8 +76,8 @@ class ReceiptEmail(RasoiBoxEmail):
         template_args = {
             "order_link": self.order_link(url_base, order_id),
             "first_name": first_name,
-            "subtotal": sub_total,
-            "total": total,
+            "subtotal": "{:.2f}".format(sub_total),
+            "total": "{:.2f}".format(total),
             "line_items": line_items,
             "shipping_address": shipping_address,
             "order_id": order_id
