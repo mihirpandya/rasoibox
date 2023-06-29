@@ -344,7 +344,7 @@ def is_active_order(order: models.orders.Order) -> bool:
 def to_order_dict(order: models.orders.Order, db: Session) -> Dict[str, Any]:
     recipes = json.loads(order.recipes)
     recipe_prices: List[Optional[RecipePrice]] = [
-        db.query(and_(RecipePrice.recipe_id == recipe_id, RecipePrice.serving_size == recipes[recipe_id])).first()
+        db.query(and_(RecipePrice.recipe_id == int(recipe_id), RecipePrice.serving_size == recipes[recipe_id])).first()
         for recipe_id in recipes.keys()]
     logger.info(recipe_prices)
     recipe_prices_mapping: Dict[int, Dict[int, float]] = reduce(lambda d1, d2: {**d1, **d2},
