@@ -101,7 +101,7 @@ async def invite_verified_user(verification_code: str, db: Session = Depends(get
     if verified_sign_up is None:
         raise HTTPException(status_code=404, detail="Unknown user")
 
-    customer: Customer = db.query(Customer).filter(Customer.email == VerifiedSignUp.email).first()
+    customer: Customer = db.query(Customer).filter(Customer.email == verified_sign_up.email).first()
     if customer is not None:
         raise HTTPException(status_code=404, detail="User has already created an account.")
 
