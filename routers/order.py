@@ -175,7 +175,7 @@ async def complete_place_order(order_id: str, current_customer: Customer = Depen
         models.orders.Order.user_facing_order_id == order_id).first()
 
     # send email
-    result = to_order_dict(order, db)
+    result = to_order_dict(order, db, customer_email=current_customer.email)
     send_receipt_email_best_effort(current_customer.email, current_customer.first_name, result)
 
     return JSONResponse(content=jsonable_encoder(result))
@@ -343,7 +343,7 @@ def is_active_order(order: models.orders.Order) -> bool:
     return difference.days < 15
 
 
-def to_order_dict(order: models.orders.Order, db: Session) -> Dict[str, Any]:
+def to_order_dict(order: models.orders.Order, db: Session, customer_email=None) -> Dict[str, Any]:
     recipes = json.loads(order.recipes)
     recipe_prices: List[Union[RecipePrice, None]] = [
         db.query(RecipePrice).filter(
@@ -358,7 +358,7 @@ def to_order_dict(order: models.orders.Order, db: Session) -> Dict[str, Any]:
                   "price": recipe_prices_mapping[x.id][recipes[str(x.id)]]}} for x in
         db.query(Recipe).filter(Recipe.id.in_(recipes.keys())).all()], {})
 
-    return {
+    result = {
         "order_number": order.user_facing_order_id,
         "order_breakdown": json.loads(order.order_breakdown_dollars),
         "order_date": order.order_date,
@@ -366,8 +366,13 @@ def to_order_dict(order: models.orders.Order, db: Session) -> Dict[str, Any]:
         "order_delivery_address": order.delivery_address,
         "order_total_dollars": order.order_total_dollars,
         "order_delivered": order.delivered,
-        "recipes": recipe_info
+        "recipes": recipe_info,
     }
+
+    if customer_email is not None:
+        result["customer_email"] = customer_email
+
+    return result
 
 
 def is_known_verification_code(verification_code: str, db: Session) -> bool:
