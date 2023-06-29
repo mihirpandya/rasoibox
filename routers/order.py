@@ -45,7 +45,8 @@ def send_receipt_email_best_effort(email: str, first_name: str, order_dict: Dict
     url_base: str = settings.frontend_url_base[0:-1] if settings.frontend_url_base.endswith(
         "/") else settings.frontend_url_base
     recipes = order_dict["recipes"]
-    line_items: List[Dict[str, Any]] = [{"name": x, "serving_size": recipes[x]["serving_size"]} for x in recipes.keys()]
+    line_items: List[Dict[str, Any]] = [
+        {"name": x, "serving_size": recipes[x]["serving_size"], "price": recipes[x]["price"]} for x in recipes.keys()]
     sub_total: float = reduce(lambda d1, d2: d1 + d2, order_dict["order_breakdown"]["items"].values(), 0)
     coupons = order_dict["order_breakdown"]["coupons"]
     if len(coupons) == 0:
