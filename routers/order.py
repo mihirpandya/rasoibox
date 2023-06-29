@@ -165,7 +165,7 @@ async def complete_place_order(order_id: str, current_customer: Customer = Depen
     if verified_sign_up is None:
         raise HTTPException(status_code=400, detail="User is not verified.")
 
-    if models.orders.Order.payment_status == PaymentStatusEnum.INITIATED:
+    if models.orders.Order.payment_status is PaymentStatusEnum.INITIATED:
         db.query(models.orders.Order).filter(models.orders.Order.user_facing_order_id == order_id).update(
             {"payment_status": PaymentStatusEnum.COMPLETED})
         db.query(Cart).filter(Cart.verification_code == verified_sign_up.verification_code).delete()
