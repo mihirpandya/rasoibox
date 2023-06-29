@@ -4,7 +4,7 @@ import random
 import string
 from datetime import datetime
 from functools import reduce
-from typing import List, Dict, Any, Optional
+from typing import List, Dict, Any, Union
 
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.encoders import jsonable_encoder
@@ -343,8 +343,9 @@ def is_active_order(order: models.orders.Order) -> bool:
 
 def to_order_dict(order: models.orders.Order, db: Session) -> Dict[str, Any]:
     recipes = json.loads(order.recipes)
-    recipe_prices: List[Optional[RecipePrice]] = [
-        db.query(and_(RecipePrice.recipe_id == int(recipe_id), RecipePrice.serving_size == recipes[recipe_id])).first()
+    logger.info(recipes)
+    recipe_prices: List[Union[RecipePrice, None]] = [
+        db.query(and_(RecipePrice.recipe_id == recipe_id, RecipePrice.serving_size == recipes[recipe_id])).first()
         for recipe_id in recipes.keys()]
     logger.info(recipe_prices)
     recipe_prices_mapping: Dict[int, Dict[int, float]] = reduce(lambda d1, d2: {**d1, **d2},
