@@ -106,3 +106,11 @@ def find_promo_code_id(promo_code: str):
         return promo_codes["data"][0]
     else:
         return None
+
+
+def create_promo_code_from_coupon(stripe_coupon_id: str, customer_facing_code: str):
+    return stripe.PromotionCode.create(
+        coupon=stripe_coupon_id,
+        code=customer_facing_code,
+        max_redepemptions=1
+    )
