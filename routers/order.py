@@ -346,7 +346,7 @@ def to_order_dict(order: models.orders.Order, db: Session) -> Dict[str, Any]:
     recipe_prices: List[Optional[RecipePrice]] = [
         db.query(and_(RecipePrice.recipe_id == recipe_id, RecipePrice.serving_size == recipes[recipe_id])).first()
         for recipe_id in recipes.keys()]
-    recipe_prices_mapping: Dict[int, Dict[int, float]] = reduce(lambda d1, d2: {**d1, **d2},
+    recipe_prices_mapping: Dict[str, Dict[int, float]] = reduce(lambda d1, d2: {**d1, **d2},
                                                                 [{x.recipe_id: {x.serving_size: x.price}} for x in
                                                                  recipe_prices if x is not None], {})
 
