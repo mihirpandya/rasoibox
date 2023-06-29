@@ -17,7 +17,7 @@ def to_product_name(name: str, serving_size: int) -> str:
 
 
 def to_cents(price: float) -> int:
-    return int(price * 100)
+    return int(round(price * 100))
 
 
 def create_stripe_product_idempotent(recipe_name: str, description: str, image_url: str, serving_size: int,

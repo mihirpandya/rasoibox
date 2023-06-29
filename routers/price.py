@@ -7,10 +7,14 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from api.price import RecipeServingPrice
+from config import Settings
 from dependencies.database import get_db
 from dependencies.stripe_utils import create_stripe_product, create_promo_code_from_coupon, find_promo_code_id
+from emails.base import send_email, InvitationEmail
 from models.orders import PromoCode
 from models.recipes import Recipe, RecipePrice
+from models.signups import VerifiedSignUp, DeliverableZipcode
+from routers.signup import jinjaEnv, smtp_server
 
 logger = logging.getLogger("rasoibox")
 
@@ -18,6 +22,27 @@ router = APIRouter(
     prefix="/api/recipe_prices",
     tags=["recipe_prices"]
 )
+
+settings: Settings = Settings()
+
+
+def send_invitation_email_best_effort(email: str, promo_code: str, promo_amount: str):
+    url_base: str = settings.frontend_url_base[0:-1] if settings.frontend_url_base.endswith(
+        "/") else settings.frontend_url_base
+
+    invitation_email: InvitationEmail = InvitationEmail(
+        url_base=url_base,
+        promo_code=promo_code,
+        promo_amount=promo_amount,
+        to_email=email,
+        from_email=settings.email
+    )
+
+    # send email best effort
+    try:
+        send_email(jinjaEnv, invitation_email, smtp_server, settings.email, settings.email_app_password)
+    except Exception:
+        logger.exception("Failed to send email.")
 
 
 @router.post("/add_prices")
@@ -67,7 +92,38 @@ async def create_promo_code(stripe_coupon_id: str, customer_facing_code: str, re
         raise HTTPException(status_code=400, detail="Invalid stripe coupon id {}".format(stripe_coupon_id))
 
 
+@router.post("/invite_verified_user")
+async def invite_verified_user(verification_code: str, db: Session = Depends(get_db)):
+    now = datetime.now()
+    verified_sign_up: VerifiedSignUp = db.query(VerifiedSignUp).filter(
+        VerifiedSignUp.verification_code == verification_code).first()
+    if verified_sign_up is None:
+        raise HTTPException(status_code=404, detail="Unknown user")
+
+    deliverable_zip_code: DeliverableZipcode = db.query(DeliverableZipcode).filter(
+        DeliverableZipcode.zipcode == verified_sign_up.zipcode).first()
+
+    if deliverable_zip_code is None or deliverable_zip_code.delivery_start_date > now:
+        raise HTTPException(status_code=400, detail="Zipcode not deliverable")
+
+    promo_code: PromoCode = db.query(PromoCode).filter(
+        PromoCode.redeemable_by_verification_code == verification_code).first()
+
+    if promo_code is None:
+        raise HTTPException(status_code=400, detail="No promo code assigned to user")
+
+    promo_amount: str = to_promo_amount_string(promo_code)
+    send_invitation_email_best_effort(verified_sign_up.email, promo_code.promo_code_name, promo_amount)
+
+
 def to_dollars(cents):
     if cents is not None:
         return round(cents / 100.0, 2)
     return None
+
+
+def to_promo_amount_string(promo_code: PromoCode) -> str:
+    if promo_code.amount_off is not None:
+        return "${:.2f}".format(promo_code.amount_off)
+    elif promo_code.percent_off is not None:
+        return "{}%".format(promo_code.percent_off)

@@ -99,6 +99,16 @@ class ReceiptEmail(RasoiBoxEmail):
     def order_link(self, url_base: str, order_id: str) -> str:
         return "{}/order?orderId={}".format(url_base, order_id)
 
+class InvitationEmail(RasoiBoxEmail):
+    _subject: str = "Your Rasoi Box Invitation"
+
+    def __init__(self, url_base: str, promo_code: str, promo_amount: str, to_email: str, from_email: str):
+        template_args = {
+            "promo_code": promo_code,
+            "promo_amount": promo_amount
+        }
+        super().__init__("invitation.html", template_args, to_email, self._subject, from_email)
+
 
 def send_email(jinjaEnv: Environment, email: RasoiBoxEmail, email_server: SMTP, email_address: str,
                email_password: str):

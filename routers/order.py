@@ -41,7 +41,6 @@ def generate_order_id() -> str:
 
 
 def send_receipt_email_best_effort(email: str, first_name: str, order_dict: Dict[str, Any]):
-    # send email with password reset link
     url_base: str = settings.frontend_url_base[0:-1] if settings.frontend_url_base.endswith(
         "/") else settings.frontend_url_base
     recipes = order_dict["recipes"]
