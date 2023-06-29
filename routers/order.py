@@ -344,7 +344,7 @@ def is_active_order(order: models.orders.Order) -> bool:
 def to_order_dict(order: models.orders.Order, db: Session) -> Dict[str, Any]:
     recipes = json.loads(order.recipes)
     recipe_prices: List[Union[RecipePrice, None]] = [
-        db.query(ReceiptEmail).filter(
+        db.query(RecipePrice).filter(
             and_(RecipePrice.recipe_id == recipe_id, RecipePrice.serving_size == recipes[recipe_id])).first()
         for recipe_id in recipes.keys()]
     logger.info(recipe_prices)
