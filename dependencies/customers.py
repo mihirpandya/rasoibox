@@ -17,7 +17,7 @@ settings: Settings = Settings()
 
 SECRET_KEY = settings.secret_key
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_HOURS = 3
+ACCESS_TOKEN_EXPIRE_HOURS = 12
 
 
 def create_access_token(data: dict):

@@ -105,9 +105,9 @@ async def initiate_place_order(order: Order, current_customer: Customer = Depend
 
     order_total_dollars = reduce(lambda p1, p2: p1 + p2, [x.price for x in recipe_prices_ordered], 0)
     for coupon in coupons:
-        if coupon.amount_off > 0:
+        if coupon.amount_off is not None and coupon.amount_off > 0:
             order_total_dollars = order_total_dollars - coupon.amount_off
-        elif coupon.percent_off > 0:
+        elif coupon.percent_off is not None and coupon.percent_off > 0:
             order_total_dollars = (1.0 - (coupon.amount_off / 100.0)) * order_total_dollars
     order_breakdown_dollars = reduce(lambda d1, d2: {**d1, **d2}, [{x.id: x.price} for x in recipe_prices_ordered], {})
     order_breakdown = {
