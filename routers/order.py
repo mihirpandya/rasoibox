@@ -4,7 +4,7 @@ import random
 import string
 from datetime import datetime
 from functools import reduce
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
 
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.encoders import jsonable_encoder
@@ -342,9 +342,18 @@ def is_active_order(order: models.orders.Order) -> bool:
 
 def to_order_dict(order: models.orders.Order, db: Session) -> Dict[str, Any]:
     recipes = json.loads(order.recipes)
+    recipe_prices: List[Optional[RecipePrice]] = [
+        db.query(and_(RecipePrice.recipe_id == recipe_id, RecipePrice.serving_size == recipes[recipe_id])).first()
+        for recipe_id in recipes.keys()]
+    recipe_prices_mapping: Dict[int, Dict[int, float]] = reduce(lambda d1, d2: {**d1, **d2},
+                                                                [{x.recipe_id: {x.serving_size: x.price}} for x in
+                                                                 recipe_prices if x is not None], {})
+
     recipe_info: Dict[str, Dict[str, Any]] = reduce(lambda d1, d2: {**d1, **d2}, [
-        {x.name: {"id": x.id, "image_url": x.image_url, "serving_size": recipes[str(x.id)]}} for x in
+        {x.name: {"id": x.id, "image_url": x.image_url, "serving_size": recipes[str(x.id)],
+                  "price": recipe_prices_mapping[x.id][recipes[str(x.id)]]}} for x in
         db.query(Recipe).filter(Recipe.id.in_(recipes.keys())).all()], {})
+
     return {
         "order_number": order.user_facing_order_id,
         "order_breakdown": json.loads(order.order_breakdown_dollars),
