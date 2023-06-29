@@ -312,7 +312,7 @@ async def is_valid_promo_code(promo_code: str, current_customer: Customer = Depe
         raise HTTPException(status_code=404, detail="Unknown promo code")
 
     promo_code: PromoCode = db.query(PromoCode).filter(and_(PromoCode.promo_code_name == promo_code,
-                                                        PromoCode.redeemable_by_verification_code == verified_sign_up.verification_code)).first()
+                                                            PromoCode.redeemable_by_verification_code == verified_sign_up.verification_code)).first()
 
     if promo_code is None:
         raise HTTPException(status_code=404, detail="Unknown promo code")
@@ -329,9 +329,9 @@ async def is_valid_promo_code(promo_code: str, current_customer: Customer = Depe
     else:
         result = {
             "status": 0,
-            "promo_code_name": promo_code_obj.code,
-            "amount_off": promo_code_obj.amount_off if promo_code_obj.amount_off is not None else 0.0,
-            "percent_off": promo_code_obj.percent_off if promo_code_obj.percent_off is not None else 0.0
+            "promo_code_name": promo_code_obj["code"],
+            "amount_off": promo_code_obj["amount_off"] if promo_code_obj["amount_off"] is not None else 0.0,
+            "percent_off": promo_code_obj["percent_off"] if promo_code_obj["percent_off"] is not None else 0.0
         }
 
     return JSONResponse(content=jsonable_encoder(result))
