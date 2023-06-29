@@ -40,6 +40,10 @@
                 text-align: left;
                 font-size: 15px;
             }
+            .order-number {
+                text-align: center;
+                font-size: 15px;
+            }
             .content {
                 background-color: white;
                 padding: 20px;
@@ -75,15 +79,18 @@
 <div class="container">
     <img class="logo" src="cid:logo.png"/>
     <div class="content">
-        <h2 class="title">It's gonna be a good food day!</h2>
+        <h2 class="title">We received your order!</h2>
         <p class="message">
             Hi {{ first_name }},
             <br/>
             <br/>
-            Your Rasoi Box order has been successfully placed! Your order number is {{ order_id }}. Here are the details of your order.
+            Your order #{{ order_id }} is all set and ready to be prepared! Thank you for choosing Rasoi Box for your culinary journey (your bellies will thank you, too!)
             <br/>
         </p>
         <br />
+        <p class="order-number">
+            Order Number: <a href="{{ order_link }}">{{ order_id }}</a>
+        </p>
         <br />
         <table>
             {% for line_item in line_items %}
@@ -119,9 +126,6 @@
         <br />
         <br />
         <p class="message">
-            You can also view your order details <a href="{{ order_link }}">here</a>.
-            <br />
-            <br />
             Happy cooking!
             <br />
             <br />

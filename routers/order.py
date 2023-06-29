@@ -165,22 +165,19 @@ async def complete_place_order(order_id: str, current_customer: Customer = Depen
     if verified_sign_up is None:
         raise HTTPException(status_code=400, detail="User is not verified.")
 
-    if models.orders.Order.payment_status is PaymentStatusEnum.INITIATED:
-        db.query(models.orders.Order).filter(models.orders.Order.user_facing_order_id == order_id).update(
-            {"payment_status": PaymentStatusEnum.COMPLETED})
-        db.query(Cart).filter(Cart.verification_code == verified_sign_up.verification_code).delete()
-        db.commit()
+    db.query(models.orders.Order).filter(models.orders.Order.user_facing_order_id == order_id).update(
+        {"payment_status": PaymentStatusEnum.COMPLETED})
+    db.query(Cart).filter(Cart.verification_code == verified_sign_up.verification_code).delete()
+    db.commit()
 
-        order: models.orders.Order = db.query(models.orders.Order).filter(
-            models.orders.Order.user_facing_order_id == order_id).first()
+    order: models.orders.Order = db.query(models.orders.Order).filter(
+        models.orders.Order.user_facing_order_id == order_id).first()
 
-        # send email
-        result = to_order_dict(order, db)
-        send_receipt_email_best_effort(current_customer.email, current_customer.first_name, result)
+    # send email
+    result = to_order_dict(order, db)
+    send_receipt_email_best_effort(current_customer.email, current_customer.first_name, result)
 
-        return JSONResponse(content=jsonable_encoder(result))
-    else:
-        return JSONResponse(content=jsonable_encoder(to_order_dict(order, db)))
+    return JSONResponse(content=jsonable_encoder(result))
 
 
 @router.post("/cancel_place_order")
