@@ -14,8 +14,14 @@
             }
             td {
                 text-align: left;
-                width: 250px;
+                width: 200px;
                 vertical-align: text-top;
+            }
+            .wide {
+                width: 300px;
+            }
+            .narrow {
+                width: 50px;
             }
             .verification_link {
               text-align: center;
@@ -85,7 +91,7 @@
             Hi {{ first_name }},
             <br/>
             <br/>
-            Your order #{{ order_id }} is all set and ready to be prepared! Thank you for choosing Rasoi Box for your culinary journey (your bellies will thank you, too!)
+            Your order # {{ order_id }} is all set and ready to be prepared! Thank you for choosing Rasoi Box for your culinary journey (your bellies will thank you, too!)
             <br/>
         </p>
         <br />
@@ -96,9 +102,9 @@
         <table>
             {% for line_item in line_items %}
             <tr>
-                <td>{{ line_item.name }}</td>
+                <td class="wide">{{ line_item.name }}</td>
                 <td>{{ line_item.serving_size }} servings</td>
-                <td>${{ line_item.price }}</td>
+                <td class="narrow">${{ line_item.price }}</td>
             </tr>
             {% endfor %}
         </table>
