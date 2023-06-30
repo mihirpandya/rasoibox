@@ -13,7 +13,7 @@ from middleware.request_logger import RequestContextLogMiddleware
 from models.base import Base
 from routers import recipe, signup, customers, order, price
 from views.customers import CustomerAdmin
-from views.event import EventAdmin
+from views.event import EventAdmin, RecipeEventAdmin
 from views.orders import OrderAdmin, CartAdmin, PromoCodeAdmin
 from views.recipes import RecipeContributorAdmin, RecipeAdmin, StarredRecipeAdmin, RecipeScheduleAdmin, \
     InYourKitchenAdmin, IngredientsAdmin, RecipeIngredientsAdmin, RecipeInYourKitchenAdmin, RecipeStepAdmin, \
@@ -48,6 +48,7 @@ admin.add_view(RecipeIngredientsAdmin)
 admin.add_view(RecipeInYourKitchenAdmin)
 admin.add_view(RecipeStepAdmin)
 admin.add_view(RecipePriceAdmin)
+admin.add_view(RecipeEventAdmin)
 admin.add_view(CustomerAdmin)
 admin.add_view(ResetPasswordsAdmin)
 admin.add_view(OrderAdmin)
