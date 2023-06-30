@@ -101,14 +101,16 @@ class ReceiptEmail(RasoiBoxEmail):
 
 
 class InvitationEmail(RasoiBoxEmail):
-    _subject: str = "You're Invited: Rasoi Box first order 90% off"
+    _prefix: str = "You're Invited: "
+    _suffix: str = " off your first Rasoi Box!"
 
     def __init__(self, url_base: str, promo_code: str, promo_amount: str, to_email: str, from_email: str):
+        subject = self._prefix + promo_amount + self._suffix
         template_args = {
             "promo_code": promo_code,
             "promo_amount": promo_amount
         }
-        super().__init__("invitation.html", template_args, to_email, self._subject, from_email)
+        super().__init__("invitation.html", template_args, to_email, subject, from_email)
 
 
 def send_email(jinjaEnv: Environment, email: RasoiBoxEmail, email_server: SMTP, email_address: str,
