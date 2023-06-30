@@ -29,6 +29,7 @@ class InYourKitchen(BaseModel):
 
 
 class RecipeMetadata(BaseModel):
+    recipe_id: int
     recipe_name: str
     ingredients: List[Ingredient]
     in_your_kitchens: List[InYourKitchen]

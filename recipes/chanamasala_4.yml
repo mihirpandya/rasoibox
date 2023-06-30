@@ -4,6 +4,7 @@ image_url: https://static.wixstatic.com/media/bbf858_7cf3c205476a4ec8bc78b6efb13
 recipe_contributor_name: rasoi box
 prep_time_minutes: 10
 cook_time_minutes: 20
+serving_size: 4
 ingredients:
   - name: onion
     quantities:
@@ -92,6 +93,8 @@ steps:
       - garam masala
       - aamchur powder
     in_your_kitchen: [ ]
+    gif_urls:
+      - "https://static.wixstatic.com/media/bbf858_092d9a05729a4fb9be13dafe1ac5b602~mv2.gif"
   - step_number: 2
     title: temper spices and aromatics
     instructions:
@@ -108,6 +111,9 @@ steps:
       - onion
     in_your_kitchen:
       - oil
+    gif_urls:
+      - "https://static.wixstatic.com/media/bbf858_3409d257352542708454e355a08b6b7a~mv2.gif"
+      - "https://static.wixstatic.com/media/bbf858_e18cf2313ba946208282f9be3bad8d9d~mv2.gif"
   - step_number: 3
     title: cook the chickpea mixture
     instructions:
@@ -121,6 +127,9 @@ steps:
       - tomato
       - chickpeas
     in_your_kitchen: [ ]
+    gif_urls:
+      - "https://static.wixstatic.com/media/bbf858_80578ce2b97a4966b69ee6c52ea490ff~mv2.gif"
+      - "https://static.wixstatic.com/media/bbf858_e1311cad9545479e9430ff5af67ff5df~mv2.gif"
   - step_number: 4
     title: finish the chana masala
     instructions:
@@ -134,3 +143,5 @@ steps:
     in_your_kitchen:
       - water
       - wooden spoon
+    gif_urls:
+      - "https://static.wixstatic.com/media/bbf858_aed999caeff14385bc43d053863389fb~mv2.gif"

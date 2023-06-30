@@ -205,6 +205,7 @@ async def get_recipe_metadata(name: str, serving_size: int, db: Session = Depend
         )
 
     return RecipeMetadata(
+        recipe_id=recipe.id,
         recipe_name=recipe.name,
         ingredients=ingredients_metadata,
         in_your_kitchens=in_your_kitchens_metadata
@@ -221,7 +222,7 @@ async def get_recipe_steps(name: str, serving_size: int, db: Session = Depends(g
 
     if recipe_steps is None or len(recipe_steps) == 0:
         raise HTTPException(status_code=404, detail="No recipe for serving size.")
-    
+
     return [api.recipes.RecipeStep(
         step_number=x.step_number,
         title=x.title,

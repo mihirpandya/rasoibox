@@ -4,8 +4,8 @@ image_url: https://static.wixstatic.com/media/bbf858_8d09e9eb2f1a4209941390968e3
 recipe_contributor_name: rasoi box
 prep_time_minutes: 10
 cook_time_minutes: 20
+serving_size: 4
 ingredients:
-
   - name: plain yogurt
     quantities:
       - amount: 0.75
@@ -158,7 +158,7 @@ steps:
     chefs_hats: [ ]
     ingredients:
       - plain yogurt
-      - gram flour (also known as besan)
+      - gram flour (besan)
       - green chili
     in_your_kitchen:
       - water
