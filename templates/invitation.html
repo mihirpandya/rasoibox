@@ -54,6 +54,10 @@
                 text-align: center;
                 font-size: 15px;
             }
+            .promo-code {
+                font-weight: bold;
+                font-size: 15px;
+            }
             .content {
                 background-color: white;
                 padding: 20px;
@@ -81,25 +85,32 @@
                 width: 15px;
                 height: 15px;
             }
+            .small {
+                font-size: 12px;
+            }
     </style>
 </head>
 <body>
 <div class="container">
     <img class="logo" src="cid:logo.png"/>
     <div class="content">
-        <h2 class="title">The wait is over!</h2>
         <p class="message">
-            Thank you for your early interest in Rasoi Box. We are finally delivering in your area! Please click the link below to create your account and place orders for your first Rasoi Box.
-            <br/>
-            <br />
-            We would like to thank you for your support by taking {{ promo_amount }} off your first Rasoi Box. You can apply this promo code at checkout.
+            Thank you for your early interest in Rasoi Box. We are finally delivering in your area and are excited to welcome you to the Rasoi Box community.
         </p>
         <br />
         <p class="order-number">
-            Promo Code: <em>{{ promo_code }}</em>
+            As a thanks for your support,
+            <br />
+            enjoy 90% off your first order with code
+            <br />
+            <br />
+            <em class="promo-code">{{ promo_code }}</em>
             <br />
             <br />
             <a class="create_account" href="https://www.rasoibox.com/createaccount">Create Account</a>
+            <br />
+            <br />
+            <span class="small">To redeem, apply this code at checkout.</span>
         </p>
         <br />
         <p class="message">

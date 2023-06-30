@@ -101,7 +101,7 @@ class ReceiptEmail(RasoiBoxEmail):
 
 
 class InvitationEmail(RasoiBoxEmail):
-    _subject: str = "Your Rasoi Box Invitation"
+    _subject: str = "You're Invited: Rasoi Box first order 90% off"
 
     def __init__(self, url_base: str, promo_code: str, promo_amount: str, to_email: str, from_email: str):
         template_args = {
