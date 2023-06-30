@@ -94,6 +94,7 @@ class RecipeStepAdmin(ModelView, model=RecipeStep):
         RecipeStep.id,
         RecipeStep.step_number,
         RecipeStep.recipe_id,
+        RecipeStep.serving_size,
         RecipeStep.title,
         RecipeStep.instructions,
         RecipeStep.in_your_kitchens,

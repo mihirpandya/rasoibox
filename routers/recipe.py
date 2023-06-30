@@ -100,7 +100,8 @@ async def add_recipe_metadata(recipes: List[RecipeMetadata], db: Session = Depen
 
 
 @router.post("/add_recipe_steps")
-async def add_recipe_steps(recipe_id: int, steps: List[api.recipes.RecipeStep], db: Session = Depends(get_db)):
+async def add_recipe_steps(recipe_id: int, serving_size: int, steps: List[api.recipes.RecipeStep],
+                           db: Session = Depends(get_db)):
     recipe: Recipe = db.query(Recipe).filter(Recipe.id == recipe_id).first()
     if recipe is None:
         raise HTTPException(status_code=404, detail="Unknown recipe")
@@ -115,6 +116,7 @@ async def add_recipe_steps(recipe_id: int, steps: List[api.recipes.RecipeStep], 
         all_steps.append(RecipeStep(
             step_number=step.step_number,
             recipe_id=recipe.id,
+            serving_size=serving_size,
             title=step.title,
             instructions=json.dumps(step.instructions),
             tips=json.dumps(step.tips),

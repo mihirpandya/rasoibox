@@ -85,6 +85,7 @@ class RecipeStep(Base):
     id = Column(Integer, primary_key=True)
     step_number = Column(Integer)
     recipe_id = Column(Integer)  # ForeignKey("recipes.id")
+    serving_size = Column(Integer)
     title = Column(String(1000))
     instructions = Column(JSON)  # list<string> of instructions
     tips = Column(JSON)  # list<string> of tips
