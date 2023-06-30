@@ -319,13 +319,21 @@ async def get_recipe_schedule(id: str, db: Session = Depends(get_db)) -> JSONRes
 
 
 @router.post("/event")
-async def event(site_event: SiteEvent, db: Session = Depends(get_db)):
+async def emit_event(recipe_event: api.event.RecipeEvent, db: Session = Depends(get_db)):
     try:
-        referrer = site_event.referrer if site_event.referrer is not None else "NONE"
-        code = site_event.verification_code if site_event.verification_code is not None else "NONE"
-        recipe_event = RecipeEvent(event_type=site_event.event_type, event_timestamp=site_event.event_date, code=code,
-                                   referrer=referrer)
-        db.add(recipe_event)
+        referrer = recipe_event.referrer if recipe_event.referrer is not None else "NONE"
+        code = recipe_event.verification_code if recipe_event.verification_code is not None else "NONE"
+        event = RecipeEvent(
+            event_type=recipe_event.event_type,
+            recipe_id=recipe_event.recipe_id,
+            serving_size=recipe_event.serving_size,
+            step_number=recipe_event.step_number,
+            event_timestamp=recipe_event.event_date,
+            code=code,
+            referrer=referrer
+        )
+        
+        db.add(event)
         db.commit()
         return
     except Exception as e:

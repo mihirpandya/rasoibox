@@ -21,6 +21,9 @@ class RecipeEventAdmin(ModelView, model=RecipeEvent):
     column_list = [
         RecipeEvent.id,
         RecipeEvent.event_type,
+        RecipeEvent.recipe_id,
+        RecipeEvent.serving_size,
+        RecipeEvent.step_number,
         RecipeEvent.event_timestamp,
         RecipeEvent.code,
         RecipeEvent.referrer
