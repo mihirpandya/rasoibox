@@ -212,12 +212,16 @@ async def get_recipe_metadata(name: str, serving_size: int, db: Session = Depend
 
 
 @router.get("/get_recipe_steps")
-async def get_recipe_steps(name: str, db: Session = Depends(get_db)) -> List[api.recipes.RecipeStep]:
+async def get_recipe_steps(name: str, serving_size: int, db: Session = Depends(get_db)) -> List[api.recipes.RecipeStep]:
     recipe: Recipe = db.query(Recipe).filter(Recipe.name == name).first()
     if recipe is None:
         raise HTTPException(status_code=404, detail="Unrecognized recipe: {}".format(name))
-    recipe_steps: List[models.recipes.RecipeStep] = db.query(models.recipes.RecipeStep).filter(
-        models.recipes.RecipeStep.recipe_id == recipe.id).all()
+    recipe_steps: List[models.recipes.RecipeStep] = db.query(models.recipes.RecipeStep).filter(and_(
+        models.recipes.RecipeStep.recipe_id == recipe.id, models.recipes.RecipeStep.serving_size == serving_size)).all()
+
+    if recipe_steps is None or len(recipe_steps) == 0:
+        raise HTTPException(status_code=404, detail="No recipe for serving size.")
+    
     return [api.recipes.RecipeStep(
         step_number=x.step_number,
         title=x.title,

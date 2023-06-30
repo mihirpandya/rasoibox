@@ -18,7 +18,7 @@ ingredients:
     unit: piece
   - name: green chili
     quantities:
-      - amount: 1/2
+      - amount: 0.5
         serving_size: 2
     unit: piece
   - name: spice blend
