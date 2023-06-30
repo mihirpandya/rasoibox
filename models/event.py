@@ -10,3 +10,12 @@ class Event(Base):
     event_timestamp = Column(DateTime)
     referrer = Column(String(100))
     code = Column(String(100))
+
+
+class RecipeEvent(Base):
+    __tablename__ = "recipe_events"
+    id = Column(Integer, primary_key=True)
+    event_type = Column(String(100))
+    event_timestamp = Column(DateTime)
+    referrer = Column(String(100))
+    code = Column(String(100))

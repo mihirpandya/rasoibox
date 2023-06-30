@@ -12,9 +12,11 @@ from starlette.responses import JSONResponse
 
 import api.recipes
 import models.recipes
+from api.event import SiteEvent
 from api.recipes import CandidateRecipe, StarRecipe, RecipeStep, RecipeMetadata, Quantity
 from dependencies.database import get_db
 from dependencies.events import emit_event
+from models.event import RecipeEvent
 from models.recipes import Recipe, RecipeContributor, StarredRecipe, RecipeSchedule, RecipeStep, \
     RecipeIngredient, InYourKitchen, RecipeInYourKitchen, Ingredient
 from models.signups import VerifiedSignUp
@@ -314,6 +316,22 @@ async def get_recipe_schedule(id: str, db: Session = Depends(get_db)) -> JSONRes
             })
 
     return JSONResponse(content=jsonable_encoder(result))
+
+
+@router.post("/event")
+async def event(site_event: SiteEvent, db: Session = Depends(get_db)):
+    try:
+        referrer = site_event.referrer if site_event.referrer is not None else "NONE"
+        code = site_event.verification_code if site_event.verification_code is not None else "NONE"
+        recipe_event = RecipeEvent(event_type=site_event.event_type, event_timestamp=site_event.event_date, code=code,
+                                   referrer=referrer)
+        db.add(recipe_event)
+        db.commit()
+        return
+    except Exception as e:
+        logger.error("Failed to save event.")
+        logger.error(e)
+        return
 
 
 def get_ingredients_to_update(recipe_id: int, unique_ingredient_ids: Set[int], db: Session) -> List[RecipeIngredient]:
