@@ -14,7 +14,7 @@ class VerifiedUserAdmin(ModelView, model=VerifiedSignUp):
         VerifiedSignUp.verification_code
     ]
 
-    column_searchable_list = [VerifiedSignUp.email, VerifiedSignUp.zipcode]
+    column_searchable_list = [VerifiedSignUp.email, VerifiedSignUp.zipcode, VerifiedSignUp.verification_code]
     column_sortable_list = [VerifiedSignUp.signup_date, VerifiedSignUp.verify_date, VerifiedSignUp.zipcode]
     column_default_sort = [(VerifiedSignUp.verify_date, True)]
 
