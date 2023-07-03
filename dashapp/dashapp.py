@@ -13,6 +13,17 @@ from models.event import Event
 
 logger = logging.getLogger("rasoibox")
 
+CARD_CLASS = "card"
+LAYOUT = {
+    'height': 400,
+    'margin': {
+        'l': 30,
+        'r': 20,
+        'b': 30,
+        't': 20
+    }
+}
+
 
 def update_verified_signups_graph(db: Session):
     statement = "select t.day, sum(t2.sign_ups) as cum_sum from (select date_format(verify_date, '%Y-%m-%d') as day, " \
@@ -31,14 +42,7 @@ def update_verified_signups_graph(db: Session):
                 'shape': 'spline'
             }
         }],
-        'layout': {
-            'margin': {
-                'l': 30,
-                'r': 20,
-                'b': 30,
-                't': 20
-            }
-        }
+        'layout': LAYOUT
     }
 
 
@@ -54,14 +58,7 @@ def recipe_likes(db):
         'data': [
             {'x': liked_recipes, 'y': num_likes, 'type': 'bar'}
         ],
-        'layout': {
-            'margin': {
-                'l': 30,
-                'r': 20,
-                'b': 30,
-                't': 20
-            }
-        }
+        'layout': LAYOUT
     }
 
 
@@ -80,14 +77,7 @@ def unverified_traffic(db):
                 'shape': 'linear'
             }
         }],
-        'layout': {
-            'margin': {
-                'l': 30,
-                'r': 20,
-                'b': 30,
-                't': 20
-            }
-        }
+        'layout': LAYOUT
     }
 
 
@@ -113,29 +103,34 @@ def create_dash_app(db: Session, requests_pathname_prefix: str = None) -> dash.D
             value=initial_value
         ),
         dcc.Graph(id='events-graph')
-    ], className="events")
+    ], className=CARD_CLASS)
 
     verified_signups_graph_div = html.Div([
         html.H1('Verified Sign Ups'),
         dcc.Graph(id='verified-signups-graph', figure=update_verified_signups_graph(db))
-    ], className="verified_signups")
+    ], className=CARD_CLASS)
 
     recipe_likes_div = html.Div([
         html.H1('Liked Recipes'),
         dcc.Graph(id='liked-recipes-graph', figure=recipe_likes(db))
-    ], className="recipe-likes")
+    ], className=CARD_CLASS)
 
     unverified_traffic_graph_div = html.Div([
         html.H1('Unverified Traffic'),
         dcc.Graph(id='unverified-traffic-graph', figure=unverified_traffic(db))
-    ], className="unverified_traffic")
+    ], className=CARD_CLASS)
+
+    logo = html.Img(style={'margin': 'auto', 'display': 'block', 'width': '50px'}, src="assets/logo.png")
+    cards = html.Div([verified_signups_graph_div,
+                      recipe_likes_div,
+                      events_graph_div,
+                      unverified_traffic_graph_div
+                      ], className="container")
 
     app.layout = html.Div([
-        verified_signups_graph_div,
-        recipe_likes_div,
-        events_graph_div,
-        unverified_traffic_graph_div
-    ], className="container")
+        logo,
+        cards
+    ], className="app")
 
     @app.callback(Output('events-graph', 'figure'),
                   [Input('events-dropdown', 'value')])
@@ -155,6 +150,7 @@ def create_dash_app(db: Session, requests_pathname_prefix: str = None) -> dash.D
                 }
             }],
             'layout': {
+                'height': 360,
                 'margin': {
                     'l': 30,
                     'r': 20,

@@ -1,6 +1,25 @@
 body {
-    font-family: sans-serif;
-    background-color: #F9FAF4
+    font-family: Avenir Light;
+    background-color: white;
+}
+
+.container {
+    flex-direction: row;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+}
+
+.card {
+    width: 40%;
+    padding: 20px;
+    margin: 20px;
+    box-shadow:  0 0 10px  rgba(0,0,0,0.6);
+    -moz-box-shadow: 0 0 10px  rgba(0,0,0,0.6);
+    -webkit-box-shadow: 0 0 10px  rgba(0,0,0,0.6);
+    -o-box-shadow: 0 0 10px  rgba(0,0,0,0.6);
+    border-radius:25px;
 }
 
 h1, h2, h3, h4, h5, h6 {
