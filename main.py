@@ -14,6 +14,7 @@ from models.base import Base
 from routers import recipe, signup, customers, order, price
 from views.customers import CustomerAdmin
 from views.event import EventAdmin, RecipeEventAdmin
+from views.invitations import InvitationAdmin
 from views.orders import OrderAdmin, CartAdmin, PromoCodeAdmin
 from views.recipes import RecipeContributorAdmin, RecipeAdmin, StarredRecipeAdmin, RecipeScheduleAdmin, \
     InYourKitchenAdmin, IngredientsAdmin, RecipeIngredientsAdmin, RecipeInYourKitchenAdmin, RecipeStepAdmin, \
@@ -54,6 +55,7 @@ admin.add_view(ResetPasswordsAdmin)
 admin.add_view(OrderAdmin)
 admin.add_view(CartAdmin)
 admin.add_view(PromoCodeAdmin)
+admin.add_view(InvitationAdmin)
 
 # Create tables
 Base.metadata.create_all(engine)
