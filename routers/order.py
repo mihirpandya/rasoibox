@@ -13,16 +13,19 @@ from sqlalchemy.orm import Session
 from starlette.responses import JSONResponse
 
 import models.orders
-from api.orders import Order, CartItem, PricedCartItem
+from api.orders import CartItem, PricedCartItem
 from config import Settings
 from dependencies.customers import get_current_customer
 from dependencies.database import get_db
+from dependencies.referral_utils import generate_promo_code, create_stripe_promo_code, to_promo_amount_string
 from dependencies.stripe_utils import create_checkout_session, find_promo_code_id
 from emails.base import send_email, ReceiptEmail
 from models.customers import Customer
+from models.invitations import Invitation, InvitationStatusEnum
 from models.orders import Cart, PromoCode, PaymentStatusEnum
 from models.recipes import Recipe, RecipePrice
 from models.signups import VerifiedSignUp, UnverifiedSignUp
+from routers.price import send_invitation_email_best_effort
 from routers.signup import smtp_server, jinjaEnv
 
 logger = logging.getLogger("rasoibox")
@@ -176,6 +179,9 @@ async def complete_place_order(order_id: str, current_customer: Customer = Depen
     # send email
     result = to_order_dict(order, db, customer_email=current_customer.email)
     send_receipt_email_best_effort(current_customer.email, current_customer.first_name, result)
+
+    # complete invite friend
+    complete_invitation(current_customer, db)
 
     return JSONResponse(content=jsonable_encoder(result))
 
@@ -377,4 +383,51 @@ def is_known_verification_code(verification_code: str, db: Session) -> bool:
             UnverifiedSignUp.verification_code == verification_code).first()
         if unverified_user is None:
             return False
+    return True
+
+
+def complete_invitation(current_customer: Customer, db: Session) -> bool:
+    verified_sign_up: VerifiedSignUp = db.query(VerifiedSignUp).filter(
+        VerifiedSignUp.email == current_customer.email).first()
+    if verified_sign_up is None:
+        logger.warning("Tried to complete invitation from an unverified user.")
+        return False
+
+    invitation: Invitation = db.query(Invitation).filter(and_(
+        Invitation.verification_code == verified_sign_up.verification_code,
+        Invitation.invitation_status == InvitationStatusEnum.INVITED)).first()
+    if invitation is None:
+        logger.info("No eligible invitation found for user.")
+        return False
+
+    order = db.query(models.orders.Order).filter(and_(models.orders.Order.customer == current_customer.id,
+                                                      models.orders.Order.payment_status == PaymentStatusEnum.COMPLETED)).first()
+    if order is None:
+        logger.info("Cannot complete invitation. User does not have any completed orders.")
+        return False
+
+    referrer_customer: Customer = db.query(Customer).filter(Customer.id == invitation.referred_by_customer_id).first()
+    if referrer_customer is None:
+        logger.warning("Could not find referrer customer.")
+        return False
+
+    referrer_sign_up: VerifiedSignUp = db.query(VerifiedSignUp).filter(
+        VerifiedSignUp.email == referrer_customer.email).first()
+    if referrer_sign_up is None:
+        logger.warning("Could not find verified referrer user.")
+        return False
+
+    # generate promo code for referrer user
+    promo_code_for_referrer_user: str = generate_promo_code(referrer_customer.first_name)
+    promo_code: PromoCode = create_stripe_promo_code(settings.stripe_referral_coupon_id, promo_code_for_referrer_user,
+                                                     referrer_sign_up.verification_code, db)
+
+    # send invitation email with promo code
+    send_invitation_email_best_effort(referrer_customer.email, promo_code.promo_code_name,
+                                      to_promo_amount_string(promo_code))
+
+    db.query(Invitation).filter(and_(Invitation.email == current_customer.email,
+                                     Invitation.verification_code == verified_sign_up.verification_code)).update(
+        {Invitation.invitation_status: InvitationStatusEnum.COMPLETED})
+
     return True

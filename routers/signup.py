@@ -1,7 +1,6 @@
 import logging
 import sqlite3
 from datetime import datetime
-from random import random
 from smtplib import SMTP
 from typing import Optional
 
@@ -17,6 +16,7 @@ from api.signup import SignUpViaEmail
 from config import Settings
 from dependencies.database import get_db
 from dependencies.events import emit_event
+from dependencies.signup import generate_verification_code
 from emails.base import VerifySignUpEmail, send_email
 from models.customers import Customer
 from models.signups import VerifiedSignUp, UnverifiedSignUp, DeliverableZipcode
@@ -30,10 +30,6 @@ router = APIRouter(
     prefix="/api",
     tags=["signup"]
 )
-
-
-def generate_code() -> str:
-    return "{0:x}".format(int(random() * 1_000_000))
 
 
 @router.post("/event")
@@ -76,7 +72,7 @@ async def signup_via_email(sign_up_via_email: SignUpViaEmail, db: Session = Depe
             unverified_sign_up: Optional[UnverifiedSignUp] = db.query(UnverifiedSignUp).filter(
                 UnverifiedSignUp.verification_code == sign_up_via_email.verification_code).first()
             if unverified_sign_up is not None:
-                verification_code = generate_code()
+                verification_code = generate_verification_code()
             else:
                 verification_code = sign_up_via_email.verification_code
             status_code = 2
