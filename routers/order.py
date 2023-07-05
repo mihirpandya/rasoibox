@@ -12,8 +12,8 @@ from sqlalchemy import and_
 from sqlalchemy.orm import Session
 from starlette.responses import JSONResponse
 
-import models.orders
-from api.orders import CartItem, PricedCartItem
+import models
+from api.orders import CartItem, PricedCartItem, Order
 from config import Settings
 from dependencies.customers import get_current_customer
 from dependencies.database import get_db
