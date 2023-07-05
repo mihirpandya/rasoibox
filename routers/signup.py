@@ -1,6 +1,7 @@
 import logging
 import sqlite3
 from datetime import datetime
+from random import random
 from smtplib import SMTP
 from typing import Optional
 
@@ -29,6 +30,10 @@ router = APIRouter(
     prefix="/api",
     tags=["signup"]
 )
+
+
+def generate_code() -> str:
+    return "{0:x}".format(int(random() * 1_000_000))
 
 
 @router.post("/event")
@@ -66,7 +71,14 @@ async def signup_via_email(sign_up_via_email: SignUpViaEmail, db: Session = Depe
             status_code = 1
             message = "User already signed up but not verified. Verification email re-sent"
         else:
-            verification_code = sign_up_via_email.verification_code
+            # check if same person trying to sign up with different email
+            # generate new verification code if so
+            unverified_sign_up: Optional[UnverifiedSignUp] = db.query(UnverifiedSignUp).filter(
+                UnverifiedSignUp.verification_code == sign_up_via_email.verification_code).first()
+            if unverified_sign_up is not None:
+                verification_code = generate_code()
+            else:
+                verification_code = sign_up_via_email.verification_code
             status_code = 2
             message = "Verification email sent"
             emit_event(db, "NEW_SIGN_UP", sign_up_via_email.signup_date, sign_up_via_email.verification_code,
