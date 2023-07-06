@@ -79,7 +79,8 @@ def is_new_user(email: str, db: Session) -> bool:
     verified_sign_up: VerifiedSignUp = db.query(VerifiedSignUp).filter(VerifiedSignUp.email == email).first()
     unverified_sign_up: UnverifiedSignUp = db.query(UnverifiedSignUp).filter(UnverifiedSignUp.email == email).first()
     customer: Customer = db.query(Customer).filter(Customer.email == email).first()
-    invitation: Invitation = db.query(Invitation).filter(Invitation.email == email).first()
+    invitation: models.invitations.Invitation = db.query(models.invitations.Invitation).filter(
+        models.invitations.Invitation.email == email).first()
     return verified_sign_up is None and unverified_sign_up is None and customer is None and invitation is None
 
 

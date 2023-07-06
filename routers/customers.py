@@ -160,7 +160,7 @@ async def create_user_account(new_customer: CustomerPayload, db: Session = Depen
 
         db.commit()
 
-        if verified_user is None:
+        if not verified:
             # add to unverified table
             db.add(
                 UnverifiedSignUp(
