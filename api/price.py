@@ -1,5 +1,4 @@
 import logging
-import re
 
 from pydantic import BaseModel, validator, ValidationError
 
@@ -21,12 +20,3 @@ class RecipeServingPrice(BaseModel):
 
 class Invitation(BaseModel):
     email: str
-    zipcode: str
-
-    @validator('zipcode')
-    def validate_zipcode(cls, zipcode: str) -> str:
-        pattern = r"^\d{5}$"
-        if bool(re.match(pattern, zipcode)):
-            return zipcode
-        logger.error("Invalid zip code: %d", zipcode)
-        raise ValidationError("Invalid zip code.")

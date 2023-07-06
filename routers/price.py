@@ -128,14 +128,6 @@ async def initiate_invitation(invitation: Invitation, current_customer: Customer
     if new_user is False:
         return JSONResponse(content=jsonable_encoder({"status": 1, "message": "Invited user already exists."}))
 
-    # make sure user is in a deliverable zip code
-    deliverable_zipcode: DeliverableZipcode = db.query(DeliverableZipcode).filter(
-        DeliverableZipcode.zipcode == invitation.zipcode).first()
-
-    if deliverable_zipcode is None or deliverable_zipcode.delivery_start_date > now:
-        return JSONResponse(
-            content=jsonable_encoder({"status": 2, "message": "Invited user not in deliverable zip code."}))
-
     # generate a verification code for invited user
     verification_code_for_invited_user: str = generate_verification_code()
 
@@ -146,42 +138,17 @@ async def initiate_invitation(invitation: Invitation, current_customer: Customer
     promo_code: PromoCode = create_stripe_promo_code(settings.stripe_referral_coupon_id, promo_code_for_invited_user,
                                                      verification_code_for_invited_user, db)
 
-    # create entry in UnverifiedSignUp table
+    # create entry in invitation table with invitation status as "INVITED"
     db.add(
-        UnverifiedSignUp(
+        models.invitations.Invitation(
+            referred_by_customer_id=current_customer.id,
             email=invitation.email,
-            signup_date=now,
-            signup_from="INVITATION",
-            zipcode=invitation.zipcode,
             verification_code=verification_code_for_invited_user,
+            invitation_status=models.invitations.InvitationStatusEnum.INVITED
         )
     )
-    # create entry in invitation table with invitation status as "INVITED"
-    db.add(models.invitations.Invitation(
-        referred_by_customer_id=current_customer.id,
-        email=invitation.email,
-        verification_code=verification_code_for_invited_user,
-        invitation_status=models.invitations.InvitationStatusEnum.INVITED
-    ))
 
     db.commit()
 
     # send invitation email with promo code
     send_invitation_email_best_effort(invitation.email, promo_code.promo_code_name, to_promo_amount_string(promo_code))
-
-
-@router.post("/complete_invitation")
-async def complete_invitation(current_customer: Customer = Depends(get_current_customer),
-                              db: Session = Depends(get_db)):
-    verified_sign_up: VerifiedSignUp = db.query(VerifiedSignUp).filter(
-        VerifiedSignUp.email == current_customer.email).first()
-
-    if verified_sign_up is None:
-        raise HTTPException(status_code=404, detail="Unverified user")
-
-    # check user has placed at least one order with payment_status marked as COMPLETED
-    # find customer that referred current_customer in invitation table with invitation status as "INVITED"
-    # return if no such entry
-    # generate promo code for customer that referred current_customer
-    # send email with promo code
-    # mark invitation status as "COMPLETED"

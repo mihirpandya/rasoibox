@@ -2,11 +2,13 @@ import logging
 import random
 import string
 from datetime import datetime
+from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.encoders import jsonable_encoder
 from fastapi.security import OAuth2PasswordRequestForm
 from pydantic import BaseModel
+from sqlalchemy import and_
 from sqlalchemy.orm import Session
 from starlette import status
 from starlette.responses import JSONResponse
@@ -18,6 +20,7 @@ from dependencies.customers import authenticate_customer, get_current_customer, 
 from dependencies.database import get_db
 from emails.base import VerifySignUpEmail, send_email, ResetPasswordEmail, ResetPasswordCompleteEmail
 from models.customers import Customer
+from models.invitations import Invitation
 from models.reset_passwords import ResetPassword
 from models.signups import VerifiedSignUp, UnverifiedSignUp
 from routers.signup import jinjaEnv, smtp_server
@@ -99,7 +102,8 @@ async def login_for_access_token(
         )
     access_token = create_access_token(data={"sub": customer.email})
     verified_sign_up = db.query(VerifiedSignUp).filter(VerifiedSignUp.email == customer.email).first()
-    return Token(access_token=access_token, token_type="bearer", status=0, verification_code=verified_sign_up.verification_code)
+    return Token(access_token=access_token, token_type="bearer", status=0,
+                 verification_code=verified_sign_up.verification_code)
 
 
 @router.post("/check")
@@ -123,6 +127,25 @@ async def create_user_account(new_customer: CustomerPayload, db: Session = Depen
     else:
         verified_user = db.query(VerifiedSignUp).filter(VerifiedSignUp.email == new_customer.email).first()
         hashed_password = get_password_hash(new_customer.password)
+        # if email and code match an invitation, consider this as a verified sign up
+        invitation: Optional[Invitation] = db.query(Invitation).filter(
+            and_(Invitation.email == new_customer.email,
+                 Invitation.verification_code == new_customer.verification_code)).first()
+        verified: bool = verified_user is not None
+
+        if invitation is not None:
+            verified = True
+            db.add(
+                VerifiedSignUp(
+                    email=new_customer.email,
+                    signup_date=new_customer.join_date,
+                    signup_from="INVITATION",
+                    verify_date=new_customer.join_date,
+                    zipcode=new_customer.zipcode,
+                    verification_code=new_customer.verification_code
+                )
+            )
+
         db.add(
             Customer(
                 first_name=new_customer.first_name,
@@ -131,9 +154,10 @@ async def create_user_account(new_customer: CustomerPayload, db: Session = Depen
                 hashed_password=hashed_password,
                 join_date=new_customer.join_date,
                 last_updated=new_customer.join_date,
-                verified=(verified_user is not None)
+                verified=verified
             )
         )
+
         db.commit()
 
         if verified_user is None:

@@ -19,6 +19,7 @@ from dependencies.events import emit_event
 from dependencies.signup import generate_verification_code
 from emails.base import VerifySignUpEmail, send_email
 from models.customers import Customer
+from models.invitations import Invitation
 from models.signups import VerifiedSignUp, UnverifiedSignUp, DeliverableZipcode
 
 logger = logging.getLogger("rasoibox")
@@ -52,6 +53,36 @@ async def signup_via_email(sign_up_via_email: SignUpViaEmail, db: Session = Depe
                 "status": 0,
                 "message": "User already verified.",
                 "verification_code": verified_sign_up.verification_code
+            }))
+
+        # if email and verification code is same as an existing invitation code and email,
+        # this should already be considered verified
+        invitation: Optional[Invitation] = db.query(Invitation).filter(
+            and_(Invitation.email == sign_up_via_email.email,
+                 Invitation.verification_code == sign_up_via_email.verification_code)).first()
+        if invitation is not None:
+            logger.info("User has been invited. Marking as verified.")
+
+            emit_event(db, "INVITATION_SIGN_UP", sign_up_via_email.signup_date, sign_up_via_email.verification_code,
+                       sign_up_via_email.referrer)
+
+            db.add(
+                VerifiedSignUp(
+                    email=sign_up_via_email.email,
+                    signup_date=sign_up_via_email.signup_date,
+                    signup_from="INVITATION",
+                    verify_date=sign_up_via_email.signup_date,
+                    zipcode=sign_up_via_email.zipcode,
+                    verification_code=sign_up_via_email.verification_code
+                )
+            )
+
+            db.commit()
+
+            return JSONResponse(content=jsonable_encoder({
+                "status": 3,
+                "message": "User has been invited. Marking as verified.",
+                "verification_code": sign_up_via_email.verification_code
             }))
 
         unverified_sign_up: Optional[UnverifiedSignUp] = db.query(UnverifiedSignUp).filter(
