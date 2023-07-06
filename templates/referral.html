@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Rasoi Box Invitation</title>
+    <style>
+            body {
+                font-family: "Avenir";
+                text-align: center;
+            }
+            table {
+                font-family: "Avenir";
+                font-size: 14px;
+                 border-collapse: collapse;
+            }
+            td {
+                text-align: left;
+                width: 200px;
+                vertical-align: text-top;
+            }
+            .wide {
+                width: 300px;
+            }
+            .narrow {
+                width: 50px;
+            }
+            .promo {
+                border-bottom: 1pt solid black;
+            }
+            .create_account {
+              text-align: center;
+              font-family: Avenir;
+              border: none;
+              border-radius: 12px;
+              background-color: #f9a66c;
+              color: white;
+              padding: 16px 32px;
+              text-decoration: none;
+              display: inline-block;
+              font-size: 16px;
+              font-weight: bold;
+              margin: 4px 2px;
+              transition-duration: 0.4s;
+              cursor: pointer;
+            }
+            .title {
+                text-align: center;
+            }
+            .message {
+                text-align: left;
+                font-size: 15px;
+            }
+            .order-number {
+                text-align: center;
+                font-size: 15px;
+            }
+            .promo-code {
+                font-weight: bold;
+                font-size: 15px;
+            }
+            .content {
+                background-color: white;
+                padding: 20px;
+            }
+            .container {
+                width: 500px;
+                display: inline-block;
+                background-color: #f9faf4;
+                padding: 30px;
+            }
+            .footer {
+                text-align: center;
+                padding: 20px;
+                font-size: 10px;
+                font-family: Avenir;
+            }
+            .logo {
+                display: block;
+                margin-left: auto;
+                margin-right: auto;
+                width: 50px;
+                padding: 20px;
+            }
+            .icon {
+                width: 15px;
+                height: 15px;
+            }
+            .small {
+                font-size: 12px;
+            }
+    </style>
+</head>
+<body>
+<div class="container">
+    <img class="logo" src="cid:logo.png"/>
+    <div class="content">
+        <p class="order-number">
+            You have been referred to Rasoi Box by {{ full_name }}!
+            <br />
+            <br />
+            As a thanks for your support,
+            <br />
+            enjoy {{ promo_amount }} off your first order with referral code
+            <br />
+            <br />
+            <em class="promo-code">{{ promo_code }}</em>
+            <br />
+            <br />
+            <a class="create_account" href="{{ create_account_link }}">Create Account</a>
+            <br />
+            <br />
+            <span class="small">To redeem, apply this code at checkout.</span>
+            <br />
+            <br />
+            Happy cooking!
+            <br />
+            <br />
+            - Team Rasoi Box
+        </p>
+       <div class="footer">
+            <br />
+            &nbsp;&copy; 2023 Rasoi Box
+        </div>
+    </div>
+</div>
+</body>
+</html>

@@ -1,4 +1,4 @@
-recipe_name: Paneer Stuffed Besan Chilla
+recipe_name: Besan Chilla
 description: chickpea flour crepes served with vegetables and shredded paneer.
 image_url: https://static.wixstatic.com/media/bbf858_7d1415cdc30d4d97817627353326a151~mv2.png
 recipe_contributor_name: rasoi box
@@ -51,11 +51,6 @@ ingredients:
       - amount: 0.25
         serving_size: 4
     unit: tsp
-  - name: paneer
-    quantities:
-      - amount: 0.5
-        serving_size: 4
-    unit: cup
 in_your_kitchen:
   - name: salt
   - name: pepper
@@ -68,7 +63,6 @@ steps:
     title: prep ingredients
     instructions:
       - Wash and dry all produce. Finely dice onions, tomatoes. Finely chop coriander leaves, green chili. Peel and grate ginger.
-      - Grate paneer and add to a medium sized bowl with salt and pepper to taste.
     tips:
       - If the vegetables are not finely chopped, the chilla will not spread on the pan.
     chefs_hats: [ ]
@@ -78,7 +72,6 @@ steps:
       - coriander leaves
       - green chili
       - ginger
-      - paneer
     in_your_kitchen:
       - salt
       - pepper
@@ -119,8 +112,7 @@ steps:
     title: flip the chilla
     instructions:
       - Cook the chilla on a low flame until the top begins to look cooked. It will turn from glossy to matte and you will start to see some bubbles form.
-      - Drizzle oil around the edges of the chilla and continue cooking until the base gets light golden. Flip the chilla and cook the other side until golden spots appear. 
-      - Add shredded paneer to one side of the chilla. Fold in half and serve hot or warm.
+      - Drizzle oil around the edges of the chilla and continue cooking until the base gets light golden. Flip the chilla and cook the other side until golden spots appear.
     tips: [ ]
     chefs_hats: [ ]
     ingredients: [ ]

@@ -16,7 +16,7 @@ from dependencies.database import get_db
 from dependencies.referral_utils import create_stripe_promo_code, to_promo_amount_string, generate_promo_code
 from dependencies.signup import generate_verification_code
 from dependencies.stripe_utils import create_stripe_product
-from emails.base import send_email, InvitationEmail
+from emails.base import send_email, InvitationEmail, ReferralEmail
 from models.customers import Customer
 from models.orders import PromoCode
 from models.recipes import Recipe, RecipePrice
@@ -31,6 +31,29 @@ router = APIRouter(
 )
 
 settings: Settings = Settings()
+
+
+def send_referral_email_best_effort(email: str, referrer_first_name: str, referrer_last_name: str,
+                                    verification_code: str, promo_code: str, promo_amount: str):
+    url_base: str = settings.frontend_url_base[0:-1] if settings.frontend_url_base.endswith(
+        "/") else settings.frontend_url_base
+
+    referral_email: ReferralEmail = ReferralEmail(
+        url_base=url_base,
+        first_name=referrer_first_name,
+        last_name=referrer_last_name,
+        verification_code=verification_code,
+        promo_code=promo_code,
+        promo_amount=promo_amount,
+        to_email=email,
+        from_email=settings.from_email
+    )
+
+    # send email best effort
+    try:
+        send_email(jinjaEnv, referral_email, smtp_server, settings.email, settings.email_app_password)
+    except Exception:
+        logger.exception("Failed to send email.")
 
 
 def send_invitation_email_best_effort(email: str, promo_code: str, promo_amount: str):
@@ -116,7 +139,6 @@ async def invite_verified_user(verification_code: str, db: Session = Depends(get
 @router.post("/initiate_invitation")
 async def initiate_invitation(invitation: Invitation, current_customer: Customer = Depends(get_current_customer),
                               db: Session = Depends(get_db)):
-    now = datetime.now()
     verified_sign_up: VerifiedSignUp = db.query(VerifiedSignUp).filter(
         VerifiedSignUp.email == current_customer.email).first()
 
@@ -151,4 +173,6 @@ async def initiate_invitation(invitation: Invitation, current_customer: Customer
     db.commit()
 
     # send invitation email with promo code
-    send_invitation_email_best_effort(invitation.email, promo_code.promo_code_name, to_promo_amount_string(promo_code))
+    send_referral_email_best_effort(invitation.email, current_customer.first_name, current_customer.last_name,
+                                    verification_code_for_invited_user, promo_code.promo_code_name,
+                                    to_promo_amount_string(promo_code))
