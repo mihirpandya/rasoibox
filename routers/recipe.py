@@ -212,7 +212,8 @@ async def get_recipe_metadata(name: str, serving_size: int, db: Session = Depend
         ingredients=ingredients_metadata,
         in_your_kitchens=in_your_kitchens_metadata,
         prep_time=recipe.prep_time_minutes,
-        cook_time=recipe.cook_time_minutes
+        cook_time=recipe.cook_time_minutes,
+        image_url=recipe.image_url
     )
 
 

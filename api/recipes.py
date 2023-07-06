@@ -35,6 +35,7 @@ class RecipeMetadata(BaseModel):
     in_your_kitchens: List[InYourKitchen]
     prep_time: int
     cook_time: int
+    image_url: str
 
 
 class CandidateRecipe(BaseModel):
