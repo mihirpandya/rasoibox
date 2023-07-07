@@ -293,7 +293,8 @@ async def get_order_from_order_id(order_id: str, current_customer: Customer = De
 async def get_order_history(current_customer: Customer = Depends(get_current_customer),
                             db: Session = Depends(get_db)):
     orders: List[models.orders.Order] = db.query(models.orders.Order).filter(
-        models.orders.Order.customer == current_customer.id).all()
+        and_(models.orders.Order.customer == current_customer.id,
+             models.orders.Order.payment_status == PaymentStatusEnum.COMPLETED)).all()
     return JSONResponse(content=jsonable_encoder([to_order_dict(x, db) for x in orders]))
 
 
