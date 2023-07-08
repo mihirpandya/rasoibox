@@ -89,6 +89,9 @@ async def initiate_place_order(order: Order, current_customer: Customer = Depend
                                                           Cart.verification_code == verified_sign_up.verification_code)
                                                       .all()], {})
 
+    if len(cart_items_by_recipe_id.keys()) > 2:
+        raise HTTPException(status_code=400, detail="Too many items in cart.")
+
     promo_codes: List[PromoCode] = db.query(PromoCode).filter(PromoCode.promo_code_name.in_(order.promo_codes)).all()
     if len(promo_codes) is not len(order.promo_codes):
         raise HTTPException(status_code=400, detail="Invalid promo codes.")
