@@ -427,8 +427,8 @@ def complete_invitation(current_customer: Customer, db: Session) -> bool:
                                                      referrer_sign_up.verification_code, db)
 
     # send invitation email with promo code
-    send_invitation_email_best_effort(referrer_customer.email, promo_code.promo_code_name,
-                                      to_promo_amount_string(promo_code))
+    send_invitation_email_best_effort(referrer_customer.email, referrer_sign_up.verification_code,
+                                      promo_code.promo_code_name, to_promo_amount_string(promo_code))
 
     db.query(Invitation).filter(and_(Invitation.email == current_customer.email,
                                      Invitation.verification_code == verified_sign_up.verification_code)).update(

@@ -88,6 +88,13 @@
             .small {
                 font-size: 12px;
             }
+            ol {
+                text-align: left;
+                font-size: 15px;
+            }
+            .bold {
+                font-weight: bold;
+            }
     </style>
 </head>
 <body>
@@ -95,29 +102,52 @@
     <img class="logo" src="cid:logo.png"/>
     <div class="content">
         <p class="message">
-            Thank you for your early interest in Rasoi Box. We are finally delivering in your area and are excited to welcome you to the Rasoi Box community.
+            Dear Early Adopter,
+            <br />
+            <br />
+            We're thrilled to announce that Rasoi Box is now accepting pre-orders in your area! Here's what you need to know:
+            <ol>
+                <li>
+                    You have the exclusive opportunity to pre-order your favorite Rasoi Box items until <span class="bold">July 20</span>.
+                </li>
+                <br />
+                <li>
+                    All pre-ordered items will be hand-delivered by our founding team by <span class="bold">July 23</span>.
+                </li>
+                <br />
+                <li>
+                    To give everyone a chance to enjoy our meal kits, please limit your order to <span class="bold">two items</span>, while supplies last.
+                </li>
+            </ol>
         </p>
         <br />
         <p class="order-number">
-            As a thanks for your support,
-            <br />
-            enjoy 90% off your first order with code
+            As a thank you for signing up early, enjoy {{ promo_amount }} off your pre-order.
             <br />
             <br />
             <em class="promo-code">{{ promo_code }}</em>
             <br />
             <br />
-            <a class="create_account" href="https://www.rasoibox.com/createaccount">Create Account</a>
+            <a class="create_account" href="{{ create_account_link }}">Create Account</a>
             <br />
             <br />
-            <span class="small">To redeem, apply this code at checkout.</span>
+            <span class="small">
+                To redeem, apply this code at checkout.
+                <br />
+                This code expires on July 20.
+            </span>
         </p>
         <br />
         <p class="message">
-            Happy cooking!
+            If you have any questions or need assistance with your order, please reach out to us at hello@rasoibox.com. We appreciate your support and can't wait for you to experience Rasoi Box!
             <br />
             <br />
-            - Team Rasoi Box
+            Best regards,
+            <br />
+            <br />
+            Mihir & Shimul
+            <br />
+            Co-founders, Rasoi Box
         </p>
        <div class="footer">
             <br />

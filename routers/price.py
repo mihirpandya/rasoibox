@@ -56,12 +56,13 @@ def send_referral_email_best_effort(email: str, referrer_first_name: str, referr
         logger.exception("Failed to send email.")
 
 
-def send_invitation_email_best_effort(email: str, promo_code: str, promo_amount: str):
+def send_invitation_email_best_effort(email: str, verification_code: str, promo_code: str, promo_amount: str):
     url_base: str = settings.frontend_url_base[0:-1] if settings.frontend_url_base.endswith(
         "/") else settings.frontend_url_base
 
     invitation_email: InvitationEmail = InvitationEmail(
         url_base=url_base,
+        verification_code=verification_code,
         promo_code=promo_code,
         promo_amount=promo_amount,
         to_email=email,
@@ -134,7 +135,8 @@ async def invite_verified_user(verification_code: str, db: Session = Depends(get
         raise HTTPException(status_code=400, detail="No promo code assigned to user")
 
     promo_amount: str = to_promo_amount_string(promo_code)
-    send_invitation_email_best_effort(verified_sign_up.email, promo_code.promo_code_name, promo_amount)
+    send_invitation_email_best_effort(verified_sign_up.email, verified_sign_up.verification_code,
+                                      promo_code.promo_code_name, promo_amount)
 
 
 @router.post("/initiate_invitation")
