@@ -21,6 +21,9 @@ class OrderAdmin(ModelView, model=Order):
         Order.promo_codes
     ]
 
+    column_sortable_list = [Order.order_date]
+    column_default_sort = [(Order.order_date, True)]
+
 
 class CartAdmin(ModelView, model=Cart):
     column_list = [

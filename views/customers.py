@@ -13,3 +13,6 @@ class CustomerAdmin(ModelView, model=Customer):
         Customer.join_date,
         Customer.hashed_password
     ]
+
+    column_sortable_list = [Customer.join_date]
+    column_default_sort = [(Customer.join_date, True)]
