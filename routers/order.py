@@ -92,7 +92,9 @@ async def initiate_place_order(order: Order, current_customer: Customer = Depend
     if len(cart_items_by_recipe_id.keys()) > 2:
         raise HTTPException(status_code=400, detail="Too many items in cart.")
 
-    promo_codes: List[PromoCode] = db.query(PromoCode).filter(PromoCode.promo_code_name.in_(order.promo_codes)).all()
+    promo_codes: List[PromoCode] = db.query(PromoCode).filter(
+        and_(PromoCode.promo_code_name.in_(order.promo_codes),
+             PromoCode.redeemable_by_verification_code == verified_sign_up.verification_code)).all()
     if len(promo_codes) is not len(order.promo_codes):
         raise HTTPException(status_code=400, detail="Invalid promo codes.")
 
@@ -162,8 +164,10 @@ async def initiate_place_order(order: Order, current_customer: Customer = Depend
 @router.post("/complete_place_order")
 async def complete_place_order(order_id: str, current_customer: Customer = Depends(get_current_customer),
                                db: Session = Depends(get_db)):
-    order: models.orders.Order = db.query(models.orders.Order).filter(
-        models.orders.Order.user_facing_order_id == order_id).first()
+    order: models.orders.Order = db.query(models.orders.Order).filter(and_(
+        models.orders.Order.user_facing_order_id == order_id,
+        models.orders.Order.customer == current_customer.id,
+        models.orders.Order.payment_status == PaymentStatusEnum.INITIATED)).first()
     if order is None or order.customer != current_customer.id:
         raise HTTPException(status_code=404, detail="Unknown order")
     verified_sign_up: VerifiedSignUp = db.query(VerifiedSignUp).filter(
@@ -398,7 +402,7 @@ def complete_invitation(current_customer: Customer, db: Session) -> bool:
         return False
 
     invitation: Invitation = db.query(Invitation).filter(and_(
-        Invitation.verification_code == verified_sign_up.verification_code,
+        Invitation.referred_verification_code == verified_sign_up.verification_code,
         Invitation.invitation_status == InvitationStatusEnum.INVITED)).first()
     if invitation is None:
         logger.info("No eligible invitation found for user.")
@@ -410,28 +414,45 @@ def complete_invitation(current_customer: Customer, db: Session) -> bool:
         logger.info("Cannot complete invitation. User does not have any completed orders.")
         return False
 
-    referrer_customer: Customer = db.query(Customer).filter(Customer.id == invitation.referred_by_customer_id).first()
-    if referrer_customer is None:
-        logger.warning("Could not find referrer customer.")
-        return False
+    referrer_verification_code: str
+    referrer_email: str
+    first_name: str
 
     referrer_sign_up: VerifiedSignUp = db.query(VerifiedSignUp).filter(
-        VerifiedSignUp.email == referrer_customer.email).first()
-    if referrer_sign_up is None:
-        logger.warning("Could not find verified referrer user.")
-        return False
+        VerifiedSignUp.verification_code == invitation.referrer_verification_code).first()
+    if referrer_sign_up is not None:
+        referrer_customer: Customer = db.query(Customer).filter(
+            Customer.email == referrer_sign_up.email).first()
+        if referrer_customer is None:
+            logger.warning("Could not find verified referrer customer.")
+            return False
+        referrer_verification_code = referrer_sign_up.verification_code
+        referrer_email = referrer_customer.email
+        first_name = referrer_customer.first_name
+    else:
+        unverified_sign_up: UnverifiedSignUp = db.query(UnverifiedSignUp).filter(
+            UnverifiedSignUp.verification_code == invitation.referrer_verification_code).first()
+        if unverified_sign_up is None:
+            logger.warning("Could not find referrer in unverified users.")
+            return False
+        referrer_verification_code = unverified_sign_up.verification_code
+        referrer_email = unverified_sign_up.email
+        first_name = "RBOXINVITE"
 
     # generate promo code for referrer user
-    promo_code_for_referrer_user: str = generate_promo_code(referrer_customer.first_name)
+    promo_code_for_referrer_user: str = generate_promo_code(first_name)
     promo_code: PromoCode = create_stripe_promo_code(settings.stripe_referral_coupon_id, promo_code_for_referrer_user,
-                                                     referrer_sign_up.verification_code, db)
+                                                     referrer_verification_code, db)
 
     # send invitation email with promo code
-    send_invitation_email_best_effort(referrer_customer.email, referrer_sign_up.verification_code,
+    # TODO: change the email template here
+    send_invitation_email_best_effort(referrer_email, referrer_verification_code,
                                       promo_code.promo_code_name, to_promo_amount_string(promo_code))
 
     db.query(Invitation).filter(and_(Invitation.email == current_customer.email,
-                                     Invitation.verification_code == verified_sign_up.verification_code)).update(
+                                     Invitation.referred_verification_code == verified_sign_up.verification_code)).update(
         {Invitation.invitation_status: InvitationStatusEnum.COMPLETED})
+
+    db.commit()
 
     return True

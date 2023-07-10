@@ -80,7 +80,8 @@ class ReceiptEmail(RasoiBoxEmail):
             "total": "{:.2f}".format(total),
             "line_items": line_items,
             "shipping_address": shipping_address,
-            "order_id": order_id
+            "order_id": order_id,
+            "estimated_delivery": "July 23, 2023"
         }
 
         if len(promo_code) > 0:
@@ -103,7 +104,8 @@ class ReceiptEmail(RasoiBoxEmail):
 class InvitationEmail(RasoiBoxEmail):
     _subject: str = "Exciting News: Rasoi Box pre-orders open in your area!"
 
-    def __init__(self, url_base: str, verification_code: str, promo_code: str, promo_amount: str, to_email: str, from_email: str):
+    def __init__(self, url_base: str, verification_code: str, promo_code: str, promo_amount: str, to_email: str,
+                 from_email: str):
         template_args = {
             "promo_code": promo_code,
             "promo_amount": promo_amount,
@@ -115,7 +117,7 @@ class InvitationEmail(RasoiBoxEmail):
         return "{}/createaccount?id={}".format(url_base, verification_code)
 
 
-class ReferralEmail(RasoiBoxEmail):
+class ReferralAuthEmail(RasoiBoxEmail):
     _suffix: str = " is inviting you to try Rasoi Box!"
 
     def __init__(self, url_base: str, first_name: str, last_name: str, verification_code: str, promo_code: str,
@@ -127,7 +129,24 @@ class ReferralEmail(RasoiBoxEmail):
             "full_name": first_name + " " + last_name,
             "create_account_link": self.create_account_link(url_base, verification_code)
         }
-        super().__init__("referral.html", template_args, to_email, subject, from_email)
+        super().__init__("auth_referral.html", template_args, to_email, subject, from_email)
+
+    def create_account_link(self, url_base, verification_code):
+        return "{}/createaccount?id={}".format(url_base, verification_code)
+
+
+class ReferralEmail(RasoiBoxEmail):
+    _subject: str = "Your friend is inviting you to try Rasoi Box!"
+
+    def __init__(self, url_base: str, referrer_email: str, verification_code: str, promo_code: str,
+                 promo_amount: str, to_email: str, from_email: str):
+        template_args = {
+            "promo_code": promo_code,
+            "promo_amount": promo_amount,
+            "referrer_email": referrer_email,
+            "create_account_link": self.create_account_link(url_base, verification_code)
+        }
+        super().__init__("referral.html", template_args, to_email, self._subject, from_email)
 
     def create_account_link(self, url_base, verification_code):
         return "{}/createaccount?id={}".format(url_base, verification_code)

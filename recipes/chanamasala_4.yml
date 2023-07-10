@@ -63,7 +63,7 @@ ingredients:
     unit: tbsp
   - name: chickpeas
     quantities:
-      - amount: 31
+      - amount: 30
         serving_size: 4
     unit: oz
 in_your_kitchen:
@@ -78,8 +78,7 @@ steps:
   - step_number: 1
     title: prep ingredients
     instructions:
-      - Wash and dry all produce. Chop onions, dice tomatoes, de-stem, slit green chili lengthwise and remove seeds. Finely chop coriander leaves.
-      - Gather all spices in a medium bowl (spice blend, cumin-coriander powder, garam masala, aamchur powder).
+      - Wash and dry all produce. Finely dice onions, dice tomatoes, de-stem, slit green chili lengthwise and remove seeds.
       - Drain and rinse chickpeas. Set aside for later.
     tips:
       - If you have a spicier palate, dice chillis small and keep the seeds in.
@@ -88,10 +87,6 @@ steps:
       - onion
       - tomato
       - green chili
-      - spice blend
-      - cumin-coriander powder
-      - garam masala
-      - aamchur powder
     in_your_kitchen: [ ]
     gif_urls:
       - "https://static.wixstatic.com/media/bbf858_092d9a05729a4fb9be13dafe1ac5b602~mv2.gif"
@@ -117,7 +112,7 @@ steps:
   - step_number: 3
     title: cook the chickpea mixture
     instructions:
-      - Mix in the ginger-garlic paste, diced tomatoes, and all the spices. Stir properly and cook for an additional 3-4 minutes.
+      - Mix in the ginger-garlic paste, diced tomatoes, and all the spices (spice blend, cumin-coriander powder, garam masala, aamchur powder). Stir properly and cook for an additional 3-4 minutes.
       - Add 2 cups of water and bring to a simmer. Add the chickpeas and stir well. Cover and let cook for 6-8 minutes.
     tips:
       - Things may stick to your pot; Keep things moving and deglaze with water.
@@ -126,6 +121,10 @@ steps:
       - ginger-garlic paste
       - tomato
       - chickpeas
+      - spice blend
+      - cumin-coriander powder
+      - garam masala
+      - aamchur powder
     in_your_kitchen: [ ]
     gif_urls:
       - "https://static.wixstatic.com/media/bbf858_80578ce2b97a4966b69ee6c52ea490ff~mv2.gif"

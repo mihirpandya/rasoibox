@@ -1,4 +1,5 @@
 import logging
+from typing import Optional
 
 from pydantic import BaseModel, validator, ValidationError
 
@@ -19,4 +20,6 @@ class RecipeServingPrice(BaseModel):
 
 
 class Invitation(BaseModel):
-    email: str
+    referred_email: str
+    referrer_email: str
+    referrer_verification_code: Optional[str]

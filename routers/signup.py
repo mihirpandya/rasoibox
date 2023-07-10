@@ -59,7 +59,7 @@ async def signup_via_email(sign_up_via_email: SignUpViaEmail, db: Session = Depe
         # this should already be considered verified
         invitation: Optional[Invitation] = db.query(Invitation).filter(
             and_(Invitation.email == sign_up_via_email.email,
-                 Invitation.verification_code == sign_up_via_email.verification_code)).first()
+                 Invitation.referred_verification_code == sign_up_via_email.verification_code)).first()
         if invitation is not None:
             logger.info("User has been invited. Marking as verified.")
 

@@ -130,7 +130,7 @@ async def create_user_account(new_customer: CustomerPayload, db: Session = Depen
         # if email and code match an invitation, consider this as a verified sign up
         invitation: Optional[Invitation] = db.query(Invitation).filter(
             and_(Invitation.email == new_customer.email,
-                 Invitation.verification_code == new_customer.verification_code)).first()
+                 Invitation.referred_verification_code == new_customer.verification_code)).first()
         verified: bool = verified_user is not None
 
         if invitation is not None:
