@@ -33,6 +33,23 @@ router = APIRouter(
 )
 
 
+def send_verify_email(email: str, verification_code: str):
+    # send email with verification link
+    url_base: str = settings.frontend_url_base[0:-1] if settings.frontend_url_base.endswith(
+        "/") else settings.frontend_url_base
+    verification_email: VerifySignUpEmail = VerifySignUpEmail(url_base,
+                                                              verification_code,
+                                                              email,
+                                                              settings.from_email)
+
+    # send email best effort
+    try:
+        send_email(jinjaEnv, verification_email, smtp_server, settings.email, settings.email_app_password)
+    except Exception as e:
+        logger.error("Failed to send email.")
+        logger.error(e)
+
+
 @router.post("/event")
 async def event(site_event: SiteEvent, db: Session = Depends(get_db)):
     emit_event(db, site_event.event_type, site_event.event_date, site_event.verification_code, site_event.referrer)
@@ -124,20 +141,7 @@ async def signup_via_email(sign_up_via_email: SignUpViaEmail, db: Session = Depe
 
             db.commit()
 
-        # send email with verification link
-        url_base: str = settings.frontend_url_base[0:-1] if settings.frontend_url_base.endswith(
-            "/") else settings.frontend_url_base
-        verification_email: VerifySignUpEmail = VerifySignUpEmail(url_base,
-                                                                  verification_code,
-                                                                  sign_up_via_email.email,
-                                                                  settings.from_email)
-
-        # send email best effort
-        try:
-            send_email(jinjaEnv, verification_email, smtp_server, settings.email, settings.email_app_password)
-        except Exception as e:
-            logger.error("Failed to send email.")
-            logger.error(e)
+        send_verify_email(sign_up_via_email.email, verification_code)
 
         return JSONResponse(content={"status": status_code, "message": message, "verification_code": verification_code})
     except sqlite3.OperationalError as e:

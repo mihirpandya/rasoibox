@@ -21,7 +21,7 @@ from models.customers import Customer
 from models.orders import PromoCode
 from models.recipes import Recipe, RecipePrice
 from models.signups import VerifiedSignUp, DeliverableZipcode, UnverifiedSignUp
-from routers.signup import jinjaEnv, smtp_server
+from routers.signup import jinjaEnv, smtp_server, send_verify_email
 
 logger = logging.getLogger("rasoibox")
 
@@ -224,7 +224,6 @@ async def initiate_invitation(invitation: Invitation, db: Session = Depends(get_
         # brand new user; insert in unverified sign up
         referrer_verification_code = generate_verification_code()
 
-        # TODO: send email to verify
         db.add(
             UnverifiedSignUp(
                 email=invitation.referrer_email,
@@ -233,6 +232,8 @@ async def initiate_invitation(invitation: Invitation, db: Session = Depends(get_
                 verification_code=referrer_verification_code
             )
         )
+
+        send_verify_email(invitation.referrer_email, referrer_verification_code)
 
     referred_verification_code = generate_verification_code()
 

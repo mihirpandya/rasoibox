@@ -19,13 +19,12 @@ from dependencies.customers import get_current_customer
 from dependencies.database import get_db
 from dependencies.referral_utils import generate_promo_code, create_stripe_promo_code, to_promo_amount_string
 from dependencies.stripe_utils import create_checkout_session, find_promo_code_id
-from emails.base import send_email, ReceiptEmail
+from emails.base import send_email, ReceiptEmail, InvitationCompleteEmail
 from models.customers import Customer
 from models.invitations import Invitation, InvitationStatusEnum
 from models.orders import Cart, PromoCode, PaymentStatusEnum
 from models.recipes import Recipe, RecipePrice
 from models.signups import VerifiedSignUp, UnverifiedSignUp
-from routers.price import send_invitation_email_best_effort
 from routers.signup import smtp_server, jinjaEnv
 
 logger = logging.getLogger("rasoibox")
@@ -41,6 +40,23 @@ settings: Settings = Settings()
 def generate_order_id() -> str:
     res = ''.join(random.choices(string.digits, k=8))
     return res.lower()
+
+
+def send_invitation_complete_email_best_effort(referred_first_name: str, email: str,
+                                               promo_code: str, promo_amount: str):
+    invitation_complete_email: InvitationCompleteEmail = InvitationCompleteEmail(
+        referred_first_name=referred_first_name,
+        promo_code=promo_code,
+        promo_amount=promo_amount,
+        to_email=email,
+        from_email=settings.from_email
+    )
+
+    # send email best effort
+    try:
+        send_email(jinjaEnv, invitation_complete_email, smtp_server, settings.email, settings.email_app_password)
+    except Exception:
+        logger.exception("Failed to send email.")
 
 
 def send_receipt_email_best_effort(email: str, first_name: str, order_dict: Dict[str, Any]):
@@ -444,10 +460,9 @@ def complete_invitation(current_customer: Customer, db: Session) -> bool:
     promo_code: PromoCode = create_stripe_promo_code(settings.stripe_referral_coupon_id, promo_code_for_referrer_user,
                                                      referrer_verification_code, db)
 
-    # send invitation email with promo code
-    # TODO: change the email template here
-    send_invitation_email_best_effort(referrer_email, referrer_verification_code,
-                                      promo_code.promo_code_name, to_promo_amount_string(promo_code))
+    # send email with promo code
+    send_invitation_complete_email_best_effort(current_customer.first_name, referrer_email, promo_code.promo_code_name,
+                                               to_promo_amount_string(promo_code))
 
     db.query(Invitation).filter(and_(Invitation.email == current_customer.email,
                                      Invitation.referred_verification_code == verified_sign_up.verification_code)).update(
