@@ -111,7 +111,8 @@ async def is_authenticated(current_customer: Customer = Depends(get_current_cust
     return JSONResponse(content=jsonable_encoder({
         "authenticated": True,
         "first_name": current_customer.first_name,
-        "last_name": current_customer.last_name
+        "last_name": current_customer.last_name,
+        "email": current_customer.email
     }))
 
 
@@ -139,7 +140,7 @@ async def create_user_account(new_customer: CustomerPayload, db: Session = Depen
                 VerifiedSignUp(
                     email=new_customer.email,
                     signup_date=new_customer.join_date,
-                    signup_from="INVITATION",
+                    signup_from="REFERRED",
                     verify_date=new_customer.join_date,
                     zipcode=new_customer.zipcode,
                     verification_code=new_customer.verification_code
