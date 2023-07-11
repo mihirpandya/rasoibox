@@ -17,7 +17,8 @@ from config import Settings
 from dependencies.database import get_db
 from dependencies.events import emit_event
 from dependencies.signup import generate_verification_code
-from emails.base import VerifySignUpEmail, send_email
+from emails.base import send_email
+from emails.verifysignup import VerifySignUpEmail
 from models.customers import Customer
 from models.invitations import Invitation
 from models.signups import VerifiedSignUp, UnverifiedSignUp, DeliverableZipcode

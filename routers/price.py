@@ -16,7 +16,10 @@ from dependencies.database import get_db
 from dependencies.referral_utils import create_stripe_promo_code, to_promo_amount_string, generate_promo_code
 from dependencies.signup import generate_verification_code
 from dependencies.stripe_utils import create_stripe_product
-from emails.base import send_email, InvitationEmail, ReferralAuthEmail, ReferralEmail
+from emails.base import send_email
+from emails.invitation import InvitationEmail
+from emails.referral import ReferralEmail
+from emails.referralauth import ReferralAuthEmail
 from models.customers import Customer
 from models.orders import PromoCode
 from models.recipes import Recipe, RecipePrice

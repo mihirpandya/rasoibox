@@ -18,7 +18,10 @@ from config import Settings
 from dependencies.customers import authenticate_customer, get_current_customer, get_password_hash, verify_password, \
     create_access_token
 from dependencies.database import get_db
-from emails.base import VerifySignUpEmail, send_email, ResetPasswordEmail, ResetPasswordCompleteEmail
+from emails.base import send_email
+from emails.resetpassword import ResetPasswordEmail
+from emails.resetpasswordcomplete import ResetPasswordCompleteEmail
+from emails.verifysignup import VerifySignUpEmail
 from models.customers import Customer
 from models.invitations import Invitation
 from models.reset_passwords import ResetPassword

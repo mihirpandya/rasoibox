@@ -19,7 +19,9 @@ from dependencies.customers import get_current_customer
 from dependencies.database import get_db
 from dependencies.referral_utils import generate_promo_code, create_stripe_promo_code, to_promo_amount_string
 from dependencies.stripe_utils import create_checkout_session, find_promo_code_id
-from emails.base import send_email, ReceiptEmail, InvitationCompleteEmail
+from emails.base import send_email
+from emails.invitationcomplete import InvitationCompleteEmail
+from emails.receipt import ReceiptEmail
 from models.customers import Customer
 from models.invitations import Invitation, InvitationStatusEnum
 from models.orders import Cart, PromoCode, PaymentStatusEnum
