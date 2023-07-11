@@ -9,7 +9,7 @@ from sqlalchemy.orm import Session
 from starlette.responses import JSONResponse
 
 import models.invitations
-from api.price import RecipeServingPrice, Invitation
+from api.price import RecipeServingPrice, Invitation, ReferredEmails
 from config import Settings
 from dependencies.customers import get_current_customer
 from dependencies.database import get_db
@@ -167,7 +167,8 @@ async def invite_verified_user(verification_code: str, db: Session = Depends(get
 
 
 @router.post("/initiate_invitation_auth")
-async def initiate_invitation_auth(referred_email: str, current_customer: Customer = Depends(get_current_customer),
+async def initiate_invitation_auth(referred_emails: ReferredEmails,
+                                   current_customer: Customer = Depends(get_current_customer),
                                    db: Session = Depends(get_db)):
     verified_sign_up: VerifiedSignUp = db.query(VerifiedSignUp).filter(
         VerifiedSignUp.email == current_customer.email).first()
@@ -175,48 +176,57 @@ async def initiate_invitation_auth(referred_email: str, current_customer: Custom
     if verified_sign_up is None:
         raise HTTPException(status_code=404, detail="Unverified user.")
 
-    # make sure this is a new user
-    new_user: bool = get_verification_code_for_email(referred_email, db) is None
-    if new_user is False:
-        return JSONResponse(content=jsonable_encoder({"status": 1, "message": "Invited user already exists."}))
+    successes: List[str] = []
+    failures: List[str] = []
 
-    # generate a verification code for invited user
-    referred_verification_code: str = generate_verification_code()
+    for referred_email in referred_emails.referred_emails:
+        # make sure this is a new user
+        new_user: bool = get_verification_code_for_email(referred_email, db) is None
+        if new_user is False:
+            failures.append(referred_email)
+        else:
+            try:
+                # generate a verification code for invited user
+                referred_verification_code: str = generate_verification_code()
 
-    # generate promo code for invited user
-    promo_code_for_invited_user: str = generate_promo_code(current_customer.first_name)
+                # generate promo code for invited user
+                promo_code_for_invited_user: str = generate_promo_code(current_customer.first_name)
 
-    # create stripe promo code
-    promo_code: PromoCode = create_stripe_promo_code(settings.stripe_referral_coupon_id, promo_code_for_invited_user,
-                                                     referred_verification_code, db)
+                # create stripe promo code
+                promo_code: PromoCode = create_stripe_promo_code(settings.stripe_referral_coupon_id,
+                                                                 promo_code_for_invited_user,
+                                                                 referred_verification_code, db)
 
-    # create entry in invitation table with invitation status as "INVITED"
-    db.add(
-        models.invitations.Invitation(
-            email=referred_email,
-            referrer_verification_code=verified_sign_up.verification_code,
-            referred_verification_code=referred_verification_code,
-            invitation_status=models.invitations.InvitationStatusEnum.INVITED,
-            invited_on=datetime.now()
-        )
-    )
+                # create entry in invitation table with invitation status as "INVITED"
+                db.add(
+                    models.invitations.Invitation(
+                        email=referred_email,
+                        referrer_verification_code=verified_sign_up.verification_code,
+                        referred_verification_code=referred_verification_code,
+                        invitation_status=models.invitations.InvitationStatusEnum.INVITED,
+                        invited_on=datetime.now()
+                    )
+                )
+
+                successes.append(referred_email)
+
+                # send invitation email with promo code
+                send_auth_referral_email_best_effort(referred_email, current_customer.first_name,
+                                                     current_customer.last_name,
+                                                     referred_verification_code, promo_code.promo_code_name,
+                                                     to_promo_amount_string(promo_code))
+            except Exception as e:
+                logger.exception(e)
+                failures.append(referred_email)
 
     db.commit()
 
-    # send invitation email with promo code
-    send_auth_referral_email_best_effort(referred_email, current_customer.first_name, current_customer.last_name,
-                                         referred_verification_code, promo_code.promo_code_name,
-                                         to_promo_amount_string(promo_code))
+    return JSONResponse(content=jsonable_encoder({"status": 1, "successes": successes, "failures": failures}))
 
 
 @router.post("/initiate_invitation")
 async def initiate_invitation(invitation: Invitation, db: Session = Depends(get_db)):
     now = datetime.now()
-    new_user: bool = get_verification_code_for_email(invitation.referred_email, db) is None
-
-    if new_user is False:
-        return JSONResponse(content=jsonable_encoder({"status": 1, "message": "Invited user already exists."}))
-
     referrer_verification_code: Optional[str] = get_verification_code_for_email(invitation.referrer_verification_code,
                                                                                 db)
 
@@ -235,28 +245,48 @@ async def initiate_invitation(invitation: Invitation, db: Session = Depends(get_
 
         send_verify_email(invitation.referrer_email, referrer_verification_code)
 
-    referred_verification_code = generate_verification_code()
+    successes: List[str] = []
+    failures: List[str] = []
 
-    # generate promo code for invited user
-    promo_code_for_invited_user: str = generate_promo_code("RBOXINVITE")
+    for referred_email in invitation.referred_emails.referred_emails:
+        # make sure this is a new user
+        new_user: bool = get_verification_code_for_email(referred_email, db) is None
+        if new_user is False:
+            failures.append(referred_email)
+        else:
+            try:
+                # generate a verification code for invited user
+                referred_verification_code: str = generate_verification_code()
 
-    # create stripe promo code
-    promo_code: PromoCode = create_stripe_promo_code(settings.stripe_referral_coupon_id, promo_code_for_invited_user,
-                                                     referred_verification_code, db)
+                # generate promo code for invited user
+                promo_code_for_invited_user: str = generate_promo_code("RBOXINVITE")
 
-    # create entry in invitation table with invitation status as "INVITED"
-    db.add(
-        models.invitations.Invitation(
-            email=invitation.referred_email,
-            referrer_verification_code=referrer_verification_code,
-            referred_verification_code=referred_verification_code,
-            invitation_status=models.invitations.InvitationStatusEnum.INVITED,
-            invited_on=now
-        )
-    )
+                # create stripe promo code
+                promo_code: PromoCode = create_stripe_promo_code(settings.stripe_referral_coupon_id,
+                                                                 promo_code_for_invited_user,
+                                                                 referred_verification_code, db)
+
+                # create entry in invitation table with invitation status as "INVITED"
+                db.add(
+                    models.invitations.Invitation(
+                        email=referred_email,
+                        referrer_verification_code=referrer_verification_code,
+                        referred_verification_code=referred_verification_code,
+                        invitation_status=models.invitations.InvitationStatusEnum.INVITED,
+                        invited_on=datetime.now()
+                    )
+                )
+
+                successes.append(referred_email)
+
+                # send invitation email with promo code
+                send_referral_email_best_effort(referred_email, invitation.referrer_email,
+                                                referred_verification_code,
+                                                promo_code.promo_code_name, to_promo_amount_string(promo_code))
+            except Exception as e:
+                logger.exception(e)
+                failures.append(referred_email)
 
     db.commit()
 
-    # send invitation email with promo code
-    send_referral_email_best_effort(invitation.referred_email, invitation.referrer_email, referred_verification_code,
-                                    promo_code.promo_code_name, to_promo_amount_string(promo_code))
+    return JSONResponse(content=jsonable_encoder({"status": 1, "successes": successes, "failures": failures}))
