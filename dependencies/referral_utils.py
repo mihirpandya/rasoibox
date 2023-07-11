@@ -12,7 +12,7 @@ logger = logging.getLogger("rasoibox")
 
 
 def generate_promo_code(first_name: str) -> str:
-    return (first_name + "{0:x}".format(int(random() * 1_000))).upper()
+    return (first_name + "0" + "{0:x}".format(int(random() * 10_000))).upper()
 
 
 def to_dollars(cents):
