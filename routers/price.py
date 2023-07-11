@@ -227,8 +227,7 @@ async def initiate_invitation_auth(referred_emails: ReferredEmails,
 @router.post("/initiate_invitation")
 async def initiate_invitation(invitation: Invitation, db: Session = Depends(get_db)):
     now = datetime.now()
-    referrer_verification_code: Optional[str] = get_verification_code_for_email(invitation.referrer_verification_code,
-                                                                                db)
+    referrer_verification_code: Optional[str] = get_verification_code_for_email(invitation.referrer_email, db)
 
     if referrer_verification_code is None:
         # brand new user; insert in unverified sign up
