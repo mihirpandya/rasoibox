@@ -46,3 +46,6 @@ class PromoCodeAdmin(ModelView, model=PromoCode):
         PromoCode.percent_off,
         PromoCode.redeemable_by_verification_code
     ]
+
+    column_sortable_list = [PromoCode.created_on]
+    column_default_sort = [(PromoCode.created_on, True)]
