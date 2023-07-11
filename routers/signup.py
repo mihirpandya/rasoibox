@@ -194,6 +194,10 @@ async def is_verified_sign_up(id: str, db: Session = Depends(get_db)) -> JSONRes
     if verified:
         response["email"] = verified_sign_up.email
         response["zipcode"] = verified_sign_up.zipcode
+    else:
+        invitation = db.query(Invitation).filter(Invitation.referred_verification_code == id).first()
+        if invitation is not None:
+            response["email"] = invitation.email
 
     return JSONResponse(content=jsonable_encoder(response))
 
