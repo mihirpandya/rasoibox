@@ -5,6 +5,7 @@ from typing import List, Dict, Optional
 
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.encoders import jsonable_encoder
+from sqlalchemy import and_
 from sqlalchemy.orm import Session
 from starlette.responses import JSONResponse
 
@@ -292,3 +293,19 @@ async def initiate_invitation(invitation: Invitation, db: Session = Depends(get_
     db.commit()
 
     return JSONResponse(content=jsonable_encoder({"status": 1, "successes": successes, "failures": failures}))
+
+
+@router.get("/get_eligible_invitees")
+async def get_eligible_invitees(db: Session = Depends(get_db)):
+    # invitees should be in verified sign up table but not in customer table
+    # invitees should not have any redeemable promo codes
+    # invitees should be in deliverable zipcodes
+    all_deliverable_zipcodes: List[str] = [x.zipcode for x in db.query(DeliverableZipcode).all()]
+    all_customers_emails: List[str] = [x.email for x in db.query(Customer).all()]
+    redeemable_verification_codes: List[str] = [x.redeemable_by_verification_code for x in db.query(PromoCode).all()]
+    verified_sign_ups: List[VerifiedSignUp] = db.query(VerifiedSignUp).filter(
+        and_(VerifiedSignUp.zipcode.in_(all_deliverable_zipcodes),
+             VerifiedSignUp.email.not_in(all_customers_emails),
+             VerifiedSignUp.verification_code.not_in(redeemable_verification_codes))).all()
+
+    return JSONResponse(content=jsonable_encoder([x.verification_code for x in verified_sign_ups]))

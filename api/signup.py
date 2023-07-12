@@ -1,7 +1,7 @@
 import logging
 import re
 from datetime import datetime
-from typing import Optional
+from typing import Optional, List
 
 from pydantic import BaseModel, ValidationError, validator
 
@@ -33,3 +33,16 @@ class SignUpViaEmail(BaseModel):
             return zipcode
         logger.error("Invalid zip code: %d", zipcode)
         raise ValidationError("Invalid zip code.")
+
+
+class AddDeliverableZipcodes(BaseModel):
+    zipcodes: List[str]
+
+    @validator('zipcodes')
+    def validate_zipcodes(cls, zipcodes: List[str]) -> List[str]:
+        pattern = r"^\d{5}$"
+        for zipcode in zipcodes:
+            if not bool(re.match(pattern, zipcode)):
+                logger.error("Invalid zip code: %d", zipcode)
+                raise ValidationError("Invalid zip code.")
+        return zipcodes
