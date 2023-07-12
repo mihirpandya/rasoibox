@@ -2,7 +2,7 @@ import logging
 import sqlite3
 from datetime import datetime
 from smtplib import SMTP
-from typing import Optional
+from typing import Optional, List
 
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.encoders import jsonable_encoder
@@ -241,3 +241,20 @@ async def is_deliverable_zipcode(zipcode: str, db: Session = Depends(get_db)):
         result["status"] = -1
 
     return JSONResponse(content=jsonable_encoder(result))
+
+
+@router.post("/add_deliverable_zipcodes")
+async def add_deliverable_zipcodes(zipcodes: List[str], db: Session = Depends(get_db)):
+    now = datetime.now()
+    existing_zipcodes: List[DeliverableZipcode] = [x.zipcode for x in db.query(DeliverableZipcode).filter(
+        DeliverableZipcode.zipcode.in_(zipcodes)).all()]
+
+    new_zipcodes: List[DeliverableZipcode] = [DeliverableZipcode(zipcode=x, delivery_start_date=now) for x in zipcodes
+                                              if x not in existing_zipcodes]
+
+    if len(new_zipcodes) == 0:
+        return
+
+    db.add_all(new_zipcodes)
+
+    db.commit()
