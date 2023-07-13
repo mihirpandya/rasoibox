@@ -160,6 +160,11 @@ async def initiate_place_order(order: Order, current_customer: Customer = Depend
         promo_codes=json.dumps([x.id for x in promo_codes])
     ))
 
+    promo_code_names = [x.promo_code_name for x in promo_codes]
+    db.query(PromoCode).filter(and_(PromoCode.promo_code_name.in_(promo_code_names),
+                                    PromoCode.redeemable_by_verification_code == verified_sign_up.verification_code)) \
+        .update({PromoCode.number_times_redeemed: PromoCode.number_times_redeemed + 1})
+
     db.commit()
 
     try:
@@ -218,7 +223,10 @@ async def cancel_place_order(order_id: str, current_customer: Customer = Depends
     if order is None or order.customer != current_customer.id:
         raise HTTPException(status_code=404, detail="Unknown order")
     db.query(models.orders.Order).filter(models.orders.Order.user_facing_order_id == order_id).update(
-        {"payment_status": PaymentStatusEnum.CANCELED})
+        {models.orders.Order.payment_status: PaymentStatusEnum.CANCELED})
+    promo_code_ids: List[int] = json.loads(order.promo_codes)
+    db.query(PromoCode).filter(and_(PromoCode.id.in_(promo_code_ids, PromoCode.number_times_redeemed > 0))).update(
+        {PromoCode.number_times_redeemed: PromoCode.number_times_redeemed - 1})
     db.commit()
 
 
@@ -348,18 +356,23 @@ async def is_valid_promo_code(promo_code: str, current_customer: Customer = Depe
     if promo_code is None:
         raise HTTPException(status_code=404, detail="Unknown promo code")
 
-    promo_code_obj = find_promo_code_id(promo_code.promo_code_name)
-    if promo_code_obj is None or not promo_code_obj.active:
+    if promo_code.number_times_redeemed > 0:
         result = {
             "status": 1
         }
     else:
-        result = {
-            "status": 0,
-            "promo_code_name": promo_code.promo_code_name,
-            "amount_off": promo_code.amount_off if promo_code.amount_off is not None else 0.0,
-            "percent_off": promo_code.percent_off if promo_code.percent_off is not None else 0.0
-        }
+        promo_code_obj = find_promo_code_id(promo_code.promo_code_name)
+        if promo_code_obj is None or not promo_code_obj.active:
+            result = {
+                "status": 1
+            }
+        else:
+            result = {
+                "status": 0,
+                "promo_code_name": promo_code.promo_code_name,
+                "amount_off": promo_code.amount_off if promo_code.amount_off is not None else 0.0,
+                "percent_off": promo_code.percent_off if promo_code.percent_off is not None else 0.0
+            }
 
     return JSONResponse(content=jsonable_encoder(result))
 

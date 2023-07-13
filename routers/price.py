@@ -319,8 +319,9 @@ async def get_promo_code(current_customer: Customer = Depends(get_current_custom
     if verified_sign_up is None:
         raise HTTPException(status_code=404, detail="Unverified user.")
 
-    promo_codes = db.query(PromoCode).filter(
-        PromoCode.redeemable_by_verification_code == verified_sign_up.verification_code).all()
+    promo_codes = db.query(PromoCode).filter(and_(
+        PromoCode.redeemable_by_verification_code == verified_sign_up.verification_code,
+        PromoCode.number_times_redeemed == 0)).all()
 
     if promo_codes is not None and len(promo_codes) > 0:
         result = {
