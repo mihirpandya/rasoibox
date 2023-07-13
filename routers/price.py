@@ -322,11 +322,18 @@ async def get_promo_code(current_customer: Customer = Depends(get_current_custom
     promo_codes = db.query(PromoCode).filter(
         PromoCode.redeemable_by_verification_code == verified_sign_up.verification_code).all()
 
-    result = {}
-
     if promo_codes is not None and len(promo_codes) > 0:
-        result["promo_code"] = promo_codes[0].promo_code_name
+        result = {
+            "status": 0,
+            "promo_code_name": promo_codes[0].promo_code_name,
+            "amount_off": promo_codes[0].amount_off if promo_codes[0].amount_off is not None else 0.0,
+            "percent_off": promo_codes[0].percent_off if promo_codes[0].percent_off is not None else 0.0
+        }
         if len(promo_codes) > 1:
             logger.warning("Found multiple promo codes when there should only have been one: {}".format(promo_codes))
+    else:
+        result = {
+            "status": 1
+        }
 
     return JSONResponse(content=jsonable_encoder(result))
