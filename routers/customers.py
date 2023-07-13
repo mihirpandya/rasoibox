@@ -96,7 +96,9 @@ def send_reset_password_complete_email_best_effort(email: str, first_name: str):
 async def login_for_access_token(
         form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)
 ):
-    customer = authenticate_customer(form_data.username, form_data.password, db)
+    clean_email: str = form_data.username.strip()
+    clean_email = clean_email.lower()
+    customer = authenticate_customer(clean_email, form_data.password, db)
     if not customer:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
