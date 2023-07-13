@@ -165,11 +165,8 @@ async def create_user_account(new_customer: CustomerPayload, db: Session = Depen
             )
         )
 
-        create_welcome_promo_if_applicable(new_customer.verification_code, db)
-
-        db.commit()
-
         if not verified:
+            verification_code = new_customer.verification_code
             # add to unverified table
             db.add(
                 UnverifiedSignUp(
@@ -177,22 +174,27 @@ async def create_user_account(new_customer: CustomerPayload, db: Session = Depen
                     signup_date=new_customer.join_date,
                     signup_from="CREATE_ACCOUNT",
                     zipcode=new_customer.zipcode,
-                    verification_code=new_customer.verification_code,
+                    verification_code=verification_code,
                 )
             )
-            db.commit()
 
-            send_verify_email_best_effort(new_customer.email, new_customer.verification_code)
+            send_verify_email_best_effort(new_customer.email, verification_code)
 
-            return JSONResponse(content=jsonable_encoder({
+            result = {
                 "status": 0,
                 "message": "Account created. Verification needed."
-            }))
+            }
         else:
-            return JSONResponse(content=jsonable_encoder({
+            verification_code = verified_user.verification_code
+            result = {
                 "status": 1,
                 "message": "Account created. No verification needed."
-            }))
+            }
+
+        create_welcome_promo_if_applicable(verification_code, db)
+
+        db.commit()
+        return JSONResponse(content=jsonable_encoder(result))
 
 
 @router.post("/update")
