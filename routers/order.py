@@ -225,7 +225,7 @@ async def cancel_place_order(order_id: str, current_customer: Customer = Depends
     db.query(models.orders.Order).filter(models.orders.Order.user_facing_order_id == order_id).update(
         {models.orders.Order.payment_status: PaymentStatusEnum.CANCELED})
     promo_code_ids: List[int] = json.loads(order.promo_codes)
-    db.query(PromoCode).filter(and_(PromoCode.id.in_(promo_code_ids, PromoCode.number_times_redeemed > 0))).update(
+    db.query(PromoCode).filter(and_(PromoCode.id.in_(promo_code_ids), PromoCode.number_times_redeemed > 0)).update(
         {PromoCode.number_times_redeemed: PromoCode.number_times_redeemed - 1})
     db.commit()
 
