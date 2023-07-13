@@ -455,7 +455,7 @@ def complete_invitation(current_customer: Customer, db: Session) -> bool:
             return False
         referrer_verification_code = unverified_sign_up.verification_code
         referrer_email = unverified_sign_up.email
-        first_name = "RBOXINVITE"
+        first_name = "INVITE"
 
     # generate promo code for referrer user
     promo_code_for_referrer_user: str = generate_promo_code(first_name)

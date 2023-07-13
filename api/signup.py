@@ -22,7 +22,9 @@ class SignUpViaEmail(BaseModel):
     def validate_email(cls, email_address: str) -> str:
         pattern = r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
         if bool(re.match(pattern, email_address)):
-            return email_address
+            clean_email = email_address.lower()
+            clean_email = clean_email.strip()
+            return clean_email
         logger.error("Malformed email address: %s", email_address)
         raise ValidationError("Malformed email address.")
 

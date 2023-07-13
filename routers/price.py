@@ -262,7 +262,7 @@ async def initiate_invitation(invitation: Invitation, db: Session = Depends(get_
                 referred_verification_code: str = generate_verification_code()
 
                 # generate promo code for invited user
-                promo_code_for_invited_user: str = generate_promo_code("RBOXINVITE")
+                promo_code_for_invited_user: str = generate_promo_code("INVITE")
 
                 # create stripe promo code
                 promo_code: PromoCode = create_stripe_promo_code(settings.stripe_referral_coupon_id,
