@@ -24,6 +24,7 @@ from emails.resetpasswordcomplete import ResetPasswordCompleteEmail
 from emails.verifysignup import VerifySignUpEmail
 from models.customers import Customer
 from models.invitations import Invitation
+from models.orders import PromoCode
 from models.reset_passwords import ResetPassword
 from models.signups import VerifiedSignUp, UnverifiedSignUp
 from routers.signup import jinjaEnv, smtp_server
@@ -163,6 +164,8 @@ async def create_user_account(new_customer: CustomerPayload, db: Session = Depen
                 verified=verified
             )
         )
+
+        create_welcome_promo_if_applicable(new_customer.verification_code, db)
 
         db.commit()
 
@@ -305,3 +308,25 @@ async def complete_reset_password(reset_password: ResetPasswordPayload, db: Sess
         {'reset_complete': True})
     db.commit()
     send_reset_password_complete_email_best_effort(customer.email, customer.first_name)
+
+
+def create_welcome_promo_if_applicable(verification_code: str, db: Session):
+    existing_promo_code = db.query(PromoCode).filter(
+        PromoCode.redeemable_by_verification_code == verification_code).first()
+    if existing_promo_code is not None:
+        logger.info(
+            "Ignoring welcome promo code creation because user already has a promo code: {}".format(verification_code))
+        return
+
+    db.add(
+        PromoCode(
+            promo_code_name="WELCOME15",
+            created_on=datetime.now(),
+            number_times_redeemed=0,
+            stripe_promo_code_id=settings.stripe_welcome_promo_code_id,
+            percent_off=15.0,
+            redeemable_by_verification_code=verification_code
+        )
+    )
+
+    return

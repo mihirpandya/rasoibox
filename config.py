@@ -17,6 +17,7 @@ class Settings(BaseSettings):
     secret_key: str
     stripe_secret_key: str
     stripe_referral_coupon_id: str
+    stripe_welcome_promo_code_id: str
 
     class Config:
         env_file = ".env"

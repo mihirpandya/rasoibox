@@ -309,3 +309,24 @@ async def get_eligible_invitees(db: Session = Depends(get_db)):
              VerifiedSignUp.verification_code.not_in(redeemable_verification_codes))).all()
 
     return JSONResponse(content=jsonable_encoder([x.verification_code for x in verified_sign_ups]))
+
+
+@router.get("/get_promo_code")
+async def get_promo_code(current_customer: Customer = Depends(get_current_customer), db: Session = Depends(get_db)):
+    verified_sign_up: VerifiedSignUp = db.query(VerifiedSignUp).filter(
+        VerifiedSignUp.email == current_customer.email).first()
+
+    if verified_sign_up is None:
+        raise HTTPException(status_code=404, detail="Unverified user.")
+
+    promo_codes = db.query(PromoCode).filter(
+        PromoCode.redeemable_by_verification_code == verified_sign_up.verification_code).all()
+
+    result = {}
+
+    if promo_codes is not None and len(promo_codes) > 0:
+        result["promo_code"] = promo_codes[0].promo_code_name
+        if len(promo_codes) > 1:
+            logger.warning("Found multiple promo codes when there should only have been one: {}".format(promo_codes))
+
+    return JSONResponse(content=jsonable_encoder(result))
