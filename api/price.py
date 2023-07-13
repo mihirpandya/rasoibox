@@ -32,8 +32,9 @@ class ReferredEmails(BaseModel):
                 clean_email = email.lower()
                 clean_email = clean_email.strip()
                 clean_emails.append(clean_email)
-            logger.error("Malformed email address: %s", email)
-            raise ValidationError("Malformed email address.")
+            else:
+                logger.error("Malformed email address: %s", email)
+                raise ValidationError("Malformed email address.")
         return clean_emails
 
 
