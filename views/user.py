@@ -40,3 +40,5 @@ class DeliverableZipcodeAdmin(ModelView, model=DeliverableZipcode):
         DeliverableZipcode.zipcode,
         DeliverableZipcode.delivery_start_date
     ]
+
+    column_searchable_list = [DeliverableZipcode.email]
