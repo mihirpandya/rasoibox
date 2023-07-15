@@ -16,3 +16,4 @@ class CustomerAdmin(ModelView, model=Customer):
 
     column_sortable_list = [Customer.join_date]
     column_default_sort = [(Customer.join_date, True)]
+    column_searchable_list = [Customer.first_name, Customer.last_name, Customer.email]
