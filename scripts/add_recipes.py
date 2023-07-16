@@ -53,9 +53,13 @@ def add_recipe_steps(yml_file, url_base, proceed=False):
          "unit": x['unit']} for x in recipe['ingredients']]
     in_your_kitchens = [{"name": x['name'], "or_": x["or"] if "or" in x else []} for x in recipe['in_your_kitchen']]
     payload = {
+        "recipe_id": recipe_id,
         "recipe_name": recipe['recipe_name'],
         "ingredients": ingredients,
         "in_your_kitchens": in_your_kitchens,
+        "prep_time": recipe['prep_time_minutes'],
+        "cook_time": recipe['cook_time_minutes'],
+        "image_url": recipe['image_url']
     }
     r = requests.post(add_recipe_metadata_url, json=[payload])
     if not r.ok:

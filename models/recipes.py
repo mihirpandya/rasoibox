@@ -16,6 +16,7 @@ class Recipe(Base):
     name = Column(String(200))
     created_date = Column(DateTime)
     description = Column(String(1000))
+    long_description = Column(String(1000))
     image_url = Column(String(10_000))
     recipe_contributor_id = Column(Integer)  # ForeignKey("recipe_contributors.id")
     prep_time_minutes = Column(Integer)

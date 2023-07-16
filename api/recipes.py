@@ -36,6 +36,7 @@ class RecipeMetadata(BaseModel):
     prep_time: int
     cook_time: int
     image_url: str
+    long_description: str
 
 
 class CandidateRecipe(BaseModel):

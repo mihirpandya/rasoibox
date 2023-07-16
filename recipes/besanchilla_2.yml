@@ -4,52 +4,52 @@ image_url: https://static.wixstatic.com/media/bbf858_7d1415cdc30d4d9781762735332
 recipe_contributor_name: rasoi box
 prep_time_minutes: 10
 cook_time_minutes: 10
-serving_size: 4
+serving_size: 2
 ingredients:
   - name: gram flour (besan)
     quantities:
-      - amount: 2
-        serving_size: 4
+      - amount: 1
+        serving_size: 2
     unit: cup
   - name: onion
     quantities:
       - amount: 1
-        serving_size: 4
+        serving_size: 2
     unit: piece
   - name: tomato
     quantities:
-      - amount: 2
-        serving_size: 4
+      - amount: 1
+        serving_size: 2
     unit: piece
   - name: green chili
     quantities:
-      - amount: 2
-        serving_size: 4
+      - amount: 1
+        serving_size: 2
     unit: tsp
   - name: coriander leaves
     quantities:
-      - amount: 0.5
-        serving_size: 4
+      - amount: 0.25
+        serving_size: 2
     unit: cup
   - name: ginger
     quantities:
-      - amount: 1
-        serving_size: 4
+      - amount: 0.5
+        serving_size: 2
     unit: tsp
   - name: carom seeds (ajwain)
     quantities:
-      - amount: 1
-        serving_size: 4
+      - amount: 0.5
+        serving_size: 2
     unit: tsp
   - name: turmeric
     quantities:
-      - amount: 0.5
-        serving_size: 4
+      - amount: 0.25
+        serving_size: 2
     unit: tsp
   - name: red chili powder
     quantities:
       - amount: 0.5
-        serving_size: 4
+        serving_size: 2
     unit: tsp
 in_your_kitchen:
   - name: salt
@@ -79,10 +79,10 @@ steps:
     title: prepare the chilla mixture
     instructions:
       - Add gram flour, onion, tomato, coriander leaves, green chili, ginger, spices, carom seeds, and salt to taste to a large mixing bowl.
-      - Before mixing all of the ingredients, add 3/4 cup water to the large mixing bowl.
+      - Before mixing all of the ingredients, add 1/2 cup water to the large mixing bowl.
       - Whisk to combine. If the batter looks thick, then add more water 1 tbsp at a time until it reaches the consistency of an omelet batter.
     tips:
-      - The batter should be smooth and flowy. Make sure to break up any lumps while mixing the batter. 
+      - The batter should be smooth and flowy. Make sure to break up any lumps while mixing the batter.
     chefs_hats:
       - Put your chef hat on! Adjust the green chilis or red chili powder to your spice tolerance.
     ingredients:
@@ -93,7 +93,7 @@ steps:
       - ginger
       - carom seeds (ajwain)
       - turmeric
-      - red chili powder 
+      - red chili powder
     in_your_kitchen:
       - salt
       - water

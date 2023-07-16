@@ -23,6 +23,7 @@ class RecipeAdmin(ModelView, model=Recipe):
         Recipe.prep_time_minutes,
         Recipe.cook_time_minutes,
         Recipe.tags,
+        Recipe.long_description
     ]
 
 
