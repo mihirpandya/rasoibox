@@ -53,7 +53,8 @@ async def add_recipes(recipes: List[CandidateRecipe], db: Session = Depends(get_
             image_url=recipe.image_url,
             recipe_contributor_id=contributor.id,
             prep_time_minutes=recipe.prep_time_minutes,
-            cook_time_minutes=recipe.cook_time_minutes
+            cook_time_minutes=recipe.cook_time_minutes,
+            long_description=""
         )
 
     db.add_all(list(recipes_to_add.values()))
