@@ -38,13 +38,6 @@ def send_email(jinjaEnv: Environment, email: RasoiBoxEmail, email_server: SMTP, 
     msg_html = MIMEText(jinjaEnv.get_template(email.template).render(**email.template_args), "html")
     message.attach(msg_html)
 
-    f = open("templates/assets/logo.png", "rb")
-    logo_img = MIMEImage(f.read())
-    f.close()
-    logo_img.add_header('Content-ID', '<logo.png>')
-    logo_img.add_header('Content-Disposition', 'inline', filename="templates/assets/logo.png")
-    message.attach(logo_img)
-
     email_server.connect('smtp.gmail.com', 587)
     email_server.starttls()
     email_server.login(email_address, email_password)
