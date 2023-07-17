@@ -1,6 +1,7 @@
 import logging
 
 from fastapi import FastAPI
+from fastapi.staticfiles import StaticFiles
 from sqladmin import Admin
 from starlette.middleware.sessions import SessionMiddleware
 from starlette.middleware.wsgi import WSGIMiddleware
@@ -63,6 +64,9 @@ Base.metadata.create_all(engine)
 # Dashboard
 dash_app = create_dash_app(next(get_db()), requests_pathname_prefix="/dash/")
 app.mount("/dash", WSGIMiddleware(dash_app.server))
+
+# Static files
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
 # API Routers
 app.include_router(recipe.router)
