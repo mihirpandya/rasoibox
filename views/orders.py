@@ -49,3 +49,4 @@ class PromoCodeAdmin(ModelView, model=PromoCode):
 
     column_sortable_list = [PromoCode.created_on]
     column_default_sort = [(PromoCode.created_on, True)]
+    column_searchable_list = [PromoCode.promo_code_name, PromoCode.redeemable_by_verification_code]
