@@ -380,7 +380,7 @@ async def is_valid_promo_code(promo_code: str, current_customer: Customer = Depe
 def is_active_order(order: models.orders.Order) -> bool:
     now = datetime.now()
     difference = now - order.order_date
-    return difference.days < 15
+    return difference.days < 365
 
 
 def to_order_dict(order: models.orders.Order, db: Session, customer_email=None) -> Dict[str, Any]:
