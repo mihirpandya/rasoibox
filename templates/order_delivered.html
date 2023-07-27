@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Order Delivered</title>
+    <style>
+            body {
+                font-family: "Avenir";
+                text-align: center;
+            }
+            table {
+                font-family: "Avenir";
+                font-size: 14px;
+                 border-collapse: collapse;
+            }
+            td {
+                text-align: left;
+                width: 200px;
+                vertical-align: text-top;
+            }
+            .icon {
+              height: 50px;
+            }
+            .wide {
+                width: 300px;
+            }
+            .narrow {
+                width: 50px;
+            }
+            .promo {
+                border-bottom: 1pt solid black;
+            }
+            .verification_link {
+              text-align: center;
+              font-family: Avenir;
+              border: none;
+              border-radius: 12px;
+              background-color: #f9a66c;
+              color: white;
+              padding: 16px 32px;
+              text-align: center;
+              text-decoration: none;
+              display: inline-block;
+              font-size: 16px;
+              font-weight: bold;
+              margin: 4px 2px;
+              transition-duration: 0.4s;
+              cursor: pointer;
+            }
+            .title {
+                text-align: center;
+            }
+            .message {
+                text-align: left;
+                font-size: 15px;
+            }
+            .order-number {
+                text-align: center;
+                font-size: 15px;
+            }
+            .content {
+                background-color: white;
+                padding: 20px;
+            }
+            .container {
+                width: 500px;
+                display: inline-block;
+                background-color: #f9faf4;
+                padding: 30px;
+            }
+            .footer {
+                text-align: center;
+                padding: 20px;
+                font-size: 10px;
+                font-family: Avenir;
+            }
+            .logo {
+                display: block;
+                margin-left: auto;
+                margin-right: auto;
+                width: 50px;
+                padding: 20px;
+            }
+            .icon {
+                width: 15px;
+                height: 15px;
+            }
+    </style>
+</head>
+<body>
+<div class="container">
+    <img class="logo" src="https://rasoibox.onrender.com/static/assets/logo.png" />
+    <div class="content">
+        <h2 class="title">Your order is deivered!</h2>
+        <p class="message">
+            Hi {{ first_name }},
+            <br/>
+            <br/>
+            Your order # {{ order_id }} is delivered! Please scan the QR code in your box to access the step-by-step instructions and get cooking!
+            <br/>
+        </p>
+        <br />
+        <p class="order-number">
+            Order Number: <a href="{{ order_link }}">{{ order_id }}</a>
+        </p>
+        <br />
+        <table>
+            {% for line_item in line_items %}
+            <tr>
+                <td><img class="icon" src="{{ line_item.image_link }}" /></td>
+                <td class="wide">{{ line_item.name }}</td>
+                <td>{{ line_item.serving_size }} servings</td>
+            </tr>
+            {% endfor %}
+        </table>
+        <br />
+        <br />
+        <table>
+            <tr>
+                <td style="padding-top: 20px">Shipping Address</td>
+                <td>{{ shipping_address.user_input }}</td>
+            </tr>
+            <tr>
+                <td style="padding-top: 20px">Estimated Delivery</td>
+            </tr>
+        </table>
+        <br />
+        <br />
+        <p class="message">
+            Happy cooking!
+            <br />
+            <br />
+            - Team Rasoi Box
+        </p>
+       <div class="footer">
+            <br />
+            &nbsp;&copy; 2023 Rasoi Box
+        </div>
+    </div>
+</div>
+</body>
+</html>

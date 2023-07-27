@@ -23,6 +23,7 @@ class Order(Base):
     recipient_last_name = Column(String(100))
     payment_status = Column(Enum(PaymentStatusEnum))
     delivered = Column(Boolean)
+    delivery_date = Column(DateTime)
     order_total_dollars = Column(Float)
     order_breakdown_dollars = Column(JSON)  # map<string, float> of all line items e.g. tax, delivery, promo codes
     delivery_address = Column(JSON)  # api.orders.Address
