@@ -238,6 +238,40 @@ async def initiate_place_order(order: Order, current_customer: Customer = Depend
         raise HTTPException(status_code=400, detail="Failed to create Stripe checkout session")
 
 
+@router.post("/admin_complete_place_order")
+async def admin_complete_place_order(order_id: str, db: Session = Depends(get_db)):
+    order: models.orders.Order = db.query(models.orders.Order).filter(
+        and_(models.orders.Order.user_facing_order_id == order_id,
+             models.orders.Order.payment_status == PaymentStatusEnum.INITIATED)).first()
+    if order is None:
+        raise HTTPException(status_code=404, detail="Unknown order")
+
+    customer: Customer = db.query(Customer).filter(Customer.id == order.customer).first()
+    if customer is None:
+        raise HTTPException(status_code=400, detail="Could not find customer who placed this order.")
+
+    verified_sign_up: VerifiedSignUp = db.query(VerifiedSignUp).filter(VerifiedSignUp.email == customer.email).first()
+    if verified_sign_up is None:
+        raise HTTPException(status_code=400, detail="User not verified")
+
+    db.query(models.orders.Order).filter(models.orders.Order.user_facing_order_id == order_id).update(
+        {"payment_status": PaymentStatusEnum.COMPLETED})
+    db.query(Cart).filter(Cart.verification_code == verified_sign_up.verification_code).delete()
+    db.commit()
+
+    order: models.orders.Order = db.query(models.orders.Order).filter(
+        models.orders.Order.user_facing_order_id == order_id).first()
+
+    # send email
+    result = to_order_dict(order, db, customer_email=customer.email)
+    send_receipt_email_best_effort(customer.email, customer.first_name, result)
+
+    # complete invite friend
+    complete_invitation(customer, db)
+
+    return JSONResponse(content=jsonable_encoder(result))
+
+
 @router.post("/complete_place_order")
 async def complete_place_order(order_id: str, current_customer: Customer = Depends(get_current_customer),
                                db: Session = Depends(get_db)):
@@ -437,6 +471,8 @@ async def order_enroute(user_facing_order_id: str, estimated_delivery: datetime,
         models.orders.Order.user_facing_order_id == user_facing_order_id).first()
     if order is None:
         raise HTTPException(status_code=404, detail="Unrecognized order")
+    if order.delivered:
+        raise HTTPException(status_code=400, detail="Order already marked delivered")
 
     customer: Customer = db.query(Customer).filter(Customer.id == order.customer).first()
     if customer is None:
@@ -445,7 +481,7 @@ async def order_enroute(user_facing_order_id: str, estimated_delivery: datetime,
 
     estimated_delivery_str: str = estimated_delivery.strftime("%-I:%M %p, %b %-d")
 
-    order_dict = to_order_dict(order, db, customer.email)
+    order_dict = to_order_dict(order, db, customer_email=customer.email)
 
     send_order_enroute_email_best_effort(customer.email, order.recipient_first_name, estimated_delivery_str, order_dict)
 
@@ -457,13 +493,15 @@ async def order_delivered(user_facing_order_id: str, db: Session = Depends(get_d
         models.orders.Order.user_facing_order_id == user_facing_order_id).first()
     if order is None:
         raise HTTPException(status_code=404, detail="Unrecognized order")
+    if order.delivered:
+        raise HTTPException(status_code=400, detail="Order already marked delivered")
 
     customer: Customer = db.query(Customer).filter(Customer.id == order.customer).first()
     if customer is None:
         raise HTTPException(status_code=400,
                             detail="Cannot find customer who placed order {}".format(user_facing_order_id))
 
-    order_dict = to_order_dict(order, db, customer.email)
+    order_dict = to_order_dict(order, db, customer_email=customer.email)
 
     send_order_delivered_email_best_effort(customer.email, order.recipient_first_name, order_dict)
 
