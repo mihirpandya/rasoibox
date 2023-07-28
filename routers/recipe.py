@@ -337,7 +337,7 @@ async def emit_event(recipe_event: api.event.RecipeEvent, db: Session = Depends(
             code=code,
             referrer=referrer
         )
-        
+
         db.add(event)
         db.commit()
         return

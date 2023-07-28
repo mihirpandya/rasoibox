@@ -471,6 +471,8 @@ async def order_enroute(user_facing_order_id: str, estimated_delivery: datetime,
         models.orders.Order.user_facing_order_id == user_facing_order_id).first()
     if order is None:
         raise HTTPException(status_code=404, detail="Unrecognized order")
+    if order.payment_status != PaymentStatusEnum.COMPLETED:
+        raise HTTPException(status_code=400, detail="Order payment not completed")
     if order.delivered:
         raise HTTPException(status_code=400, detail="Order already marked delivered")
 
@@ -493,6 +495,8 @@ async def order_delivered(user_facing_order_id: str, db: Session = Depends(get_d
         models.orders.Order.user_facing_order_id == user_facing_order_id).first()
     if order is None:
         raise HTTPException(status_code=404, detail="Unrecognized order")
+    if order.payment_status != PaymentStatusEnum.COMPLETED:
+        raise HTTPException(status_code=400, detail="Order payment not completed")
     if order.delivered:
         raise HTTPException(status_code=400, detail="Order already marked delivered")
 
