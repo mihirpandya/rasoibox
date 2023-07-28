@@ -19,7 +19,7 @@
                 height: 40px;
                 vertical-align: text-top;
             }
-            .icon {
+            .item_icon {
                 width: 50px;
                 height: 40px;
             }
@@ -109,7 +109,7 @@
         <table>
             {% for line_item in line_items %}
             <tr>
-                <td><img class="icon" src="{{ line_item.image_link }}" /></td>
+                <td><img class="item_icon" src="{{ line_item.image_link }}" /></td>
                 <td class="wide">{{ line_item.name }}</td>
                 <td>{{ line_item.serving_size }} servings</td>
             </tr>
