@@ -1,0 +1,208 @@
+recipe_name: Khichdi-Kadhi
+description: seasoned rice and lentils served with a tangy yogurt-based curry.
+long_description: Seasoned rice and lentils served with a tangy yogurt-based curry.
+image_url: https://static.wixstatic.com/media/bbf858_8d09e9eb2f1a4209941390968e359ba6~mv2.png
+recipe_contributor_name: rasoi box
+prep_time_minutes: 10
+cook_time_minutes: 20
+serving_size: 2
+ingredients:
+  - name: plain yogurt
+    quantities:
+      - amount: 0.5
+        serving_size: 2
+    unit: cup
+  - name: gram flour (besan)
+    quantities:
+      - amount: 1.5
+        serving_size: 2
+    unit: tbsp
+  - name: ginger-garlic paste
+    quantities:
+      - amount: 0.5
+        serving_size: 2
+    unit: tbsp
+  - name: green chili
+    quantities:
+      - amount: 1
+        serving_size: 2
+    unit: piece
+  - name: jaggery
+    quantities:
+      - amount: 1
+        serving_size: 2
+    unit: tbsp
+  - name: cinnamon stick
+    quantities:
+      - amount: 1
+        serving_size: 2
+    unit: 1-inch
+  - name: cloves
+    quantities:
+      - amount: 2
+        serving_size: 2
+    unit: piece
+  - name: curry leaves
+    quantities:
+      - amount: 4
+        serving_size: 2
+    unit: piece
+  - name: dried red chilies
+    quantities:
+      - amount: 1
+        serving_size: 2
+    unit: piece
+  - name: cumin seeds
+    quantities:
+      - amount: 0.5
+        serving_size: 2
+    unit: tsp
+  - name: mustard seeds
+    quantities:
+      - amount: 0.5
+        serving_size: 2
+    unit: tsp
+  - name: fenugreek seeds
+    quantities:
+      - amount: 0.25
+        serving_size: 2
+    unit: tsp
+  - name: coriander leaves
+    quantities:
+      - amount: 0.5
+        serving_size: 2
+    unit: tbsp
+  - name: khichdi lentil mix
+    quantities:
+      - amount: 0.5
+        serving_size: 2
+    unit: cup
+  - name: basmati rice
+    quantities:
+      - amount: 0.25
+        serving_size: 2
+    unit: cup
+  - name: khichdi spice mix
+    quantities:
+      - amount: 1.0
+        serving_size: 4
+    unit: piece
+
+in_your_kitchen:
+  - name: water
+  - name: oil
+    or:
+      - ghee
+  - name: salt
+  - name: large pot
+  - name: large spoon
+  - name: Instant Pot
+  - name: Bowl
+  - name: wooden spoon
+steps:
+  - step_number: 1
+    title: Cook Khichdi in Insant Pot
+    instructions:
+      - Rinse and drain rice and khichdi lentil mix until the water runs clear, and add to the steel insert of the instant pot.
+      - Add 0.5 tbsp of oil or ghee and khichdi spice mix to the steel insert and salt to taste.
+      - Add 2.5 cups of water. Taste the water for salt. Mix all the ingredients.
+      - Close the top of the Instant Pot, and press the pressure cook button. Change the time to 8 minutes. Make sure that the vent is in “seal mode” and let it cook.
+      - When the time is up, turn the Instant Pot off, and let the gas release naturally before you open. Stir well, and enjoy with kadhi.
+    tips: [ ]
+    chefs_hats: [ ]
+    ingredients:
+      - khichdi spice mix
+      - khichdi lentil mix
+      - basmati rice
+    in_your_kitchen:
+      - Instant Pot
+      - Bowl
+      - oil
+      - wooden spoon
+      - salt
+  - step_number: 2
+    title: prep vegetables
+    instructions:
+      - Wash and dry all produce. De-stem, remove seeds, and slit green chili lengthwise and crosswise, finely chop coriander leaves.
+    tips:
+      - If you have a spicier palate, dice chilies small and keep the seeds in.
+    chefs_hats: [ ]
+    ingredients:
+      - green chili
+      - mustard seeds
+      - cumin seeds
+      - cinnamon stick
+      - cloves
+      - fenugreek seeds
+      - dried red chilies
+    in_your_kitchen: [ ]
+  - step_number: 3
+    title: prepare yogurt mixture
+    instructions:
+      - In a mixing bowl, whisk together the yogurt and 2 cups plain water. Mix well. Add gram flour and mix well, ensuring there are no lumps.
+      - Add salt to taste and green chilis to the mixture, mix again and set aside.
+    tips:
+      - Removing gram flour lumps can take some time, it's important to be thorough.
+    chefs_hats: [ ]
+    ingredients:
+      - plain yogurt
+      - gram flour (besan)
+      - green chili
+    in_your_kitchen:
+      - water
+      - salt
+  - step_number: 4
+    title: temper spices and aromatics
+    instructions:
+      - In a medium sized saucepan, heat 1 tbsp oil or ghee for 1-2 minutes over medium low. When the oil is hot, add tempering ingredients (mustard seeds, cumin seeds, cinnamon stick, cloves, fenugreek seeds, red chilies) to the pan.
+      - When the mustard seeds crackle and the cumin seeds slightly darken, add the the curry leaves. Be careful, as they may sputter when they hit the pan. Stir it once.
+    tips:
+      - Signs that your oil is hot:<br /><ul><li>it flows smoothly, quickly coating the pan.</li><li>the surface glistens and shimmers.</li><li>a small piece of food sizzles immediately when added to the pan.</li></ul>
+    chefs_hats: [ ]
+    ingredients:
+      - mustard seeds
+      - cumin seeds
+      - cinnamon stick
+      - cloves
+      - fenugreek seeds
+      - curry leaves
+      - dried red chilies
+    in_your_kitchen:
+      - oil
+  - step_number: 5
+    title: cook the yogurt mixture
+    instructions:
+      - Put the heat on low and wait for 2 minutes for the pot to cool.
+      - Pour the yogurt-water mixture carefully to the pot and mix well. Stir continuously and add salt to taste. Add jaggery and mix.
+      - Increase the heat to medium-high and bring the kadhi to a boil, stirring continuously to prevent lumps from forming.
+    tips:
+      - Adding the yogurt mixture while the pot is too hot will cause the yogurt mixture to seize.
+      - Stirring your kadhi continuously until it reaches it's first boil will ensure that the kadhi is properly cooked and will not split.
+    chefs_hats: [ ]
+    ingredients:
+      - jaggery
+    in_your_kitchen:
+      - wooden spoon
+  - step_number: 6
+    title: simmer the yogurt mixture
+    instructions:
+      - Once the kadhi comes to a boil, add in the ginger-garlic paste.
+      - Reduce the heat to low-medium and let it simmer for 7-10 minutes or until it thickens slightly. Keep stirring occasionally to ensure the mixture cooks evenly.
+    tips:
+      - Be sure to add the ginger-garlic paste after the mixture boils, otherwise it will spoil.
+    chefs_hats: [ ]
+    ingredients:
+      - ginger-garlic paste
+    in_your_kitchen:
+      - wooden spoon
+  - step_number: 7
+    title: finish the kadhi
+    instructions:
+      - Turn off the heat and garnish with chopped coriander leaves.
+      - Serve hot with khichdi
+    tips: [ ]
+    chefs_hats: [ ]
+    ingredients:
+      - coriander leaves
+    in_your_kitchen:
+      - wooden spoon

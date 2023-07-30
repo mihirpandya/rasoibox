@@ -207,6 +207,8 @@ async def get_recipe_metadata(name: str, serving_size: int, db: Session = Depend
             )
         )
 
+    tags = recipe.tags if recipe.tags is not None else json.dumps([])
+
     return RecipeMetadata(
         recipe_id=recipe.id,
         recipe_name=recipe.name,
@@ -215,7 +217,8 @@ async def get_recipe_metadata(name: str, serving_size: int, db: Session = Depend
         prep_time=recipe.prep_time_minutes,
         cook_time=recipe.cook_time_minutes,
         image_url=recipe.image_url,
-        long_description=recipe.long_description
+        long_description=recipe.long_description,
+        tags=json.loads(tags)
     )
 
 

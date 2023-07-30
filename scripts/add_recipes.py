@@ -27,21 +27,21 @@ def add_recipe_steps(yml_file, url_base, proceed=False):
         recipe = yaml.safe_load(file)
 
     add_recipe_url = url_base + "/api/recipe/add"
-    # r = requests.post(add_recipe_url, json=[
-    #     {
-    #         "contributor_name": recipe['recipe_contributor_name'],
-    #         "recipe_name": recipe['recipe_name'],
-    #         "description": recipe['description'],
-    #         "image_url": recipe['image_url'],
-    #         "prep_time_minutes": recipe['prep_time_minutes'],
-    #         "cook_time_minutes": recipe['cook_time_minutes']
-    #     }
-    # ])
-    #
-    # if not r.ok:
-    #     print("Failed to create recipe.")
-    #     if not proceed:
-    #         return r
+    r = requests.post(add_recipe_url, json=[
+        {
+            "contributor_name": recipe['recipe_contributor_name'],
+            "recipe_name": recipe['recipe_name'],
+            "description": recipe['description'],
+            "image_url": recipe['image_url'],
+            "prep_time_minutes": recipe['prep_time_minutes'],
+            "cook_time_minutes": recipe['cook_time_minutes']
+        }
+    ])
+
+    if not r.ok:
+        print("Failed to create recipe.")
+        if not proceed:
+            return r
 
     serving_size = recipe['serving_size']
     get_recipe_url = url_base + "/api/recipe/get?name=" + recipe['recipe_name']
@@ -62,10 +62,10 @@ def add_recipe_steps(yml_file, url_base, proceed=False):
         "image_url": recipe['image_url'],
         "long_description": recipe['long_description']
     }
-    # r = requests.post(add_recipe_metadata_url, json=[payload])
-    # if not r.ok:
-    #     print("Failed to create recipe metadata.")
-    #     return r
+    r = requests.post(add_recipe_metadata_url, json=[payload])
+    if not r.ok:
+        print("Failed to create recipe metadata.")
+        return r
 
     add_recipe_steps_url = url_base + "/api/recipe/add_recipe_steps?recipe_id=" + str(
         recipe_id) + "&serving_size=" + str(serving_size)
