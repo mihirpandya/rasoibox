@@ -8,7 +8,7 @@ serving_size: 2
 ingredients:
   - name: onion
     quantities:
-      - amount: 0.5
+      - amount: 1.0
         serving_size: 2
     unit: piece
   - name: tomato
@@ -33,7 +33,7 @@ ingredients:
     unit: tsp
   - name: garam masala
     quantities:
-      - amount: 1
+      - amount: 0.5
         serving_size: 2
     unit: tsp
   - name: aamchur powder
@@ -66,6 +66,11 @@ ingredients:
       - amount: 15
         serving_size: 2
     unit: oz
+  - name: basmati rice
+    quantities:
+      - amount: 1
+        serving_size: 2
+    unit: cup
 in_your_kitchen:
   - name: water
   - name: oil
@@ -76,6 +81,19 @@ in_your_kitchen:
       - rubber spatula
 steps:
   - step_number: 1
+    title: cook rice
+    instructions:
+      - Rinse the rice by placing it in a large bowl and filling it with water. Swish with your hand for 10 seconds. Drain water and repeat 3-4 times, until water is clearer. Drain well.
+      - Place rice and 1.5 cups of water in a medium-sized sauce pan over medium-high heat.
+      - Once it hits a simmer, put a lid on the sauce pan and turn the heat low. Cook for 12 minutes.
+      - Once the water is absorbed, remove from heat and leave for 5 to 10 minutes.
+    tips:
+      - Don't worry - the water will never run 100% clear.
+      - To check if all the water is absorbed, tilt the sauce pan and take a quick peek. Be sure to put the lid back on as fast as possible.
+    chefs_hats: [ ]
+    ingredients:
+      - basmati rice
+  - step_number: 2
     title: prep ingredients
     instructions:
       - Wash and dry all produce. Finely dice onions, dice tomatoes, de-stem, slit green chili lengthwise and remove seeds.
@@ -90,7 +108,7 @@ steps:
     in_your_kitchen: [ ]
     gif_urls:
       - "https://static.wixstatic.com/media/bbf858_092d9a05729a4fb9be13dafe1ac5b602~mv2.gif"
-  - step_number: 2
+  - step_number: 3
     title: temper spices and aromatics
     instructions:
       - Heat a large skillet or pot over medium heat and add 2 tbsp oil.
@@ -109,7 +127,7 @@ steps:
     gif_urls:
       - "https://static.wixstatic.com/media/bbf858_3409d257352542708454e355a08b6b7a~mv2.gif"
       - "https://static.wixstatic.com/media/bbf858_e18cf2313ba946208282f9be3bad8d9d~mv2.gif"
-  - step_number: 3
+  - step_number: 4
     title: cook the chickpea mixture
     instructions:
       - Mix in the ginger-garlic paste, diced tomatoes, and all the spices (spice blend, cumin-coriander powder, garam masala, aamchur powder). Stir properly and cook for an additional 3-4 minutes.
@@ -125,7 +143,7 @@ steps:
     gif_urls:
       - "https://static.wixstatic.com/media/bbf858_3409d257352542708454e355a08b6b7a~mv2.gif"
       - "https://static.wixstatic.com/media/bbf858_e18cf2313ba946208282f9be3bad8d9d~mv2.gif"
-  - step_number: 4
+  - step_number: 5
     title: finish the chana masala
     instructions:
       - After 6-8 minutes, remove the cover and gently mash the chickpeas with a potato masher or the back of a wooden spoon a few times to thicken the gravy.

@@ -230,7 +230,7 @@ async def get_recipe_steps(name: str, serving_size: int, db: Session = Depends(g
     if recipe_steps is None or len(recipe_steps) == 0:
         raise HTTPException(status_code=404, detail="No recipe for serving size.")
 
-    return [api.recipes.RecipeStep(
+    recipes: List[api.recipes.RecipeStep] = [api.recipes.RecipeStep(
         step_number=x.step_number,
         title=x.title,
         instructions=json.loads(x.instructions),
@@ -241,6 +241,10 @@ async def get_recipe_steps(name: str, serving_size: int, db: Session = Depends(g
                          db.query(InYourKitchen).filter(InYourKitchen.id.in_(json.loads(x.in_your_kitchens))).all()],
         gif_url=json.loads(x.gif_url)
     ) for x in recipe_steps]
+
+    recipes.sort(key=lambda r: r.step_number)
+
+    return recipes
 
 
 @router.post("/star")
