@@ -1,0 +1,139 @@
+recipe_name: Penne alla Masala
+description: penne pasta cooked in a creamy masala gravy.
+long_description: Penne Alla Masala, also known as Penne Butter Masala, is a delightful fusion of Italian and Indian cuisines. This dish features penne pasta coated in a creamy and aromatic tomato-based sauce infused with Indian spices. The marriage of rich flavors and textures creates a unique dining experience that satisfies both pasta and curry cravings. With its harmonious blend of cultures, Penne Alla Masala offers a delicious journey for you.
+image_url: https://static.wixstatic.com/media/bbf858_d584c495966040eeab3007113ee93c3d~mv2.png
+recipe_contributor_name: rasoi box
+prep_time_minutes: 5
+cook_time_minutes: 20
+serving_size: 4
+tags:
+  - Fusion
+  - Cheat Day
+ingredients:
+  - name: penne pasta
+    quantities:
+      - amount: 1
+        serving_size: 4
+    unit: lbs
+  - name: shallot
+    quantities:
+      - amount: 1
+        serving_size: 4
+    unit: piece
+  - name: ginger-garlic paste
+    quantities:
+      - amount: 1
+        serving_size: 4
+    unit: tbsp
+  - name: green chili
+    quantities:
+      - amount: 1
+        serving_size: 4
+    unit: piece
+  - name: bay leaves
+    quantities:
+      - amount: 2
+        serving_size: 4
+    unit: piece
+  - name: cumin seeds
+    quantities:
+      - amount: 1
+        serving_size: 4
+    unit: tsp
+  - name: tomato paste
+    quantities:
+      - amount: 6
+        serving_size: 4
+    unit: oz
+  - name: garam masala
+    quantities:
+      - amount: 2
+        serving_size: 4
+    unit: tsp
+  - name: red chili powder
+    quantities:
+      - amount: 1
+        serving_size: 4
+    unit: tsp
+  - name: heavy cream
+    quantities:
+      - amount: 1
+        serving_size: 4
+    unit: cup
+  - name: fenugreek leaves (kasuri methi)
+    quantities:
+      - amount: 1
+        serving_size: 4
+    unit: tsp
+  - name: coriander leaves
+    quantities:
+      - amount: 2
+        serving_size: 4
+    unit: tbsp
+in_your_kitchen:
+  - name: water
+  - name: oil
+  - name: butter
+steps:
+  - step_number: 1
+    title: Prep ingredients
+    instructions:
+      - Wash and dry all produce. Finely chop shallots, coriander leaves, and de-stem, slit green chili lengthwise and remove seeds.
+      - Add pasta to a large pot of boiling water, and cook until al dente. Drain, reserving 1 cup of pasta water.
+    tips:
+      - If you have a spicier palate, dice chilies small and keep the seeds in.
+    chefs_hats: [ ]
+    ingredients:
+      - shallot
+      - coriander leaves
+      - green chili
+      - penne pasta
+    in_your_kitchen:
+      - water
+  - step_number: 2
+    title: Temper spices
+    instructions:
+      - Heat 4 tbsp oil in a large skillet or pot over medium heat.
+      - Once the oil is hot (about 2-3 minutes), add cumin seeds, bay leaves, and green chili. Sauté briefly, until they sizzle.
+      - Add finely chopped shallots and a pinch of salt. Cook until the shallots are slightly browned, stirring occasionally to prevent sticking or burning, about 5-7 minutes.
+      - Add the ginger-garlic paste and cook for about 1 minute.
+    tips: [ ]
+    chefs_hats: [ ]
+    ingredients:
+      - cumin seeds
+      - bay leaves
+      - green chili
+      - shallot
+      - ginger-garlic paste
+    in_your_kitchen:
+      - oil
+  - step_number: 3
+    title: Build the sauce
+    instructions:
+      - Stir in the tomato paste and red chili powder. Cook for 4-5 minutes, stirring occasionally, until the paste is brick red and starts to caramelize. Add a splash of water to prevent sticking, if necessary.
+      - Add heavy cream, garam masala, and fenugreek leaves. Stir thoroughly until combined. Season with salt and pepper and remove from heat.
+    tips:
+      - To fully unleash the aroma and flavor of fenugreek leaves, gently crush them between your palms before adding.
+    chefs_hats: [ ]
+    ingredients:
+      - tomato paste
+      - red chili powder
+      - heavy cream
+      - garam masala
+      - fenugreek leaves (kasuri methi)
+    in_your_kitchen:
+      - water
+      - salt
+      - pepper
+  - step_number: 4
+    title: Combine the pasta and sauce
+    instructions:
+      - Add pasta to the skillet with sauce along with 2 tbsp butter and ½ cup of the reserved pasta water.
+      - Cook over medium-low heat, stirring continuously and adding more pasta water if needed. Stir until the butter has melted and a thick, glossy sauce has formed about 2 minutes. Season with salt to taste.
+      - Serve hot and enjoy!
+    tips: [ ]
+    chefs_hats: [ ]
+    ingredients:
+      - penne pasta
+    in_your_kitchen:
+      - butter

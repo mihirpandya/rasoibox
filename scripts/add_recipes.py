@@ -60,7 +60,8 @@ def add_recipe_steps(yml_file, url_base, proceed=False):
         "prep_time": recipe['prep_time_minutes'],
         "cook_time": recipe['cook_time_minutes'],
         "image_url": recipe['image_url'],
-        "long_description": recipe['long_description']
+        "long_description": recipe['long_description'],
+        "tags": recipe['tags']
     }
     r = requests.post(add_recipe_metadata_url, json=[payload])
     if not r.ok:

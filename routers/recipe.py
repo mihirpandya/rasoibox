@@ -198,8 +198,11 @@ async def get_recipe_metadata(name: str, serving_size: int, db: Session = Depend
 
     in_your_kitchens_metadata: List[api.recipes.InYourKitchen] = []
     for in_your_kitchen in in_your_kitchens:
-        or_names: List[str] = [x.name for x in db.query(InYourKitchen).filter(
-            InYourKitchen.id.in_(in_your_kitchen_to_ors_ids[in_your_kitchen.id])).all()]
+        or_ids = in_your_kitchen_to_ors_ids[in_your_kitchen.id]
+        or_names: List[str] = []
+        if or_ids is not None and len(or_ids) > 0:
+            or_names: List[str] = [x.name for x in db.query(InYourKitchen).filter(
+                InYourKitchen.id.in_(in_your_kitchen_to_ors_ids[in_your_kitchen.id])).all()]
         in_your_kitchens_metadata.append(
             api.recipes.InYourKitchen(
                 name=in_your_kitchen.name,
