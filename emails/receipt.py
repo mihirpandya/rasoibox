@@ -18,7 +18,7 @@ class ReceiptEmail(RasoiBoxEmail):
             "line_items": line_items,
             "shipping_address": shipping_address,
             "order_id": order_id,
-            "estimated_delivery": "July 30, 2023"
+            "estimated_delivery": "August 30, 2023"
         }
 
         if len(promo_code) > 0:

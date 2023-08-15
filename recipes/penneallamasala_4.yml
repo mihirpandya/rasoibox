@@ -60,7 +60,7 @@ ingredients:
       - amount: 1
         serving_size: 4
     unit: cup
-  - name: fenugreek leaves (kasuri methi)
+  - name: fenugreek leaves
     quantities:
       - amount: 1
         serving_size: 4
@@ -120,7 +120,7 @@ steps:
       - red chili powder
       - heavy cream
       - garam masala
-      - fenugreek leaves (kasuri methi)
+      - fenugreek leaves
     in_your_kitchen:
       - water
       - salt

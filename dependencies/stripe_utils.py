@@ -7,9 +7,9 @@ from config import Settings
 
 logger = logging.getLogger(__name__)
 
-settings = Settings()
-
-stripe.api_key = settings.stripe_secret_key
+# settings = Settings()
+#
+# stripe.api_key = settings.stripe_secret_key
 
 
 def to_product_name(name: str, serving_size: int) -> str:
@@ -103,11 +103,9 @@ def create_checkout_session(price_ids: List[str], success_url: str, cancel_url: 
 def find_promo_code_id(promo_code: str):
     promo_codes = stripe.PromotionCode.list(code=promo_code)
     if "data" in promo_codes:
-        if len(promo_codes["data"]) == 1:
-            return promo_codes["data"][0]
-        else:
-            # TODO: choose most recently created active promo code
-            return None
+        valid_promo_codes = [x for x in promo_codes["data"] if x["active"]]
+        valid_promo_codes.sort(reverse=True, key=lambda x: x["created"])
+        return valid_promo_codes[0]
     else:
         return None
 
