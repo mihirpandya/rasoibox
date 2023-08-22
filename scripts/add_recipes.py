@@ -1,25 +1,5 @@
-import csv
-
 import requests
 import yaml
-
-
-def add_recipes(csv_file, url_base):
-    url = url_base + "/api/recipe/add"
-    payload = []
-    with open(csv_file, "r") as data:
-        for line in csv.DictReader(data):
-            payload.append(
-                {
-                    "contributor_name": "Rasoi Box",
-                    "recipe_name": line["Dish"],
-                    "description": line["Description"],
-                    "image_url": line["Image URL"]
-                }
-            )
-
-    res = requests.post(url, json=payload)
-    return res
 
 
 def add_recipe_steps(yml_file, url_base, proceed=False):
@@ -49,7 +29,8 @@ def add_recipe_steps(yml_file, url_base, proceed=False):
     recipe_id = r.json()['recipe_id']
     add_recipe_metadata_url = url_base + "/api/recipe/add_recipe_metadata"
     ingredients = [
-        {"name": x['name'], "quantities": [{"amount": float(x['quantities'][0]['amount']), "serving_size": serving_size}],
+        {"name": x['name'],
+         "quantities": [{"amount": float(x['quantities'][0]['amount']), "serving_size": serving_size}],
          "unit": x['unit']} for x in recipe['ingredients']]
     in_your_kitchens = [{"name": x['name'], "or_": x["or"] if "or" in x else []} for x in recipe['in_your_kitchen']]
     payload = {

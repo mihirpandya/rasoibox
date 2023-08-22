@@ -1,10 +1,12 @@
 recipe_name: Aloo Gobi
 description: tender potatoes and cauliflower in aromatic spices.
+long_description: Tender potatoes and cauliflower in aromatic spices.
 image_url: https://static.wixstatic.com/media/bbf858_1f2b4da43a2c497891f108709800b795~mv2.png
 recipe_contributor_name: Rasoi Box
 prep_time_minutes: 10
 cook_time_minutes: 35
 serving_size: 4
+tags: [ ]
 ingredients:
   - name: cauliflower
     quantities:
