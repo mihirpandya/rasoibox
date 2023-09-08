@@ -1,6 +1,8 @@
 import logging
 
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+
 from fastapi.staticfiles import StaticFiles
 from sqladmin import Admin
 from starlette.middleware.sessions import SessionMiddleware
@@ -27,9 +29,22 @@ logger = logging.getLogger("rasoibox")
 
 settings: Settings = Settings()
 
+origins = [
+    "http://localhost",
+    "http://localhost:8081",
+]
+
 app = FastAPI()
 app.add_middleware(SessionMiddleware, secret_key="test")
 app.add_middleware(RequestContextLogMiddleware, request_logger=logger)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 engine = get_engine()
 
