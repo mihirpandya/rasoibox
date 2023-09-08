@@ -32,6 +32,7 @@ settings: Settings = Settings()
 origins = [
     "http://localhost",
     "http://localhost:8081",
+    "https://rasoibox-expo.vercel.app",
 ]
 
 app = FastAPI()
