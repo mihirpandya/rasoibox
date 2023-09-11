@@ -44,6 +44,9 @@ class Token(BaseModel):
     token_type: str
     status: int
     verification_code: str
+    first_name: str
+    last_name: str
+    email: str
 
 
 def send_verify_email_best_effort(email: str, verification_code: str):
@@ -107,9 +110,10 @@ async def login_for_access_token(
             headers={"WWW-Authenticate": "Bearer"},
         )
     access_token = create_access_token(data={"sub": customer.email})
-    verified_sign_up = db.query(VerifiedSignUp).filter(VerifiedSignUp.email == customer.email).first()
-    return Token(access_token=access_token, token_type="bearer", status=0,
-                 verification_code=verified_sign_up.verification_code)
+    customer: Customer = db.query(Customer).filter(Customer.email == customer.email).first()
+    return Token(access_token=access_token, token_type="bearer", status=0, first_name=customer.first_name,
+                 last_name=customer.last_name, email=customer.email,
+                 verification_code=customer.verification_code)
 
 
 @router.post("/check")
