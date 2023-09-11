@@ -110,10 +110,11 @@ async def login_for_access_token(
             headers={"WWW-Authenticate": "Bearer"},
         )
     access_token = create_access_token(data={"sub": customer.email})
+    verified_sign_up: VerifiedSignUp = db.query(VerifiedSignUp).filter(VerifiedSignUp.email == customer.email).first()
     customer: Customer = db.query(Customer).filter(Customer.email == customer.email).first()
     return Token(access_token=access_token, token_type="bearer", status=0, first_name=customer.first_name,
                  last_name=customer.last_name, email=customer.email,
-                 verification_code=customer.verification_code)
+                 verification_code=verified_sign_up.verification_code)
 
 
 @router.post("/check")
