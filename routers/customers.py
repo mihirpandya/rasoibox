@@ -118,12 +118,15 @@ async def login_for_access_token(
 
 
 @router.post("/check")
-async def is_authenticated(current_customer: Customer = Depends(get_current_customer)):
+async def is_authenticated(current_customer: Customer = Depends(get_current_customer), db: Session = Depends(get_db)):
+    verified_sign_up: VerifiedSignUp = db.query(VerifiedSignUp).filter(
+        VerifiedSignUp.email == current_customer.email).first()
     return JSONResponse(content=jsonable_encoder({
         "authenticated": True,
         "first_name": current_customer.first_name,
         "last_name": current_customer.last_name,
-        "email": current_customer.email
+        "email": current_customer.email,
+        "verification_code": verified_sign_up.verification_code
     }))
 
 
