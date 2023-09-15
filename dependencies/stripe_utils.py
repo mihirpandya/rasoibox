@@ -123,7 +123,6 @@ def create_payment_intent(amount: int, order_id: str):
         amount=amount,
         currency="usd",
         automatic_payment_methods={"enabled": True},
-        use_stripe_sdk=True,
         metadata={
             'user_facing_order_id': order_id
         }
