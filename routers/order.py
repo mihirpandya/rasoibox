@@ -165,7 +165,7 @@ async def initiate_intent(current_customer: Customer = Depends(get_current_custo
         # TODO: trigger new payment intent depending on previous payment intent status
     else:
         user_facing_order_id: str = generate_order_id()
-        payment_intent = create_payment_intent(1, user_facing_order_id)
+        payment_intent = create_payment_intent(100, user_facing_order_id)
 
         db.add(models.orders.Order(
             user_facing_order_id=user_facing_order_id,
