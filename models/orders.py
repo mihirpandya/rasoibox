@@ -6,6 +6,7 @@ from models.base import Base
 
 
 class PaymentStatusEnum(str, enum.Enum):
+    INTENT = "INTENT"
     INITIATED = "INITIATED"
     COMPLETED = "COMPLETED"
     FAILED = "FAILED"
@@ -29,6 +30,7 @@ class Order(Base):
     delivery_address = Column(JSON)  # api.orders.Address
     phone_number = Column(String(10))
     promo_codes = Column(JSON)  # list<ForeignKey("promo_codes.id")> of applied promo codes
+    payment_intent = Column(String(100))  # stripe payment intent id
 
 
 class Cart(Base):

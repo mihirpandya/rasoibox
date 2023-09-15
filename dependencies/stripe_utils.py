@@ -118,9 +118,17 @@ def create_promo_code_from_coupon(stripe_coupon_id: str, customer_facing_code: s
     )
 
 
-def create_payment_intent(amount: int):
+def create_payment_intent(amount: int, order_id: str):
     return stripe.PaymentIntent.create(
         amount=amount,
         currency="usd",
         automatic_payment_methods={"enabled": True},
+        use_stripe_sdk=True,
+        metadata={
+            'user_facing_order_id': order_id
+        }
     )
+
+
+def get_payment_intent(intent_id: str):
+    return stripe.PaymentIntent.retrieve(intent_id)

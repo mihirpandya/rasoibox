@@ -11,6 +11,7 @@ from fastapi.encoders import jsonable_encoder
 from sqlalchemy import and_
 from sqlalchemy.orm import Session
 from starlette.responses import JSONResponse
+from stripe.stripe_object import StripeObject
 
 import models
 from api.orders import CartItem, PricedCartItem, Order
@@ -18,7 +19,8 @@ from config import Settings
 from dependencies.customers import get_current_customer
 from dependencies.database import get_db
 from dependencies.referral_utils import generate_promo_code, create_stripe_promo_code, to_promo_amount_string
-from dependencies.stripe_utils import create_checkout_session, find_promo_code_id, create_payment_intent
+from dependencies.stripe_utils import create_checkout_session, find_promo_code_id, create_payment_intent, \
+    get_payment_intent
 from emails.base import send_email
 from emails.invitationcomplete import InvitationCompleteEmail
 from emails.order_delivered import OrderDeliveredEmail
@@ -148,11 +150,35 @@ def send_order_delivered_email_best_effort(email: str, first_name: str, order_di
         logger.exception("Failed to send email.")
 
 
-@router.post("/initiate_place_order_v2")
-async def initiate_place_order_v2(amount: int, _current_customer: Customer = Depends(get_current_customer),
-                                  _db: Session = Depends(get_db)):
-    payment_intent = create_payment_intent(amount)
-    return JSONResponse(content=jsonable_encoder({"client_secret": payment_intent.client_secret}))
+@router.post("/initiate_intent")
+async def initiate_intent(current_customer: Customer = Depends(get_current_customer),
+                          db: Session = Depends(get_db)):
+    existing_order = db.query(models.orders.Order).filter(
+        and_(models.orders.Order.customer == current_customer.id,
+             models.orders.Order.payment_status == PaymentStatusEnum.INTENT)).first()
+
+    user_facing_order_id: str
+    payment_intent: StripeObject
+    if existing_order is not None:
+        user_facing_order_id = existing_order.user_facing_order_id
+        payment_intent = get_payment_intent(existing_order.payment_intent)
+        # TODO: trigger new payment intent depending on previous payment intent status
+    else:
+        user_facing_order_id: str = generate_order_id()
+        payment_intent = create_payment_intent(1, user_facing_order_id)
+
+        db.add(models.orders.Order(
+            user_facing_order_id=user_facing_order_id,
+            customer=current_customer.id,
+            payment_intent=payment_intent.stripe_id,
+            order_date=datetime.now(),
+            payment_status=PaymentStatusEnum.INTENT,
+        ))
+
+        db.commit()
+
+    return JSONResponse(
+        content=jsonable_encoder({"client_secret": payment_intent.client_secret, "order_id": user_facing_order_id}))
 
 
 @router.post("/initiate_place_order")
