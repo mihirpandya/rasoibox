@@ -18,7 +18,7 @@ from config import Settings
 from dependencies.customers import get_current_customer
 from dependencies.database import get_db
 from dependencies.referral_utils import generate_promo_code, create_stripe_promo_code, to_promo_amount_string
-from dependencies.stripe_utils import create_checkout_session, find_promo_code_id
+from dependencies.stripe_utils import create_checkout_session, find_promo_code_id, create_payment_intent
 from emails.base import send_email
 from emails.invitationcomplete import InvitationCompleteEmail
 from emails.order_delivered import OrderDeliveredEmail
@@ -146,6 +146,13 @@ def send_order_delivered_email_best_effort(email: str, first_name: str, order_di
         send_email(jinjaEnv, order_delivered_email, smtp_server, settings.email, settings.email_app_password)
     except Exception:
         logger.exception("Failed to send email.")
+
+
+@router.post("/initiate_place_order_v2")
+async def initiate_place_order_v2(amount: int, _current_customer: Customer = Depends(get_current_customer),
+                                  _db: Session = Depends(get_db)):
+    payment_intent = create_payment_intent(amount)
+    return JSONResponse(content=jsonable_encoder({"client_secret": payment_intent.client_secret}))
 
 
 @router.post("/initiate_place_order")

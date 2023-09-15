@@ -116,3 +116,11 @@ def create_promo_code_from_coupon(stripe_coupon_id: str, customer_facing_code: s
         code=customer_facing_code,
         max_redemptions=1
     )
+
+
+def create_payment_intent(amount: int):
+    return stripe.PaymentIntent.create(
+        amount=amount,
+        currency="usd",
+        automatic_payment_methods={"enabled": True},
+    )
