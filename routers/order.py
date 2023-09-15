@@ -169,10 +169,19 @@ async def initiate_intent(current_customer: Customer = Depends(get_current_custo
 
         db.add(models.orders.Order(
             user_facing_order_id=user_facing_order_id,
-            customer=current_customer.id,
-            payment_intent=payment_intent.stripe_id,
             order_date=datetime.now(),
+            recipes=json.dumps({}),
+            recipient_first_name="",
+            recipient_last_name="",
             payment_status=PaymentStatusEnum.INTENT,
+            customer=current_customer.id,
+            delivered=False,
+            order_total_dollars=1,
+            order_breakdown_dollars=json.dumps({}),
+            delivery_address=json.dumps({}),
+            phone_number="",
+            promo_codes=json.dumps({}),
+            payment_intent=payment_intent.stripe_id
         ))
 
         db.commit()
