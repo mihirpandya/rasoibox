@@ -1,5 +1,5 @@
 import logging
-from typing import List
+from typing import List, Any, Dict
 
 import stripe
 
@@ -131,3 +131,10 @@ def create_payment_intent(amount: int, order_id: str):
 
 def get_payment_intent(intent_id: str):
     return stripe.PaymentIntent.retrieve(intent_id)
+
+
+def modify_payment_intent(intent_id: str, amount: int, order_id: str, metadata: Dict[str, Any]):
+    merged_metadata: Dict[str, Any] = metadata | {
+        'user_facing_order_id': order_id
+    }
+    return stripe.PaymentIntent.modify(intent_id, amount=amount, metadata=merged_metadata)
