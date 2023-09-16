@@ -171,4 +171,10 @@ async def initiate_place_order(order: api.orders.Order, current_customer: Custom
 
     db.commit()
 
-    return;
+    return
+
+
+@router.post("/webhook_complete_order")
+async def webhook_complete_order(request):
+    logger.info(request)
+    return
