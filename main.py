@@ -14,7 +14,7 @@ from dashapp.dashapp import create_dash_app
 from dependencies.database import get_engine, get_db
 from middleware.request_logger import RequestContextLogMiddleware
 from models.base import Base
-from routers import recipe, signup, customers, order, price
+from routers import recipe, signup, customers, order, price, orderV2
 from views.customers import CustomerAdmin
 from views.event import EventAdmin, RecipeEventAdmin
 from views.invitations import InvitationAdmin
@@ -92,6 +92,7 @@ app.include_router(signup.router)
 app.include_router(customers.router)
 app.include_router(order.router)
 app.include_router(price.router)
+app.include_router(orderV2.router)
 
 
 @app.on_event("startup")
