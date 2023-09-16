@@ -47,7 +47,7 @@ async def initiate_intent(current_customer: Customer = Depends(get_current_custo
                           db: Session = Depends(get_db)):
     existing_order = db.query(models.orders.Order).filter(
         and_(models.orders.Order.customer == current_customer.id,
-             models.orders.Order.payment_status == PaymentStatusEnum.INTENT)).first()
+             models.orders.Order.payment_status == PaymentStatusEnum.INITIATED)).first()
 
     user_facing_order_id: str
     payment_intent: StripeObject
@@ -65,7 +65,7 @@ async def initiate_intent(current_customer: Customer = Depends(get_current_custo
             recipes=json.dumps({}),
             recipient_first_name="",
             recipient_last_name="",
-            payment_status=PaymentStatusEnum.INTENT,
+            payment_status=PaymentStatusEnum.INITIATED,
             customer=current_customer.id,
             delivered=False,
             order_total_dollars=1,
@@ -91,7 +91,7 @@ async def initiate_place_order(order: api.orders.Order, current_customer: Custom
         raise HTTPException(status_code=400, detail="User is not verified.")
 
     existing_order: Order = db.query(Order).filter(
-        and_(Order.customer == current_customer.id, Order.payment_status == PaymentStatusEnum.INTENT)).first()
+        and_(Order.customer == current_customer.id, Order.payment_status == PaymentStatusEnum.INITIATED)).first()
 
     if existing_order is None:
         raise HTTPException(status_code=400, detail="Order intent not found.")
@@ -154,7 +154,6 @@ async def initiate_place_order(order: api.orders.Order, current_customer: Custom
         Order.recipes: json.dumps(recipes_serving_size_map),
         Order.recipient_first_name: order.recipient_first_name,
         Order.recipient_last_name: order.recipient_last_name,
-        Order.payment_status: PaymentStatusEnum.INITIATED,
         Order.order_total_dollars: round(order_total_dollars, 2),
         Order.order_breakdown_dollars: json.dumps(order_breakdown),
         Order.delivery_address: jsonable_encoder(order.delivery_address),
