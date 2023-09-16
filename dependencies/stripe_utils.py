@@ -1,3 +1,4 @@
+import json
 import logging
 from typing import List, Any, Dict
 
@@ -133,9 +134,9 @@ def get_payment_intent(intent_id: str):
     return stripe.PaymentIntent.retrieve(intent_id)
 
 
-def modify_payment_intent(intent_id: str, amount: int, order_id: str, metadata: Dict[str, Any]):
-    order_metadata = {
-        'user_facing_order_id': order_id
+def modify_payment_intent(intent_id: str, amount: int, order_id: str, order_breakdown: Dict[str, Any]):
+    order_metadata: Dict[str, str] = {
+        'user_facing_order_id': order_id,
+        'order_breakdown': json.dumps(order_breakdown)
     }
-    merged_metadata: Dict[str, Any] = {**order_metadata, **metadata}
-    return stripe.PaymentIntent.modify(intent_id, amount=amount, metadata=merged_metadata)
+    return stripe.PaymentIntent.modify(intent_id, amount=amount, metadata=order_metadata)
