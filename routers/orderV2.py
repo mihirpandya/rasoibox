@@ -162,7 +162,7 @@ async def initiate_place_order(order: api.orders.Order, current_customer: Custom
     }
 
     db.query(Order).filter(and_(Order.user_facing_order_id == existing_order.user_facing_order_id,
-                                Order.payment_status == PaymentStatusEnum.INTENT)).update(order_updates)
+                                Order.payment_status == PaymentStatusEnum.INITIATED)).update(order_updates)
 
     promo_code_names = [x.promo_code_name for x in promo_codes]
     db.query(PromoCode).filter(and_(PromoCode.promo_code_name.in_(promo_code_names),
