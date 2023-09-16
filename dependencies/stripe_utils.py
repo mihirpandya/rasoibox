@@ -134,7 +134,8 @@ def get_payment_intent(intent_id: str):
 
 
 def modify_payment_intent(intent_id: str, amount: int, order_id: str, metadata: Dict[str, Any]):
-    merged_metadata: Dict[str, Any] = metadata | {
+    order_metadata = {
         'user_facing_order_id': order_id
     }
+    merged_metadata: Dict[str, Any] = {**order_metadata, **metadata}
     return stripe.PaymentIntent.modify(intent_id, amount=amount, metadata=merged_metadata)
