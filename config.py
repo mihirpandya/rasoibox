@@ -18,6 +18,7 @@ class Settings(BaseSettings):
     stripe_secret_key: str
     stripe_referral_coupon_id: str
     stripe_welcome_promo_code_id: str
+    stripe_payment_success_webhook_secret: str
 
     class Config:
         env_file = ".env"

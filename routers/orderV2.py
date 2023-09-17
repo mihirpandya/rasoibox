@@ -6,11 +6,13 @@ from datetime import datetime
 from functools import reduce
 from typing import List, Dict
 
+import stripe
 from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.encoders import jsonable_encoder
 from sqlalchemy import and_
 from sqlalchemy.orm import Session
 from starlette.responses import JSONResponse
+from stripe.error import SignatureVerificationError
 from stripe.stripe_object import StripeObject
 
 import api
@@ -26,6 +28,7 @@ from models.orders import Cart, Order
 from models.orders import Cart, PromoCode, PaymentStatusEnum
 from models.recipes import RecipePrice
 from models.signups import VerifiedSignUp
+from routers.order import send_receipt_email_best_effort, to_order_dict, complete_invitation
 
 logger = logging.getLogger("rasoibox")
 
@@ -175,7 +178,73 @@ async def initiate_place_order(order: api.orders.Order, current_customer: Custom
 
 
 @router.post("/webhook_complete_order")
-async def webhook_complete_order(request: Request):
+async def webhook_complete_order(request: Request, db: Session = Depends(get_db)):
     request_body = await request.json()
     logger.info("stripe event: {}".format(json.dumps(request_body)))
-    return JSONResponse(content=jsonable_encoder({"success": True}))
+
+    stripe_signature = request.headers['stripe-signature']
+
+    try:
+        event = stripe.Webhook.construct_event(request_body, stripe_signature,
+                                               settings.stripe_payment_success_webhook_secret)
+        if event['type'] == 'payment_intent.succeeded':
+            payment_intent = event['data']['object']
+
+            complete_order(payment_intent['id'], payment_intent['metadata']['user_facing_order_id'],
+                           payment_intent['amount'], db)
+
+            return JSONResponse(content=jsonable_encoder({"success": True}))
+        else:
+            logger.warning(event)
+            raise HTTPException(status_code=400, detail="Unrecognized event")
+    except ValueError as e:
+        # Invalid payload
+        logger.error(e)
+        raise HTTPException(status_code=400, detail="Invalid payload")
+    except SignatureVerificationError as e:
+        # Invalid signature
+        logger.error(e)
+        raise HTTPException(status_code=403, detail="Invalid signature")
+
+
+def complete_order(payment_intent_id: str, user_facing_order_id: str, amount_cents: int, db: Session):
+    amount_dollars: float = float(amount_cents) / 100.0
+    order: Order = db.query(Order).filter(
+        and_(Order.payment_intent == payment_intent_id, Order.user_facing_order_id == user_facing_order_id)).first()
+
+    if order is None:
+        raise HTTPException(status_code=404, detail="Unknown order")
+
+    if order.payment_status != PaymentStatusEnum.INITIATED:
+        logger.error("Order not in initiated state.: {}".format(order))
+        raise HTTPException(status_code=400, detail="Order not in initiated state.")
+
+    if order.order_total_dollars != amount_dollars:
+        logger.error("Order total does not match: {} {}".format(order.order_total_dollars, amount_dollars))
+        raise HTTPException(status_code=400, detail="Order total does not match.")
+
+    current_customer: Customer = db.query(Customer).filter(Customer.id == order.customer).first()
+    if current_customer is None:
+        logger.error("Could not find customer: {}".format(order))
+        raise HTTPException(status_code=400, detail="Could not find customer.")
+
+    verified_sign_up: VerifiedSignUp = db.query(VerifiedSignUp).filter(
+        VerifiedSignUp.email == current_customer.email).first()
+    if verified_sign_up is None:
+        logger.error("Customer is not verified: {}".format(current_customer))
+        raise HTTPException(status_code=400, detail="Customer is not verified.")
+
+    db.query(models.orders.Order).filter(Order.user_facing_order_id == order.user_facing_order_id).update(
+        {Order.payment_status: PaymentStatusEnum.COMPLETED})
+    db.query(Cart).filter(Cart.verification_code == verified_sign_up.verification_code).delete()
+    db.commit()
+
+    order: Order = db.query(models.orders.Order).filter(
+        Order.user_facing_order_id == order.user_facing_order_id).first()
+
+    # send email
+    result = to_order_dict(order, db, customer_email=current_customer.email)
+    send_receipt_email_best_effort(current_customer.email, current_customer.first_name, result)
+
+    # complete invite friend
+    complete_invitation(current_customer, db)
