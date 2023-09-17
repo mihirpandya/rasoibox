@@ -179,9 +179,9 @@ async def initiate_place_order(order: api.orders.Order, current_customer: Custom
 
 @router.post("/webhook_complete_order")
 async def webhook_complete_order(request: Request, db: Session = Depends(get_db)):
-    request_body = await request.json()
+    request_body = await request.body()
 
-    stripe_signature = request.headers['STRIPE_SIGNATURE']
+    stripe_signature = request.headers['stripe-signature']
 
     try:
         event = stripe.Webhook.construct_event(request_body, stripe_signature,
