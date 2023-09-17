@@ -180,7 +180,6 @@ async def initiate_place_order(order: api.orders.Order, current_customer: Custom
 @router.post("/webhook_complete_order")
 async def webhook_complete_order(request: Request, db: Session = Depends(get_db)):
     request_body = await request.json()
-    logger.info("stripe event: {}".format(json.dumps(request_body)))
 
     stripe_signature = request.headers['stripe-signature']
 
@@ -203,6 +202,7 @@ async def webhook_complete_order(request: Request, db: Session = Depends(get_db)
         raise HTTPException(status_code=400, detail="Invalid payload")
     except SignatureVerificationError as e:
         # Invalid signature
+        logger.error("Invalid signature: {}".format(stripe_signature))
         logger.error(e)
         raise HTTPException(status_code=403, detail="Invalid signature")
 
