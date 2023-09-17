@@ -16,7 +16,7 @@ class ReceiptEmail(RasoiBoxEmail):
             "subtotal": "{:.2f}".format(sub_total),
             "total": "{:.2f}".format(total),
             "line_items": line_items,
-            "shipping_address": shipping_address,
+            "shipping_address": self.shipping_address(shipping_address),
             "order_id": order_id,
             "estimated_delivery": "August 20, 2023"
         }
@@ -36,3 +36,11 @@ class ReceiptEmail(RasoiBoxEmail):
 
     def order_link(self, url_base: str, order_id: str) -> str:
         return "{}/order?orderId={}".format(url_base, order_id)
+
+    def shipping_address(self, address: Dict[str, Any]) -> str:
+        if 'apartment_number' in address.keys() and address['apartment_number'] is not None and len(
+                address['apartment_number']) > 0:
+            return "{}, {}, {}, {} {}".format(address['street_name'], address['apartment_number'], address['city'],
+                                              address['state'], address['zipcode'])
+        else:
+            return "{}, {}, {} {}".format(address['street_name'], address['city'], address['state'], address['zipcode'])
