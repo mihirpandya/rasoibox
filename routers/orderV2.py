@@ -6,7 +6,7 @@ from datetime import datetime
 from functools import reduce
 from typing import List, Dict
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.encoders import jsonable_encoder
 from sqlalchemy import and_
 from sqlalchemy.orm import Session
@@ -175,6 +175,7 @@ async def initiate_place_order(order: api.orders.Order, current_customer: Custom
 
 
 @router.post("/webhook_complete_order")
-async def webhook_complete_order(request):
-    logger.info(request)
-    return
+async def webhook_complete_order(request: Request):
+    request_body = await request.json()
+    logger.info("stripe event: {}".format(json.dumps(request_body)))
+    return JSONResponse(content=jsonable_encoder({"success": True}))
