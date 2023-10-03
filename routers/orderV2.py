@@ -195,7 +195,7 @@ async def initiate_place_order(order: api.orders.Order, verification_code: str, 
         "promo_codes": [{"name": x.promo_code_name, "amount_off": x.amount_off, "percent_off": x.percent_off} for x in
                         promo_codes]
     }
-    order_total_cents: int = int(order_total_dollars * 100)
+    order_total_cents: int = int(order_total_dollars * 1000 / 10)
 
     modified_intent = modify_payment_intent(payment_intent.stripe_id, order_total_cents,
                                             existing_order.user_facing_order_id,
