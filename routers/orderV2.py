@@ -42,7 +42,7 @@ def generate_order_id() -> str:
     return res.lower()
 
 
-def get_or_create_customer_from_verification_code(verification_code: string, order: api.orders.Order,
+def get_or_create_customer_from_verification_code(verification_code: str, order: api.orders.Order,
                                                   db: Session) -> Customer:
     verified_sign_up: VerifiedSignUp = db.query(VerifiedSignUp).filter(
         VerifiedSignUp.verification_code == verification_code).first()
@@ -64,7 +64,7 @@ def get_or_create_customer_from_verification_code(verification_code: string, ord
 
 
 @router.post("/initiate_intent")
-async def initiate_intent(verification_code: string, db: Session = Depends(get_db)):
+async def initiate_intent(verification_code: str, db: Session = Depends(get_db)):
     existing_order = db.query(Order).filter(
         and_(Order.verification_code == verification_code, Order.payment_status == PaymentStatusEnum.INITIATED)).first()
 
@@ -142,7 +142,7 @@ async def initiate_intent(verification_code: string, db: Session = Depends(get_d
 
 
 @router.post("/initiate_place_order")
-async def initiate_place_order(order: api.orders.Order, verification_code: string, db: Session = Depends(get_db)):
+async def initiate_place_order(order: api.orders.Order, verification_code: str, db: Session = Depends(get_db)):
     existing_order: Order = db.query(Order).filter(
         and_(Order.verification_code == verification_code, Order.payment_status == PaymentStatusEnum.INITIATED)).first()
 
