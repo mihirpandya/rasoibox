@@ -10,6 +10,7 @@ class OrderAdmin(ModelView, model=Order):
         Order.order_date,
         Order.recipes,
         Order.customer,
+        Order.verification_code,
         Order.recipient_first_name,
         Order.recipient_last_name,
         Order.payment_status,
@@ -24,6 +25,7 @@ class OrderAdmin(ModelView, model=Order):
 
     column_sortable_list = [Order.order_date]
     column_default_sort = [(Order.order_date, True)]
+    column_searchable_list = [Order.first_name, Order.last_name, Order.email, Order.verification_code]
 
 
 class CartAdmin(ModelView, model=Cart):
