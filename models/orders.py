@@ -20,6 +20,7 @@ class Order(Base):
     order_date = Column(DateTime)
     recipes = Column(JSON)  # map<ForeignKey("recipes.id"): serving_size> of recipes ordered
     customer = Column(Integer)  # ForeignKey("customers.id")
+    verification_code = Column(String(100))
     recipient_first_name = Column(String(100))
     recipient_last_name = Column(String(100))
     payment_status = Column(Enum(PaymentStatusEnum))

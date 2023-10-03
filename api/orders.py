@@ -33,6 +33,7 @@ class Order(BaseModel):
     order_date: datetime
     recipient_first_name: str
     recipient_last_name: str
+    email: Optional[str]
     delivery_address: Address
     phone_number: str
     promo_codes: List[str]
