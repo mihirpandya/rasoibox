@@ -25,7 +25,7 @@ class OrderAdmin(ModelView, model=Order):
 
     column_sortable_list = [Order.order_date]
     column_default_sort = [(Order.order_date, True)]
-    column_searchable_list = [Order.first_name, Order.last_name, Order.email, Order.verification_code]
+    column_searchable_list = [Order.recipient_first_name, Order.recipient_last_name, Order.verification_code]
 
 
 class CartAdmin(ModelView, model=Cart):
