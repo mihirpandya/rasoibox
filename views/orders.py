@@ -20,7 +20,8 @@ class OrderAdmin(ModelView, model=Order):
         Order.order_breakdown_dollars,
         Order.delivery_address,
         Order.phone_number,
-        Order.promo_codes
+        Order.promo_codes,
+        Order.payment_intent
     ]
 
     column_sortable_list = [Order.order_date]
