@@ -54,6 +54,7 @@ def get_or_create_customer_from_verification_code(verification_code: str, order:
         db.add(Customer(
             first_name=order.recipient_first_name,
             last_name=order.recipient_last_name,
+            email=order.email,
             verified=False,
             join_date=datetime.now()
         ))
@@ -155,8 +156,6 @@ async def initiate_place_order(order: api.orders.Order, verification_code: str, 
         logger.error("Invalid payment intent: {}".format(payment_intent))
         raise HTTPException(status_code=400, detail="Invalid payment intent")
 
-    customer: Customer = get_or_create_customer_from_verification_code(verification_code, order, db)
-
     cart_items_by_recipe_id: Dict[int, Cart] = reduce(lambda d1, d2: {**d1, **d2},
                                                       [{x.recipe_id: x} for x in db.query(Cart).filter(
                                                           Cart.verification_code == verification_code)
@@ -206,7 +205,6 @@ async def initiate_place_order(order: api.orders.Order, verification_code: str, 
         raise HTTPException(status_code=400, detail="Failed to modify intent.")
 
     order_updates = {
-        Order.customer: customer.id,
         Order.recipes: json.dumps(recipes_serving_size_map),
         Order.recipient_first_name: order.recipient_first_name,
         Order.recipient_last_name: order.recipient_last_name,
