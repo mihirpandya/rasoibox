@@ -345,8 +345,8 @@ async def get_cart(verification_code: str, db: Session = Depends(get_db)):
 @router.post("/update_cart")
 async def update_cart(cart_item: CartItem, verification_code: str,
                       db: Session = Depends(get_db)):
-    if not is_known_verification_code(verification_code, db):
-        raise HTTPException(status_code=404, detail="Unknown user")
+    # if not is_known_verification_code(verification_code, db):
+    #     raise HTTPException(status_code=404, detail="Unknown user")
 
     recipe: Recipe = db.query(Recipe).filter(Recipe.name == cart_item.recipe_name).first()
     if recipe is None:
