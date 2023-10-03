@@ -210,6 +210,7 @@ async def initiate_place_order(order: api.orders.Order, verification_code: str, 
         Order.recipes: json.dumps(recipes_serving_size_map),
         Order.recipient_first_name: order.recipient_first_name,
         Order.recipient_last_name: order.recipient_last_name,
+        Order.recipient_email: order.email,
         Order.order_total_dollars: round(order_total_dollars, 2),
         Order.order_breakdown_dollars: json.dumps(order_breakdown),
         Order.delivery_address: jsonable_encoder(order.delivery_address),
@@ -353,6 +354,7 @@ async def webhook_complete_order(request: Request, db: Session = Depends(get_db)
 
 
 def complete_order(payment_intent_id: str, user_facing_order_id: str, amount_cents: int, db: Session):
+    now = datetime.now()
     amount_dollars: float = float(amount_cents) / 100.0
     order: Order = db.query(Order).filter(
         and_(Order.payment_intent == payment_intent_id, Order.user_facing_order_id == user_facing_order_id)).first()
@@ -369,27 +371,47 @@ def complete_order(payment_intent_id: str, user_facing_order_id: str, amount_cen
         raise HTTPException(status_code=400, detail="Order total does not match.")
 
     current_customer: Customer = db.query(Customer).filter(Customer.id == order.customer).first()
+    create_account_email: bool = False
     if current_customer is None:
-        logger.error("Could not find customer: {}".format(order))
-        raise HTTPException(status_code=400, detail="Could not find customer.")
+        logger.info("Order placed by guest.")
+        create_account_email = True
+        db.add(
+            Customer(
+                first_name=order.recipient_first_name,
+                last_name=order.recipient_last_name,
+                email=order.recipient_email,
+                verified=True,
+                join_date=now,
+                last_updated=now
+            )
+        )
 
-    verified_sign_up: VerifiedSignUp = db.query(VerifiedSignUp).filter(
-        VerifiedSignUp.email == current_customer.email).first()
-    if verified_sign_up is None:
-        logger.error("Customer is not verified: {}".format(current_customer))
-        raise HTTPException(status_code=400, detail="Customer is not verified.")
+        verified_sign_up: VerifiedSignUp = db.query(VerifiedSignUp).filter(
+            VerifiedSignUp.verification_code == order.verification_code).first()
+        if verified_sign_up is None:
+            zipcode: str = json.loads(order.delivery_address)['zipcode']
+            db.add(
+                VerifiedSignUp(
+                    email=order.recipient_email,
+                    signup_date=now,
+                    signup_from="GUEST_ORDER",
+                    verify_date=now,
+                    zipcode=zipcode,
+                    verification_code=order.verification_code
+                )
+            )
 
     db.query(Order).filter(Order.user_facing_order_id == order.user_facing_order_id).update(
         {Order.payment_status: PaymentStatusEnum.COMPLETED})
-    db.query(Cart).filter(Cart.verification_code == verified_sign_up.verification_code).delete()
+    db.query(Cart).filter(Cart.verification_code == order.verification_code).delete()
     db.commit()
 
     order: Order = db.query(Order).filter(
         Order.user_facing_order_id == order.user_facing_order_id).first()
 
-    # send email
-    result = to_order_dict(order, db, customer_email=current_customer.email)
-    send_receipt_email_best_effort(current_customer.email, current_customer.first_name, result)
+    # send emails
+    result = to_order_dict(order, db, customer_email=order.recipient_email)
+    send_receipt_email_best_effort(order.recipient_email, order.recipient_first_name, result)
 
     # complete invite friend
     complete_invitation(current_customer, db)

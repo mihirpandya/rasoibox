@@ -23,6 +23,7 @@ class Order(Base):
     verification_code = Column(String(100))
     recipient_first_name = Column(String(100))
     recipient_last_name = Column(String(100))
+    recipient_email = Column(String(100))
     payment_status = Column(Enum(PaymentStatusEnum))
     delivered = Column(Boolean)
     delivery_date = Column(DateTime)
