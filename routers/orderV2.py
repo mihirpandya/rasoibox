@@ -54,7 +54,7 @@ def get_or_create_customer_from_verification_code(verification_code: str, order:
         db.add(Customer(
             first_name=order.recipient_first_name,
             last_name=order.recipient_last_name,
-            verified_sign_up=False,
+            verified=False,
             join_date=datetime.now()
         ))
         db.commit()
