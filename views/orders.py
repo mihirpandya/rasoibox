@@ -13,6 +13,7 @@ class OrderAdmin(ModelView, model=Order):
         Order.verification_code,
         Order.recipient_first_name,
         Order.recipient_last_name,
+        Order.recipient_email,
         Order.payment_status,
         Order.delivered,
         Order.delivery_date,
