@@ -211,7 +211,7 @@ async def initiate_place_order(order: api.orders.Order, verification_code: str, 
         Order.recipient_email: order.email,
         Order.order_total_dollars: round(order_total_dollars, 2),
         Order.order_breakdown_dollars: json.dumps(order_breakdown),
-        Order.delivery_address: jsonable_encoder(order.delivery_address),
+        Order.delivery_address: json.dumps(jsonable_encoder(order.delivery_address)),
         Order.phone_number: order.phone_number,
         Order.promo_codes: json.dumps([x.id for x in promo_codes])
     }
@@ -387,6 +387,7 @@ def complete_order(payment_intent_id: str, user_facing_order_id: str, amount_cen
         verified_sign_up: VerifiedSignUp = db.query(VerifiedSignUp).filter(
             VerifiedSignUp.verification_code == order.verification_code).first()
         if verified_sign_up is None:
+
             zipcode: str = json.loads(order.delivery_address)['zipcode']
             db.add(
                 VerifiedSignUp(
