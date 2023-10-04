@@ -383,6 +383,8 @@ def complete_order(payment_intent_id: str, user_facing_order_id: str, amount_cen
                 last_updated=now
             )
         )
+        db.commit()
+        current_customer = db.query(Customer).filter(Customer.email == order.recipient_email).first()
 
         verified_sign_up: VerifiedSignUp = db.query(VerifiedSignUp).filter(
             VerifiedSignUp.verification_code == order.verification_code).first()
@@ -401,7 +403,10 @@ def complete_order(payment_intent_id: str, user_facing_order_id: str, amount_cen
             )
 
     db.query(Order).filter(Order.user_facing_order_id == order.user_facing_order_id).update(
-        {Order.payment_status: PaymentStatusEnum.COMPLETED})
+        {
+            Order.payment_status: PaymentStatusEnum.COMPLETED,
+            Order.customer: current_customer.id
+        })
     db.query(Cart).filter(Cart.verification_code == order.verification_code).delete()
     db.commit()
 
