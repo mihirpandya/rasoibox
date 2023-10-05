@@ -35,6 +35,7 @@ origins = [
     "http://192.168.68.60",
     "http://192.168.68.60:8081",
     "https://rasoibox-expo.vercel.app",
+    "https://www.rasoibox.com",
 ]
 
 app = FastAPI()
