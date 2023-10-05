@@ -388,6 +388,7 @@ async def get_available_items(db: Session = Depends(get_db)):
             result[recipe_price.recipe_id] = {
                 "recipe_name": recipe.name,
                 "description": recipe.description,
+                "long_description": recipe.long_description,
                 "image_url": recipe.image_url,
                 "serving_sizes": [recipe_price.serving_size],
                 "prices": [recipe_price.price],
