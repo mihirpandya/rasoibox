@@ -120,7 +120,9 @@ async def signup_via_email(sign_up_via_email: SignUpViaEmail, db: Session = Depe
             # generate new verification code if so
             unverified_sign_up: Optional[UnverifiedSignUp] = db.query(UnverifiedSignUp).filter(
                 UnverifiedSignUp.verification_code == sign_up_via_email.verification_code).first()
-            if unverified_sign_up is not None:
+            verified_sign_up: Optional[VerifiedSignUp] = db.query(VerifiedSignUp).filter(
+                VerifiedSignUp.verification_code == sign_up_via_email.verification_code).first()
+            if unverified_sign_up is not None or verified_sign_up is not None:
                 verification_code = generate_verification_code()
             else:
                 verification_code = sign_up_via_email.verification_code
