@@ -25,7 +25,7 @@ router = APIRouter(
 async def preorder_1(db: Session = Depends(get_db)):
     all_verified = db.query(VerifiedSignUp).all()
     logger.info("Verified size: {}".format(len(all_verified)))
-    
+
     verified_sign_ups: List[VerifiedSignUp] = db.query(VerifiedSignUp).filter(
         VerifiedSignUp.verification_code == "a2a62").all()
     unverified_sign_ups: List[UnverifiedSignUp] = db.query(UnverifiedSignUp).filter(
