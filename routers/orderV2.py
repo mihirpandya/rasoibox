@@ -350,6 +350,17 @@ async def webhook_complete_order(request: Request, db: Session = Depends(get_db)
         raise HTTPException(status_code=403, detail="Invalid signature")
 
 
+@router.get("/get_order_from_intent")
+async def get_order_from_payment_intent(order_id: str, payment_intent: str, db: Session = Depends(get_db)):
+    order = db.query(Order).filter(
+        and_(Order.user_facing_order_id == order_id, Order.payment_intent == payment_intent)).first()
+
+    if order is None:
+        raise HTTPException(status_code=404, detail="Unknown order")
+
+    return JSONResponse(content=jsonable_encoder(to_order_dict(order, db, customer_email=order.recipient_email)))
+
+
 def complete_order(payment_intent_id: str, user_facing_order_id: str, amount_cents: int, db: Session):
     now = datetime.now()
     amount_dollars: float = float(amount_cents) / 100.0
@@ -388,7 +399,6 @@ def complete_order(payment_intent_id: str, user_facing_order_id: str, amount_cen
         verified_sign_up: VerifiedSignUp = db.query(VerifiedSignUp).filter(
             VerifiedSignUp.verification_code == order.verification_code).first()
         if verified_sign_up is None:
-
             zipcode: str = order.delivery_address['zipcode']
             db.add(
                 VerifiedSignUp(

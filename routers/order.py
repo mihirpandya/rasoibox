@@ -92,8 +92,8 @@ def send_receipt_email_best_effort(email: str, first_name: str, order_dict: Dict
     # send email best effort
     try:
         send_email(jinjaEnv, receipt_email, smtp_server, settings.email, settings.email_app_password)
-    except Exception:
-        logger.exception("Failed to send email.")
+    except Exception as e:
+        logger.exception("Failed to send email.{}".format(e))
 
 
 def send_order_enroute_email_best_effort(email: str, first_name: str, estimated_delivery: str,
