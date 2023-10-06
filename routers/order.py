@@ -545,6 +545,7 @@ def to_order_dict(order: models.orders.Order, db: Session, customer_email=None) 
         "order_delivery_address": order.delivery_address,
         "order_total_dollars": order.order_total_dollars,
         "order_delivered": order.delivered,
+        "order_create_id": order.customer,
         "recipes": recipe_info,
     }
 
