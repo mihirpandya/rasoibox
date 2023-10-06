@@ -434,16 +434,6 @@ async def get_active_recipes(current_customer: Customer = Depends(get_current_cu
 @router.get("/is_valid_promo_code")
 async def is_valid_promo_code(promo_code: str, current_customer: Customer = Depends(get_current_customer),
                               db: Session = Depends(get_db)):
-    # pop-fest promo
-    if promo_code == "PFXRB15":
-        promo_code: PromoCode = db.query(PromoCode).filter(PromoCode.promo_code_name == promo_code).first()
-        return JSONResponse(content=jsonable_encoder({
-            "status": 0,
-            "promo_code_name": promo_code.promo_code_name,
-            "amount_off": promo_code.amount_off if promo_code.amount_off is not None else 0.0,
-            "percent_off": promo_code.percent_off if promo_code.percent_off is not None else 0.0
-        }))
-
     verified_sign_up: VerifiedSignUp = db.query(VerifiedSignUp).filter(
         VerifiedSignUp.email == current_customer.email).first()
     if verified_sign_up is None:
