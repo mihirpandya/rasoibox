@@ -13,7 +13,8 @@ from sqlalchemy.orm import Session
 from starlette import status
 from starlette.responses import JSONResponse
 
-from api.customers import CustomerPayload, ChangePasswordPayload, ResetPasswordPayload, UpdateCustomerPayload
+from api.customers import CustomerPayload, ChangePasswordPayload, ResetPasswordPayload, UpdateCustomerPayload, \
+    CreateAccountFromIntentPayload
 from config import Settings
 from dependencies.customers import authenticate_customer, get_current_customer, get_password_hash, verify_password, \
     create_access_token
@@ -24,7 +25,7 @@ from emails.resetpasswordcomplete import ResetPasswordCompleteEmail
 from emails.verifysignup import VerifySignUpEmail
 from models.customers import Customer
 from models.invitations import Invitation
-from models.orders import PromoCode
+from models.orders import PromoCode, Order
 from models.reset_passwords import ResetPassword
 from models.signups import VerifiedSignUp, UnverifiedSignUp
 from routers.signup import jinjaEnv, smtp_server
@@ -205,6 +206,32 @@ async def create_user_account(new_customer: CustomerPayload, db: Session = Depen
         return JSONResponse(content=jsonable_encoder(result))
 
 
+@router.post("/create_account_from_intent")
+async def create_user_account_from_intent(new_customer: CreateAccountFromIntentPayload, db: Session = Depends(get_db)):
+    customer: Customer = db.query(Customer).filter(Customer.id == new_customer.create_id).first()
+    order: Order = db.query(Order).filter(
+        and_(Order.customer == new_customer.create_id, Order.payment_intent == new_customer.payment_intent)).first()
+
+    if order is None:
+        logger.error("Could not find order: {} {}".format(new_customer.create_id, new_customer.payment_intent))
+        raise HTTPException(404)
+
+    if customer is None:
+        logger.error("Could not find customer: {}".format(new_customer.create_id))
+        raise HTTPException(404)
+
+    hashed_password = get_password_hash(new_customer.password)
+
+    db.query(Customer).filter(Customer.id == new_customer.create_id).update({
+        Customer.hashed_password: hashed_password,
+        Customer.last_updated: datetime.now()
+    })
+
+    db.commit()
+
+    return
+
+
 @router.post("/update")
 async def update_user_account(update_customer: UpdateCustomerPayload,
                               current_customer: Customer = Depends(get_current_customer),
@@ -318,6 +345,23 @@ async def complete_reset_password(reset_password: ResetPasswordPayload, db: Sess
         {'reset_complete': True})
     db.commit()
     send_reset_password_complete_email_best_effort(customer.email, customer.first_name)
+
+
+@router.get("/get_customer_from_intent")
+async def get_customer_from_intent(create_id: int, payment_intent: str, db: Session = Depends(get_db)):
+    customer: Customer = db.query(Customer).filter(Customer.id == create_id).first()
+    order: Order = db.query(Order).filter(
+        and_(Order.customer == create_id, Order.payment_intent == payment_intent)).first()
+
+    if order is None:
+        logger.error("Could not find order: {} {}".format(create_id, payment_intent))
+        raise HTTPException(404)
+
+    if customer is None:
+        logger.error("Could not find customer: {}".format(create_id))
+        raise HTTPException(404)
+
+    return JSONResponse(content=jsonable_encoder({"email": customer.email}))
 
 
 def create_welcome_promo_if_applicable(verification_code: str, db: Session):

@@ -88,3 +88,9 @@ class ResetPasswordPayload(BaseModel):
 
     class Config:
         orm_mode = True
+
+
+class CreateAccountFromIntentPayload(BaseModel):
+    create_id: int
+    payment_intent: str
+    password: str
