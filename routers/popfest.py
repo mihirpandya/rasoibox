@@ -27,12 +27,9 @@ router = APIRouter(
 
 @router.post("/preorder1")
 async def preorder_1(db: Session = Depends(get_db)):
-    all_verified: List[VerifiedSignUp] = db.query(VerifiedSignUp).all()
+    all_verified: List[VerifiedSignUp] = db.query(VerifiedSignUp).filter(VerifiedSignUp.id > 102).all()
     all_verified_emails: List[str] = [x.email for x in all_verified]
     logger.info("Verified size: {}".format(len(all_verified)))
-    all_unverified: List[UnverifiedSignUp] = db.query(UnverifiedSignUp).all()
-    all_unverified_emails: List[str] = [x.email for x in all_unverified]
-    logger.info("Unverified size: {}".format(len(all_unverified)))
 
     for verified_sign_up in all_verified_emails:
         try:
@@ -43,6 +40,10 @@ async def preorder_1(db: Session = Depends(get_db)):
         except Exception as e:
             logger.error("Failed to send email.")
             logger.error(e)
+
+    all_unverified: List[UnverifiedSignUp] = db.query(UnverifiedSignUp).all()
+    all_unverified_emails: List[str] = [x.email for x in all_unverified]
+    logger.info("Unverified size: {}".format(len(all_unverified)))
 
     for unverified_sign_up in all_unverified_emails:
         try:
