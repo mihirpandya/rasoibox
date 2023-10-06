@@ -1,4 +1,5 @@
 import logging
+import time
 from typing import List
 
 from fastapi import APIRouter, Depends, HTTPException
@@ -37,6 +38,7 @@ async def preorder_1(db: Session = Depends(get_db)):
         try:
             pre_order_email: PreOrder1Email = PreOrder1Email(verified_sign_up, settings.from_email)
             send_email(jinjaEnv, pre_order_email, smtp_server, settings.email, settings.email_app_password)
+            time.sleep(1)
             logger.info("Email sent to: {}".format(verified_sign_up))
         except Exception as e:
             logger.error("Failed to send email.")
@@ -49,6 +51,7 @@ async def preorder_1(db: Session = Depends(get_db)):
             else:
                 pre_order_email: PreOrder1Email = PreOrder1Email(unverified_sign_up, settings.from_email)
                 send_email(jinjaEnv, pre_order_email, smtp_server, settings.email, settings.email_app_password)
+                time.sleep(1)
                 logger.info("Email sent to: {}".format(unverified_sign_up))
         except Exception as e:
             logger.error("Failed to send email.")
