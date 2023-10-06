@@ -26,8 +26,8 @@ router = APIRouter(
 
 
 @router.post("/preorder1")
-async def preorder_1(db: Session = Depends(get_db)):
-    all_verified: List[VerifiedSignUp] = db.query(VerifiedSignUp).filter(VerifiedSignUp.id > 102).all()
+async def preorder_1(after_id: int, db: Session = Depends(get_db)):
+    all_verified: List[VerifiedSignUp] = db.query(VerifiedSignUp).filter(VerifiedSignUp.id > after_id).all()
     all_verified_emails: List[str] = [x.email for x in all_verified]
     logger.info("Verified size: {}".format(len(all_verified)))
 
