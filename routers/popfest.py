@@ -27,33 +27,30 @@ router = APIRouter(
 
 @router.post("/preorder1")
 async def preorder_1(after_id: int, db: Session = Depends(get_db)):
-    all_verified: List[VerifiedSignUp] = db.query(VerifiedSignUp).filter(VerifiedSignUp.id > after_id).all()
-    all_verified_emails: List[str] = [x.email for x in all_verified]
-    logger.info("Verified size: {}".format(len(all_verified)))
+    # all_verified: List[VerifiedSignUp] = db.query(VerifiedSignUp).filter(VerifiedSignUp.id > after_id).all()
+    # all_verified_emails: List[str] = [x.email for x in all_verified]
+    # logger.info("Verified size: {}".format(len(all_verified)))
+    #
+    # for verified_sign_up in all_verified_emails:
+    #     try:
+    #         pre_order_email: PreOrder1Email = PreOrder1Email(verified_sign_up, settings.from_email)
+    #         send_email(jinjaEnv, pre_order_email, smtp_server, settings.email, settings.email_app_password)
+    #         time.sleep(1)
+    #         logger.info("Email sent to: {}".format(verified_sign_up))
+    #     except Exception as e:
+    #         logger.error("Failed to send email.")
+    #         logger.error(e)
 
-    for verified_sign_up in all_verified_emails:
-        try:
-            pre_order_email: PreOrder1Email = PreOrder1Email(verified_sign_up, settings.from_email)
-            send_email(jinjaEnv, pre_order_email, smtp_server, settings.email, settings.email_app_password)
-            time.sleep(1)
-            logger.info("Email sent to: {}".format(verified_sign_up))
-        except Exception as e:
-            logger.error("Failed to send email.")
-            logger.error(e)
-
-    all_unverified: List[UnverifiedSignUp] = db.query(UnverifiedSignUp).all()
+    all_unverified: List[UnverifiedSignUp] = db.query(UnverifiedSignUp).filter(UnverifiedSignUp.id > after_id).all()
     all_unverified_emails: List[str] = [x.email for x in all_unverified]
     logger.info("Unverified size: {}".format(len(all_unverified)))
 
     for unverified_sign_up in all_unverified_emails:
         try:
-            if unverified_sign_up in all_verified_emails:
-                logger.info("Duplicate email: {}".format(unverified_sign_up))
-            else:
-                pre_order_email: PreOrder1Email = PreOrder1Email(unverified_sign_up, settings.from_email)
-                send_email(jinjaEnv, pre_order_email, smtp_server, settings.email, settings.email_app_password)
-                time.sleep(1)
-                logger.info("Email sent to: {}".format(unverified_sign_up))
+            pre_order_email: PreOrder1Email = PreOrder1Email(unverified_sign_up, settings.from_email)
+            send_email(jinjaEnv, pre_order_email, smtp_server, settings.email, settings.email_app_password)
+            time.sleep(1)
+            logger.info("Email sent to: {}".format(unverified_sign_up))
         except Exception as e:
             logger.error("Failed to send email.")
             logger.error(e)
