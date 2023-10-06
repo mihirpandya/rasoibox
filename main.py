@@ -94,7 +94,7 @@ app.include_router(customers.router)
 app.include_router(order.router)
 app.include_router(price.router)
 app.include_router(orderV2.router)
-app.include_router(popfest.router)
+# app.include_router(popfest.router)
 
 
 @app.on_event("startup")
