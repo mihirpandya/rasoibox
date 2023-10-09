@@ -38,7 +38,8 @@ origins = [
     "https://www.rasoibox.com",
 ]
 
-app = FastAPI(docs_url=None, redoc_url=None)
+# app = FastAPI(docs_url=None, redoc_url=None)
+app = FastAPI()
 app.add_middleware(SessionMiddleware, secret_key="test")
 app.add_middleware(RequestContextLogMiddleware, request_logger=logger)
 
