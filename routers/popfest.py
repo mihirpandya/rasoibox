@@ -31,7 +31,7 @@ async def preorder_2_test(db: Session = Depends(get_db)):
     verified: VerifiedSignUp = db.query(VerifiedSignUp).filter(VerifiedSignUp.verification_code == "a2a62").first()
     if verified is not None:
         try:
-            pre_order_email: PreOrder2Email = PreOrder2Email(verified, settings.from_email)
+            pre_order_email: PreOrder2Email = PreOrder2Email(verified.email, settings.from_email)
             send_email(jinjaEnv, pre_order_email, smtp_server, settings.email, settings.email_app_password)
         except Exception as e:
             logger.error("Failed to send email.")
