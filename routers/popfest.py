@@ -4,6 +4,7 @@ from typing import List
 
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.encoders import jsonable_encoder
+from sqlalchemy import and_
 from sqlalchemy.orm import Session
 from starlette.responses import JSONResponse
 
@@ -42,7 +43,8 @@ async def preorder_2_test(verification_code: str, db: Session = Depends(get_db))
 
 @router.post("/preorder2_verified")
 async def preorder_2_verified(after_id: int, db: Session = Depends(get_db)):
-    all_verified: List[VerifiedSignUp] = db.query(VerifiedSignUp).filter(VerifiedSignUp.id > after_id).all()
+    all_verified: List[VerifiedSignUp] = db.query(VerifiedSignUp).filter(
+        and_(VerifiedSignUp.id > after_id, VerifiedSignUp.signup_from != "GUEST_ORDER")).all()
     all_verified_emails: List[str] = [x.email for x in all_verified]
     logger.info("Verified size: {}".format(len(all_verified)))
 
