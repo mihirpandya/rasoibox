@@ -1,10 +1,14 @@
 recipe_name: Chana Masala
 description: classic chickpea curry with a flavorful blend of spices.
-image_url: https://static.wixstatic.com/media/bbf858_7cf3c205476a4ec8bc78b6efb13b6de4~mv2.png
+image_url: https://static.wixstatic.com/media/bbf858_fea2d40fcaa64587b440735836fc1b4b~mv2.png
 recipe_contributor_name: rasoi box
 prep_time_minutes: 10
 cook_time_minutes: 20
 serving_size: 4
+long_description: Chana Masala is a flavorful and aromatic North Indian dish made with chickpeas (chana) simmered in a rich tomato-based sauce infused with warm spices. This hearty curry is a harmonious fusion of tangy, savory, and mildly spicy flavors, a satisfying and comforting experience.
+tags:
+  - Vegan
+  - One-Pot
 ingredients:
   - name: onion
     quantities:

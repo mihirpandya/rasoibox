@@ -6,6 +6,8 @@ def add_recipe_steps(yml_file, url_base, proceed=False):
     with open(yml_file, 'r') as file:
         recipe = yaml.safe_load(file)
 
+    serving_size = recipe['serving_size']
+
     add_recipe_url = url_base + "/api/recipe/add"
     r = requests.post(add_recipe_url, json=[
         {
@@ -23,7 +25,6 @@ def add_recipe_steps(yml_file, url_base, proceed=False):
         if not proceed:
             return r
 
-    serving_size = recipe['serving_size']
     get_recipe_url = url_base + "/api/recipe/get?name=" + recipe['recipe_name']
     r = requests.get(get_recipe_url)
     recipe_id = r.json()['recipe_id']
@@ -58,7 +59,7 @@ def add_recipe_steps(yml_file, url_base, proceed=False):
         "tips": x['tips'],
         "chefs_hats": x['chefs_hats'],
         "ingredients": x['ingredients'],
-        "in_your_kitchen": x['in_your_kitchen'],
+        "in_your_kitchen": x['in_your_kitchen'] if 'in_your_kitchen' in x else [],
         "gif_url": x['gif_urls'] if 'gif_urls' in x else []
     } for x in recipe["steps"]]
 

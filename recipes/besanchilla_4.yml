@@ -1,10 +1,12 @@
 recipe_name: Besan Chilla
 description: chickpea flour crepes served with vegetables and shredded paneer.
-image_url: https://static.wixstatic.com/media/bbf858_7d1415cdc30d4d97817627353326a151~mv2.png
+long_description: Besan chilla, also known as gram flour pancakes, are made from chickpea flour, water, and spices. Packed with protein and fiber, these savory pancakes are a healthy choice too. Perfect for breakfast, a snack, or even a light meal, besan chilla brings a touch of Indian cuisine to your table with its crispy exterior and flavorful interior.
+image_url: https://static.wixstatic.com/media/bbf858_4c29b70cbae74045afe2f1f16bcbcad1~mv2.png
 recipe_contributor_name: rasoi box
 prep_time_minutes: 10
 cook_time_minutes: 10
 serving_size: 4
+tags: [ ]
 ingredients:
   - name: gram flour (besan)
     quantities:

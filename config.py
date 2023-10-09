@@ -14,7 +14,7 @@ class Settings(BaseSettings):
     db_path: str
     admin_user: str
     admin_password: str
-    secret_key: str
+    jwt_secret_key: str
     stripe_secret_key: str
     stripe_referral_coupon_id: str
     stripe_welcome_promo_code_id: str

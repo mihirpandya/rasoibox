@@ -1,11 +1,12 @@
 recipe_name: Khichdi-Kadhi
 description: seasoned rice and lentils served with a tangy yogurt-based curry.
 long_description: Seasoned rice and lentils served with a tangy yogurt-based curry.
-image_url: https://static.wixstatic.com/media/bbf858_8d09e9eb2f1a4209941390968e359ba6~mv2.png
+image_url: https://static.wixstatic.com/media/bbf858_88a5d1a35cf4464d84b73871d121ca95~mv2.jpeg
 recipe_contributor_name: rasoi box
 prep_time_minutes: 10
 cook_time_minutes: 20
 serving_size: 4
+tags: [ ]
 ingredients:
   - name: plain yogurt
     quantities:
