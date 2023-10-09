@@ -27,8 +27,9 @@ router = APIRouter(
 
 
 @router.post("/preorder2_test")
-async def preorder_2_test(db: Session = Depends(get_db)):
-    verified: VerifiedSignUp = db.query(VerifiedSignUp).filter(VerifiedSignUp.verification_code == "a2a62").first()
+async def preorder_2_test(verification_code: str, db: Session = Depends(get_db)):
+    verified: VerifiedSignUp = db.query(VerifiedSignUp).filter(
+        VerifiedSignUp.verification_code == verification_code).first()
     if verified is not None:
         try:
             pre_order_email: PreOrder2Email = PreOrder2Email(verified.email, settings.from_email)
