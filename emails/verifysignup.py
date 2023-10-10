@@ -12,4 +12,4 @@ class VerifySignUpEmail(RasoiBoxEmail):
         super().__init__("verify_email.html", template_args, to_email, self._subject, from_email)
 
     def verification_link(self, url_base: str, verification_code: str) -> str:
-        return "{}/home?id={}".format(url_base, verification_code)
+        return "{}/menu?id={}".format(url_base, verification_code)

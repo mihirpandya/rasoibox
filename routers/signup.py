@@ -104,8 +104,7 @@ async def signup_via_email(sign_up_via_email: SignUpViaEmail, db: Session = Depe
             }))
 
         unverified_sign_up: Optional[UnverifiedSignUp] = db.query(UnverifiedSignUp).filter(
-            and_(UnverifiedSignUp.email == sign_up_via_email.email,
-                 UnverifiedSignUp.zipcode == sign_up_via_email.zipcode)).first()
+            UnverifiedSignUp.email == sign_up_via_email.email).first()
 
         message: str
         status_code: int

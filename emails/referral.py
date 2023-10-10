@@ -15,4 +15,4 @@ class ReferralEmail(RasoiBoxEmail):
         super().__init__("referral.html", template_args, to_email, self._subject, from_email)
 
     def create_account_link(self, url_base, verification_code):
-        return "{}/createaccount?id={}".format(url_base, verification_code)
+        return "{}/signup?id={}".format(url_base, verification_code)

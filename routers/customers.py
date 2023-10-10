@@ -151,16 +151,15 @@ async def create_user_account(new_customer: CustomerPayload, db: Session = Depen
 
         if invitation is not None:
             verified = True
-            db.add(
-                VerifiedSignUp(
-                    email=new_customer.email,
-                    signup_date=new_customer.join_date,
-                    signup_from="REFERRED",
-                    verify_date=new_customer.join_date,
-                    zipcode=new_customer.zipcode,
-                    verification_code=new_customer.verification_code
-                )
+            verified_user = VerifiedSignUp(
+                email=new_customer.email,
+                signup_date=new_customer.join_date,
+                signup_from="REFERRED",
+                verify_date=new_customer.join_date,
+                zipcode=new_customer.zipcode,
+                verification_code=new_customer.verification_code
             )
+            db.add(verified_user)
 
         db.add(
             Customer(

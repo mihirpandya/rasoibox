@@ -16,4 +16,4 @@ class ReferralAuthEmail(RasoiBoxEmail):
         super().__init__("auth_referral.html", template_args, to_email, subject, from_email)
 
     def create_account_link(self, url_base, verification_code):
-        return "{}/createaccount?id={}".format(url_base, verification_code)
+        return "{}/signup?id={}".format(url_base, verification_code)

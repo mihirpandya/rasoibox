@@ -46,9 +46,13 @@ def generate_order_id() -> str:
     return res.lower()
 
 
-def send_invitation_complete_email_best_effort(referred_first_name: str, email: str,
+def send_invitation_complete_email_best_effort(verification_code: str, referred_first_name: str, email: str,
                                                promo_code: str, promo_amount: str):
+    url_base: str = settings.frontend_url_base[0:-1] if settings.frontend_url_base.endswith(
+        "/") else settings.frontend_url_base
     invitation_complete_email: InvitationCompleteEmail = InvitationCompleteEmail(
+        url_base=url_base,
+        verification_code=verification_code,
         referred_first_name=referred_first_name,
         promo_code=promo_code,
         promo_amount=promo_amount,
@@ -619,7 +623,8 @@ def complete_invitation(current_customer: Customer, db: Session) -> bool:
                                                      referrer_verification_code, db)
 
     # send email with promo code
-    send_invitation_complete_email_best_effort(current_customer.first_name, referrer_email, promo_code.promo_code_name,
+    send_invitation_complete_email_best_effort(referrer_verification_code, current_customer.first_name, referrer_email,
+                                               promo_code.promo_code_name,
                                                to_promo_amount_string(promo_code))
 
     db.query(Invitation).filter(and_(Invitation.email == current_customer.email,

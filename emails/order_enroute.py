@@ -21,4 +21,4 @@ class OrderEnRouteEmail(RasoiBoxEmail):
         super().__init__("order_enroute.html", template_args, to_email, subject, from_email)
 
     def order_link(self, url_base: str, order_id: str) -> str:
-        return "{}/order?orderId={}".format(url_base, order_id)
+        return "{}/order/{}".format(url_base, order_id)
