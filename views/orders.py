@@ -39,7 +39,7 @@ class CartAdmin(ModelView, model=Cart):
     ]
 
     column_sortable_list = [Cart.id]
-    column_default_sort = [(Order.id, True)]
+    column_default_sort = [(Cart.id, True)]
     column_searchable_list = [Cart.verification_code]
 
 
