@@ -38,6 +38,10 @@ class CartAdmin(ModelView, model=Cart):
         Cart.serving_size
     ]
 
+    column_sortable_list = [Cart.id]
+    column_default_sort = [(Order.id, True)]
+    column_searchable_list = [Cart.verification_code]
+
 
 class PromoCodeAdmin(ModelView, model=PromoCode):
     column_list = [
