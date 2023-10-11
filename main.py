@@ -14,7 +14,7 @@ from dashapp.dashapp import create_dash_app
 from dependencies.database import get_engine, get_db
 from middleware.request_logger import RequestContextLogMiddleware
 from models.base import Base
-from routers import recipe, signup, customers, order, price, orderV2, popfest
+from routers import recipe, signup, customers, order, price, orderV2, popfest, cart
 from views.customers import CustomerAdmin
 from views.event import EventAdmin, RecipeEventAdmin
 from views.invitations import InvitationAdmin
@@ -38,8 +38,8 @@ origins = [
     "https://www.rasoibox.com",
 ]
 
-app = FastAPI(docs_url=None, redoc_url=None)
-# app = FastAPI()
+# app = FastAPI(docs_url=None, redoc_url=None)
+app = FastAPI()
 app.add_middleware(SessionMiddleware, secret_key="test")
 app.add_middleware(RequestContextLogMiddleware, request_logger=logger)
 
@@ -96,6 +96,7 @@ app.include_router(order.router)
 app.include_router(price.router)
 app.include_router(orderV2.router)
 app.include_router(popfest.router)
+app.include_router(cart.router)
 
 
 @app.on_event("startup")
