@@ -143,12 +143,12 @@ async def create_user_account(new_customer: CustomerPayload, db: Session = Depen
     else:
         verified_user = db.query(VerifiedSignUp).filter(VerifiedSignUp.email == new_customer.email).first()
         hashed_password = get_password_hash(new_customer.password)
+        verified: bool = verified_user is not None
+
         # if email and code match an invitation, consider this as a verified sign up
         invitation: Optional[Invitation] = db.query(Invitation).filter(
             and_(Invitation.email == new_customer.email,
                  Invitation.referred_verification_code == new_customer.verification_code)).first()
-        verified: bool = verified_user is not None
-
         if invitation is not None:
             verified = True
             verified_user = VerifiedSignUp(
@@ -160,6 +160,22 @@ async def create_user_account(new_customer: CustomerPayload, db: Session = Depen
                 verification_code=new_customer.verification_code
             )
             db.add(verified_user)
+
+        # if email and code match an unverified referrer, consider this as a verified sign up
+        unverified_sign_up: Optional[UnverifiedSignUp] = db.query(UnverifiedSignUp).filter(
+            and_(UnverifiedSignUp.email == new_customer.email, UnverifiedSignUp.signup_from == "REFERRER")).first()
+        if unverified_sign_up is not None and unverified_sign_up.verification_code == new_customer.verification_code:
+            verified = True
+            verified_user = VerifiedSignUp(
+                email=new_customer.email,
+                signup_date=unverified_sign_up.signup_date,
+                signup_from="REFERRER",
+                verify_date=new_customer.join_date,
+                zipcode=new_customer.zipcode,
+                verification_code=new_customer.verification_code
+            )
+            db.add(verified_user)
+            db.delete(unverified_sign_up)
 
         db.add(
             Customer(
