@@ -20,12 +20,15 @@ from dependencies.customers import get_current_customer
 from dependencies.database import get_db
 from dependencies.stripe_utils import create_payment_intent, \
     get_payment_intent, modify_payment_intent
+from emails.base import send_email
+from emails.createpassword import CreatePasswordEmail
 from models.customers import Customer
 from models.orders import Cart, Order
 from models.orders import Cart, PromoCode, PaymentStatusEnum
 from models.recipes import RecipePrice
 from models.signups import VerifiedSignUp
 from routers.order import send_receipt_email_best_effort, to_order_dict, complete_invitation
+from routers.signup import jinjaEnv, smtp_server
 
 logger = logging.getLogger("rasoibox")
 
@@ -228,6 +231,42 @@ async def get_order_from_payment_intent(order_id: str, payment_intent: str, db: 
         raise HTTPException(status_code=404, detail="Unknown order")
 
     return JSONResponse(content=jsonable_encoder(to_order_dict(order, db, customer_email=order.recipient_email)))
+
+
+@router.post("/email_orders_without_accounts")
+async def email_orders_without_accounts(db: Session = Depends(get_db)):
+    customers: List[Customer] = db.query(Customer).filter(Customer.hashed_password.is_(None)).all()
+    emails: List[(int, str)] = []
+    for customer in customers:
+        order: Order = db.query(Order).filter(
+            and_(Order.customer == customer.id, Order.payment_status == PaymentStatusEnum.COMPLETED)).first()
+        if order is None:
+            logger.warning("Could not find order for customer without password: {}".format(customer.id))
+        else:
+            emails.append((order.customer, order.payment_intent))
+            try:
+                url_base: str = settings.frontend_url_base[0:-1] if settings.frontend_url_base.endswith(
+                    "/") else settings.frontend_url_base
+                create_password_email: CreatePasswordEmail = CreatePasswordEmail(
+                    url_base=url_base,
+                    first_name=order.recipient_first_name,
+                    create_id=order.customer,
+                    payment_intent=order.payment_intent,
+                    to_email=order.recipient_email,
+                    from_email=settings.from_email
+                )
+                send_email(jinjaEnv, create_password_email, smtp_server, settings.email, settings.email_app_password)
+            except Exception as e:
+                logger.error("Could not email: {}".format(order.recipient_email))
+                logger.error(e)
+
+    return JSONResponse(jsonable_encoder(emails))
+
+
+@router.post("/admin_webhook_complete_order")
+async def admin_webhook_complete_order(payment_intent_id: str, user_facing_order_id: str, amount_cents: int,
+                                       db: Session = Depends(get_db)):
+    return complete_order(payment_intent_id, user_facing_order_id, amount_cents, db)
 
 
 def complete_order(payment_intent_id: str, user_facing_order_id: str, amount_cents: int, db: Session):
