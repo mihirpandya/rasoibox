@@ -7,8 +7,8 @@ class ReceiptEmail(RasoiBoxEmail):
     _subject: str = "Rasoi Box Order Confirmation"
 
     def __init__(self, url_base: str, first_name: str, line_items: List[Dict[str, Any]], promo_code: Dict[str, Any],
-                 total: float, sub_total: float, shipping_address: Dict[str, Any], order_id: str, to_email: str,
-                 from_email: str):
+                 total: float, sub_total: float, shipping_fee: str, shipping_address: Dict[str, Any], order_id: str,
+                 estimated_delivery: str, to_email: str, from_email: str):
         subject = self._subject + ": " + order_id
         template_args = {
             "order_link": self.order_link(url_base, order_id),
@@ -16,9 +16,10 @@ class ReceiptEmail(RasoiBoxEmail):
             "subtotal": "{:.2f}".format(sub_total),
             "total": "{:.2f}".format(total),
             "line_items": line_items,
+            "shipping_fee": shipping_fee,
             "shipping_address": self.shipping_address(shipping_address),
             "order_id": order_id,
-            "estimated_delivery": "August 20, 2023"
+            "estimated_delivery": estimated_delivery
         }
 
         if len(promo_code) > 0:

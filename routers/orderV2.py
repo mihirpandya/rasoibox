@@ -108,6 +108,7 @@ async def initiate_intent(verification_code: str, db: Session = Depends(get_db))
 
 @router.post("/initiate_place_order")
 async def initiate_place_order(order: api.orders.Order, verification_code: str, db: Session = Depends(get_db)):
+    shipping_charge_dollars: int = 5
     existing_order: Order = db.query(Order).filter(
         and_(Order.verification_code == verification_code, Order.payment_status == PaymentStatusEnum.INITIATED)).first()
 
@@ -145,7 +146,8 @@ async def initiate_place_order(order: api.orders.Order, verification_code: str, 
             raise HTTPException(status_code=404, detail="Invalid recipe serving size combo")
         recipe_prices_ordered.append(recipe_price)
 
-    order_total_dollars = reduce(lambda p1, p2: p1 + p2, [x.price for x in recipe_prices_ordered], 0)
+    order_total_dollars = reduce(lambda p1, p2: p1 + p2, [x.price for x in recipe_prices_ordered],
+                                 0) + shipping_charge_dollars
     for promo_code in promo_codes:
         if promo_code.amount_off is not None and promo_code.amount_off > 0:
             order_total_dollars = order_total_dollars - promo_code.amount_off
@@ -154,6 +156,7 @@ async def initiate_place_order(order: api.orders.Order, verification_code: str, 
     order_breakdown_dollars = reduce(lambda d1, d2: {**d1, **d2}, [{x.id: x.price} for x in recipe_prices_ordered], {})
     order_breakdown = {
         "items": order_breakdown_dollars,
+        "shipping_fee": shipping_charge_dollars,
         "promo_codes": [{"name": x.promo_code_name, "amount_off": x.amount_off, "percent_off": x.percent_off} for x in
                         promo_codes]
     }

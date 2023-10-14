@@ -17,6 +17,7 @@ from api.orders import CartItem, PricedCartItem, Order
 from config import Settings
 from dependencies.customers import get_current_customer
 from dependencies.database import get_db
+from dependencies.order_utils import get_pretty_estimated_delivery_date
 from dependencies.referral_utils import generate_promo_code, create_stripe_promo_code, to_promo_amount_string
 from dependencies.stripe_utils import create_checkout_session, find_promo_code_id
 from emails.base import send_email
@@ -75,6 +76,9 @@ def send_receipt_email_best_effort(email: str, first_name: str, order_dict: Dict
     line_items: List[Dict[str, Any]] = [
         {"name": x, "serving_size": recipes[x]["serving_size"], "price": recipes[x]["price"]} for x in recipes.keys()]
     sub_total: float = reduce(lambda d1, d2: d1 + d2, order_dict["order_breakdown"]["items"].values(), 0)
+    shipping_fee: str = "FREE"
+    if "shipping_fee" in order_dict["order_breakdown"]:
+        shipping_fee = "${}".format(str(order_dict["order_breakdown"]["shipping_fee"]))
     promo_codes = order_dict["order_breakdown"]["promo_codes"]
     if len(promo_codes) == 0:
         promo_code = {}
@@ -88,8 +92,10 @@ def send_receipt_email_best_effort(email: str, first_name: str, order_dict: Dict
         promo_code=promo_code,
         total=order_dict["order_total_dollars"],
         sub_total=sub_total,
+        shipping_fee=shipping_fee,
         shipping_address=order_dict["order_delivery_address"],
         order_id=order_dict["order_number"],
+        estimated_delivery=order_dict["estimated_delivery_date"],
         to_email=email,
         from_email=settings.from_email
     )
@@ -185,6 +191,7 @@ def send_order_picked_up_email_best_effort(email: str, create_id: int, payment_i
 @router.post("/initiate_place_order")
 async def initiate_place_order(order: Order, current_customer: Customer = Depends(get_current_customer),
                                db: Session = Depends(get_db)):
+    shipping_charge_dollars: int = 5
     verified_sign_up: VerifiedSignUp = db.query(VerifiedSignUp).filter(
         VerifiedSignUp.email == current_customer.email).first()
     if verified_sign_up is None:
@@ -216,7 +223,8 @@ async def initiate_place_order(order: Order, current_customer: Customer = Depend
             raise HTTPException(status_code=404, detail="Invalid recipe serving size combo")
         recipe_prices_ordered.append(recipe_price)
 
-    order_total_dollars = reduce(lambda p1, p2: p1 + p2, [x.price for x in recipe_prices_ordered], 0)
+    order_total_dollars = reduce(lambda p1, p2: p1 + p2, [x.price for x in recipe_prices_ordered],
+                                 0) + shipping_charge_dollars
     for promo_code in promo_codes:
         if promo_code.amount_off is not None and promo_code.amount_off > 0:
             order_total_dollars = order_total_dollars - promo_code.amount_off
@@ -225,6 +233,7 @@ async def initiate_place_order(order: Order, current_customer: Customer = Depend
     order_breakdown_dollars = reduce(lambda d1, d2: {**d1, **d2}, [{x.id: x.price} for x in recipe_prices_ordered], {})
     order_breakdown = {
         "items": order_breakdown_dollars,
+        "shipping_fee": shipping_charge_dollars,
         "promo_codes": [{"name": x.promo_code_name, "amount_off": x.amount_off, "percent_off": x.percent_off} for x in
                         promo_codes]
     }
@@ -608,6 +617,7 @@ def to_order_dict(order: models.orders.Order, db: Session, customer_email=None) 
         "order_total_dollars": order.order_total_dollars,
         "order_delivered": order.delivered,
         "order_create_id": order.customer,
+        "estimated_delivery_date": get_pretty_estimated_delivery_date(order.order_date),
         "recipes": recipe_info,
     }
 

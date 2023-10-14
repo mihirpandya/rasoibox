@@ -128,17 +128,25 @@
             {% endif %}
             <tr>
                 <td>Shipping</td>
-                <td>FREE</td>
+                <td>{{ shipping_fee }}</td>
             </tr>
             <tr>
                 <td><b>Total</b></td>
                 <td><b>${{ total }}</b></td>
             </tr>
+            <tr>
+                <td style="padding-top: 20px">Shipping Address</td>
+                <td>{{ shipping_address }}</td>
+            </tr>
+            <tr>
+                <td style="padding-top: 20px">Estimated Delivery</td>
+                <td>{{ estimated_delivery }}</td>
+            </tr>
         </table>
         <br />
         <br />
         <p class="message">
-            Your order will be available for pick-up at Pop-Fest on Oct 15. For free entry to the event, RSVP via <a href="https://www.eventbrite.com/e/popfest-2023-tickets-685848420087?aff=rasoibox">Eventbrite</a> with code: <span class="bold">RASOIBOX</span>.
+            We will notify you again when your order is out for delivery.
             <br />
             <br />
             Happy cooking!
