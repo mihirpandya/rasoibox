@@ -25,21 +25,11 @@ ingredients:
       - amount: 1
         serving_size: 4
     unit: piece
-  - name: spice blend
+  - name: chana masala spice blend
     quantities:
-      - amount: 3
+      - amount: 1
         serving_size: 4
-    unit: tbsp
-  - name: cumin-coriander powder
-    quantities:
-      - amount: 2
-        serving_size: 4
-    unit: tsp
-  - name: garam masala
-    quantities:
-      - amount: 2
-        serving_size: 4
-    unit: tsp
+    unit: piece
   - name: aamchur powder
     quantities:
       - amount: 0.5
@@ -116,11 +106,12 @@ steps:
   - step_number: 3
     title: cook the chickpea mixture
     instructions:
-      - Mix in the ginger-garlic paste, diced tomatoes, and all the spices (spice blend, cumin-coriander powder, garam masala, aamchur powder). Stir properly and cook for an additional 3-4 minutes.
+      - Mix in the ginger-garlic paste, diced tomatoes, and  and chana masala spice blend (chole masala, cumin-coriander powder, garam masala). Stir properly and cook for an additional 3-4 minutes.
       - Add 2 cups of water and bring to a simmer. Add the chickpeas and stir well. Cover and let cook for 6-8 minutes.
     tips:
       - Things may stick to your pot; Keep things moving and deglaze with water.
-    chefs_hats: [ ]
+    chefs_hats:
+      - Customize it! Adding aamchur powder makes it tangier. Feel free to add as much or as little aamchur powder based on your preferences.
     ingredients:
       - ginger-garlic paste
       - tomato

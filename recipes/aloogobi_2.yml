@@ -1,0 +1,114 @@
+recipe_name: Aloo Gobi
+description: tender potatos and cauliflower in aromatic spices
+image_url: ""
+recipe_contributor_name: Rasoi Box
+prep_time_minutes: 5
+cook_time_minutes: 20
+serving_size: 2
+long_description: Aloo Gobi is a beloved North Indian dish featuring tender cauliflower florets and hearty potato chunks, sautéed with a medley of aromatic spices. This comforting, mildly spiced curry is a balance of textures and flavors, making it a classic favorite.
+tags:
+  - Vegan
+  - One-Pot
+  - Classic
+ingredients:
+  - name: cauliflower
+    quantities:
+      - amount: 0.5
+        serving_size: 2
+    unit: piece
+  - name: potato
+    quantities:
+      - amount: 1.0
+        serving_size: 2
+    unit: piece
+  - name: green chili
+    quantities:
+      - amount: 1.0
+        serving_size: 2
+    unit: piece
+  - name: cumin seeds
+    quantities:
+      - amount: 0.5
+        serving_size: 2
+    unit: tsp
+  - name: asafoetida (hing)
+    quantities:
+      - amount: 1.0
+        serving_size: 2
+    unit: pinch
+  - name: ginger-garlic paste
+    quantities:
+      - amount: 1
+        serving_size: 2
+    unit: tbsp
+  - name: aloo gobi spice blend
+    quantities:
+      - amount: 1
+        serving_size: 2
+    unit: piece
+  - name: garam masala
+    quantities:
+      - amount: 0.25
+        serving_size: 2
+    unit: tsp
+  - name: coriander leaves
+    quantities:
+      - amount: 1.0
+        serving_size: 1
+    unit: tbsp
+in_your_kitchen:
+  - name: water
+  - name: oil
+    or:
+      - ghee
+  - name: wooden spoon
+    or:
+      - rubber spatula
+steps:
+  - step_number: 1
+    title: Prep ingredients
+    instructions:
+      - Wash and dry all produce. Peel and cut potatoes into 1/2 inch pieces. Cut cauliflower into chunks roughly the same size as the potatoes. 
+    tips:
+      - Cutting the vegetables smaller will lead to a shorter cooking time. 
+    chefs_hats: [ ]
+    ingredients:
+      - potato
+      - cauliflower    
+  - step_number: 2
+    title: Temper spices and aromatics
+    instructions:
+      - In a pot with a lid, heat 2 tbsp of oil or ghee for 1-2 minutes over medium heat. Add the cumin seeds, asafoetida (hing). Let cook for a few seconds, until they sizzle and turn fragrant.
+      - Add green chili and cooking for another 1-2 minutes, before adding the ginger-garlic paste. Stir to prevent sticking or burning.
+    tips: [ ]
+    chefs_hats: [ ]
+    ingredients:
+      - cumin seeds
+      - asafoetida (hing)
+      - green chili
+      - ginger-garlic paste
+  - step_number: 3
+    title: Cook potatoes and cauliflower
+    instructions:
+      - Add diced potatoes and cauliflower chunks.
+      - Add salt to taste (about 1-2 tsp), mix well, and cover. Reduce the heat to low and cook the vegetables, mixing occasionally (every 3 minutes).
+      - After 7-8 minutes, check the doneness of the vegetables. If they are still raw, add 1/4 cup of water, mix, and cover. Continue cooking for another 5 minutes.
+    tips:
+      - Your vegetables should be less than fork-tender at this stage. This means, if you are mostly able to poke a fork through the veggies, you are all set. You may face a little resistance, but don't worry, they will be cooked longer. 
+    chefs_hats: [ ]
+    ingredients:
+      - potato
+      - cauliflower
+  - step_number: 4
+    title: Add spices and garnish
+    instructions:
+      - dd the aloo gobi spice blend (red chili powder, turmeric, and cumin-coriander powder), mix well, and cook covered for 5 more minutes.
+      - Once the vegetables are fully fork tender, uncover and add garam masala and mix well.
+      - Turn off the heat and add your coriander leaves
+    tips: [ ]
+    chefs_hats:
+      - Put your chef's hat on! Aloo gobi is a versatile dish that can be enjoyed over a bed of rice or with roti. Additionally, it can be eaten with paratha and dal. You can wrap in a flaky paratha for an on-the-go meal.
+    ingredients:
+      - aloo gobi spice blend
+      - garam masala
+      - coriander Leaves

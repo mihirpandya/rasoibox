@@ -77,6 +77,7 @@ class RecipeIngredientsAdmin(ModelView, model=RecipeIngredient):
     ]
 
     column_sortable_list = [RecipeIngredient.recipe_id]
+    column_searchable_list = [RecipeIngredient.recipe_id, RecipeIngredient.ingredient_id]
 
 
 class RecipeInYourKitchenAdmin(ModelView, model=RecipeInYourKitchen):
@@ -104,6 +105,8 @@ class RecipeStepAdmin(ModelView, model=RecipeStep):
         RecipeStep.ingredients,
         RecipeStep.gif_url
     ]
+
+    column_sortable_list = [RecipeStep.recipe_id]
 
 
 class RecipePriceAdmin(ModelView, model=RecipePrice):
