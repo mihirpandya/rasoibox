@@ -23,6 +23,7 @@ from emails.base import send_email
 from emails.invitationcomplete import InvitationCompleteEmail
 from emails.order_delivered import OrderDeliveredEmail
 from emails.order_enroute import OrderEnRouteEmail
+from emails.order_pickedup import OrderPickedUpEmail
 from emails.receipt import ReceiptEmail
 from models.customers import Customer
 from models.invitations import Invitation, InvitationStatusEnum
@@ -148,6 +149,35 @@ def send_order_delivered_email_best_effort(email: str, first_name: str, order_di
     # send email best effort
     try:
         send_email(jinjaEnv, order_delivered_email, smtp_server, settings.email, settings.email_app_password)
+    except Exception:
+        logger.exception("Failed to send email.")
+
+
+def send_order_picked_up_email_best_effort(email: str, create_id: int, payment_intent: str, create_account: bool,
+                                           first_name: str, order_dict: Dict[str, Any]):
+    url_base: str = settings.frontend_url_base[0:-1] if settings.frontend_url_base.endswith(
+        "/") else settings.frontend_url_base
+    recipes = order_dict["recipes"]
+    line_items: List[Dict[str, Any]] = [
+        {"name": x, "serving_size": recipes[x]["serving_size"], "price": recipes[x]["price"],
+         "image_link": recipes[x]["image_url"]} for x in recipes.keys()]
+
+    order_picked_up_email: OrderPickedUpEmail = OrderPickedUpEmail(
+        url_base=url_base,
+        first_name=first_name,
+        create_id=create_id,
+        payment_intent=payment_intent,
+        create_account=create_account,
+        line_items=line_items,
+        shipping_address=order_dict["order_delivery_address"],
+        order_id=order_dict["order_number"],
+        to_email=email,
+        from_email=settings.from_email
+    )
+
+    # send email best effort
+    try:
+        send_email(jinjaEnv, order_picked_up_email, smtp_server, settings.email, settings.email_app_password)
     except Exception:
         logger.exception("Failed to send email.")
 
@@ -513,6 +543,34 @@ async def order_delivered(user_facing_order_id: str, db: Session = Depends(get_d
     order_dict = to_order_dict(order, db, customer_email=customer.email)
 
     send_order_delivered_email_best_effort(customer.email, order.recipient_first_name, order_dict)
+
+    db.query(models.orders.Order).filter(models.orders.Order.user_facing_order_id == user_facing_order_id).update(
+        {models.orders.Order.delivery_date: delivery_date, models.orders.Order.delivered: True})
+
+    db.commit()
+
+
+@router.post("/order_picked_up")
+async def order_picked_up(user_facing_order_id: str, db: Session = Depends(get_db)):
+    delivery_date: datetime = datetime.now()
+    order: models.orders.Order = db.query(models.orders.Order).filter(
+        models.orders.Order.user_facing_order_id == user_facing_order_id).first()
+    if order is None:
+        raise HTTPException(status_code=404, detail="Unrecognized order")
+    if order.payment_status != PaymentStatusEnum.COMPLETED:
+        raise HTTPException(status_code=400, detail="Order payment not completed")
+    if order.delivered:
+        raise HTTPException(status_code=400, detail="Order already marked delivered")
+
+    customer: Customer = db.query(Customer).filter(Customer.id == order.customer).first()
+    if customer is None:
+        raise HTTPException(status_code=400,
+                            detail="Cannot find customer who placed order {}".format(user_facing_order_id))
+
+    order_dict = to_order_dict(order, db, customer_email=customer.email)
+
+    send_order_picked_up_email_best_effort(customer.email, order.customer, order.payment_intent,
+                                           customer.hashed_password is None, order.recipient_first_name, order_dict)
 
     db.query(models.orders.Order).filter(models.orders.Order.user_facing_order_id == user_facing_order_id).update(
         {models.orders.Order.delivery_date: delivery_date, models.orders.Order.delivered: True})

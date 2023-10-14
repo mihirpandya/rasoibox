@@ -32,7 +32,7 @@
             .promo {
                 border-bottom: 1pt solid black;
             }
-            .verification_link {
+            .create_account {
               text-align: center;
               font-family: Avenir;
               border: none;
@@ -93,16 +93,20 @@
 <div class="container">
     <img class="logo" src="https://rasoibox.onrender.com/static/assets/logo.png" />
     <div class="content">
-        <h2 class="title">Your order is deivered!</h2>
+        <h2 class="title">Your order has been picked up!</h2>
         <p class="message">
             Hi {{ first_name }},
             <br/>
             <br/>
-            Your order # {{ order_id }} is delivered! Please scan the QR code in your box to access the step-by-step instructions and get cooking!
+            Thanks for picking up your order! Each Rasoi Box contains a QR code that will give you access to the step-by-step instructions for that meal.
+            {% if create_account %}
             <br />
             <br />
-            Each box's shelf life is one week from day of delivery so be sure to cook the meals in your box within that time.
-            <br/>
+            Before you scan the QR code, be sure to create a password for your account by clicking the button below:
+            <p class="order-number">
+                <a class="create_account" href="{{ create_account_link }}">Create Password</a>
+            </p>
+            {% endif %}
         </p>
         <br />
         <p class="order-number">
@@ -120,15 +124,10 @@
         </table>
         <br />
         <br />
-        <table>
-            <tr>
-                <td style="padding-top: 20px">Shipping Address</td>
-                <td>{{ shipping_address.user_input }}</td>
-            </tr>
-        </table>
-        <br />
-        <br />
         <p class="message">
+            Each box's shelf life is one week from day of pick-up so be sure to cook the meals in your box within that time.
+            <br />
+            <br />
             Happy cooking!
             <br />
             <br />
