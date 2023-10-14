@@ -5,70 +5,70 @@ image_url: https://static.wixstatic.com/media/bbf858_d584c495966040eeab3007113ee
 recipe_contributor_name: rasoi box
 prep_time_minutes: 5
 cook_time_minutes: 20
-serving_size: 4
+serving_size: 2
 tags:
   - Fusion
   - Cheat Day
 ingredients:
   - name: penne pasta
     quantities:
-      - amount: 1
-        serving_size: 4
-    unit: lbs
+      - amount: 8
+        serving_size: 2
+    unit: oz
   - name: shallot
     quantities:
       - amount: 1
-        serving_size: 4
+        serving_size: 2
     unit: piece
   - name: ginger-garlic paste
     quantities:
-      - amount: 1
-        serving_size: 4
+      - amount: 0.5
+        serving_size: 2
     unit: tbsp
   - name: green chili
     quantities:
       - amount: 1
-        serving_size: 4
+        serving_size: 2
     unit: piece
   - name: bay leaves
     quantities:
-      - amount: 2
-        serving_size: 4
+      - amount: 1
+        serving_size: 2
     unit: piece
   - name: cumin seeds
     quantities:
-      - amount: 1
-        serving_size: 4
+      - amount: 0.5
+        serving_size: 2
     unit: tsp
   - name: tomato paste
     quantities:
-      - amount: 6
-        serving_size: 4
+      - amount: 3
+        serving_size: 2
     unit: oz
   - name: garam masala
     quantities:
-      - amount: 2
-        serving_size: 4
+      - amount: 1
+        serving_size: 2
     unit: tsp
   - name: red chili powder
     quantities:
-      - amount: 1
-        serving_size: 4
+      - amount: 0.5
+        serving_size: 2
     unit: tsp
   - name: heavy cream
     quantities:
-      - amount: 1
-        serving_size: 4
+      - amount: 0.5
+        serving_size: 2
     unit: cup
   - name: fenugreek leaves
     quantities:
-      - amount: 1
-        serving_size: 4
+      - amount: 0.5
+        serving_size: 2
     unit: tsp
   - name: coriander leaves
     quantities:
-      - amount: 2
-        serving_size: 4
+      - amount: 1
+        serving_size: 2
     unit: tbsp
 in_your_kitchen:
   - name: water
@@ -93,7 +93,7 @@ steps:
   - step_number: 2
     title: Temper spices
     instructions:
-      - Heat 4 tbsp oil in a large skillet or pot over medium heat.
+      - Heat 2 tbsp oil in a large skillet or pot over medium heat.
       - Once the oil is hot (about 2-3 minutes), add cumin seeds, bay leaves, and green chili. Sauté briefly, until they sizzle.
       - Add finely chopped shallots and a pinch of salt. Cook until the shallots are slightly browned, stirring occasionally to prevent sticking or burning, about 5-7 minutes.
       - Add the ginger-garlic paste and cook for about 1 minute.
@@ -128,7 +128,7 @@ steps:
   - step_number: 4
     title: Combine the pasta and sauce
     instructions:
-      - Add pasta to the skillet with sauce along with 2 tbsp butter and ½ cup of the reserved pasta water.
+      - Add pasta to the skillet with sauce along with 1 tbsp butter and ¼ cup of the reserved pasta water.
       - Cook over medium-low heat, stirring continuously and adding more pasta water if needed. Stir until the butter has melted and a thick, glossy sauce has formed about 2 minutes. Season with salt to taste.
       - Garnish with chopped coriander leaves and stir. Serve hot and enjoy!
     tips: [ ]
