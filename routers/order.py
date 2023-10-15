@@ -77,7 +77,7 @@ def send_receipt_email_best_effort(email: str, first_name: str, order_dict: Dict
         {"name": x, "serving_size": recipes[x]["serving_size"], "price": recipes[x]["price"]} for x in recipes.keys()]
     sub_total: float = reduce(lambda d1, d2: d1 + d2, order_dict["order_breakdown"]["items"].values(), 0)
     shipping_fee: str = "FREE"
-    if "shipping_fee" in order_dict["order_breakdown"]:
+    if "shipping_fee" in order_dict["order_breakdown"] and order_dict["order_breakdown"]["shipping_fee"] > 0:
         shipping_fee = "${}".format(str(order_dict["order_breakdown"]["shipping_fee"]))
     promo_codes = order_dict["order_breakdown"]["promo_codes"]
     if len(promo_codes) == 0:
@@ -191,7 +191,7 @@ def send_order_picked_up_email_best_effort(email: str, create_id: int, payment_i
 @router.post("/initiate_place_order")
 async def initiate_place_order(order: Order, current_customer: Customer = Depends(get_current_customer),
                                db: Session = Depends(get_db)):
-    shipping_charge_dollars: int = 5
+    shipping_charge_dollars: int = 0
     verified_sign_up: VerifiedSignUp = db.query(VerifiedSignUp).filter(
         VerifiedSignUp.email == current_customer.email).first()
     if verified_sign_up is None:

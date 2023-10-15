@@ -108,7 +108,7 @@ async def initiate_intent(verification_code: str, db: Session = Depends(get_db))
 
 @router.post("/initiate_place_order")
 async def initiate_place_order(order: api.orders.Order, verification_code: str, db: Session = Depends(get_db)):
-    shipping_charge_dollars: int = 5
+    shipping_charge_dollars: int = 0
     existing_order: Order = db.query(Order).filter(
         and_(Order.verification_code == verification_code, Order.payment_status == PaymentStatusEnum.INITIATED)).first()
 
