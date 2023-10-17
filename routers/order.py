@@ -191,7 +191,7 @@ def send_order_picked_up_email_best_effort(email: str, create_id: int, payment_i
 @router.post("/initiate_place_order")
 async def initiate_place_order(order: Order, current_customer: Customer = Depends(get_current_customer),
                                db: Session = Depends(get_db)):
-    shipping_charge_dollars: int = 0
+    shipping_charge_dollars: int = 5
     verified_sign_up: VerifiedSignUp = db.query(VerifiedSignUp).filter(
         VerifiedSignUp.email == current_customer.email).first()
     if verified_sign_up is None:

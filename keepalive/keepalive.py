@@ -9,7 +9,7 @@ f.close()
 
 while True:
     try:
-        requests.get("https://rasoibox.onrender.com/healthz")
-        time.sleep(600)
+        r = requests.get("https://rasoibox.onrender.com/healthz")
+        time.sleep(1)
     except Exception as e:
         print(e)
