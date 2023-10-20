@@ -32,10 +32,8 @@ async def get_all_rewards(verification_code: str, db: Session = Depends(get_db))
         VerifiedSignUp.verification_code == verification_code).first()
     result: List[Dict[Any, Any]] = []
     if verified_sign_up is not None:
-        promo_codes: List[PromoCode] = db.query(PromoCode).filter(
-            PromoCode.redeemable_by_verification_code == verification_code).all()
-        promo_codes = promo_codes + db.query(PromoCode).filter(
-            PromoCode.redeemable_by_verification_code.is_(None)).all()
+        promo_codes: List[PromoCode] = db.query(PromoCode).filter(and_(
+            PromoCode.redeemable_by_verification_code == verification_code, PromoCode.number_times_redeemed == 0)).all()
         customer: Customer = db.query(Customer).filter(Customer.email == verified_sign_up.email).first()
         orders: List[Order] = []
         if customer is not None:
