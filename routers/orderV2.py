@@ -22,6 +22,7 @@ from dependencies.stripe_utils import create_payment_intent, \
     get_payment_intent, modify_payment_intent
 from emails.base import send_email
 from emails.createpassword import CreatePasswordEmail
+from emails.followup import FollowUpEmail
 from models.customers import Customer
 from models.orders import Cart, Order
 from models.orders import Cart, PromoCode, PaymentStatusEnum
@@ -270,6 +271,20 @@ async def email_orders_without_accounts(db: Session = Depends(get_db)):
 async def admin_webhook_complete_order(payment_intent_id: str, user_facing_order_id: str, amount_cents: int,
                                        db: Session = Depends(get_db)):
     return complete_order(payment_intent_id, user_facing_order_id, amount_cents, db)
+
+
+@router.post("/follow_up_email")
+async def follow_up_email(order_id: str, db: Session = Depends(get_db)):
+    try:
+        order: Order = db.query(Order).filter(Order.user_facing_order_id == order_id).first()
+        if order is None:
+            return
+        else:
+            email: FollowUpEmail = FollowUpEmail(order.recipient_email, settings.from_email)
+            send_email(jinjaEnv, email, smtp_server, settings.email, settings.email_app_password)
+    except Exception as e:
+        logger.error(e)
+        raise HTTPException(status_code=400, detail="Failed to send email.")
 
 
 def complete_order(payment_intent_id: str, user_facing_order_id: str, amount_cents: int, db: Session):

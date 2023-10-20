@@ -119,3 +119,5 @@ async def is_valid_promo_code(promo_code: str, db: Session = Depends(get_db)):
                 "percent_off": promo_code.percent_off if promo_code.percent_off is not None else 0.0
             }))
     raise HTTPException(status_code=404, detail="Unknown promo code")
+
+
