@@ -5,7 +5,7 @@ import string
 from datetime import datetime
 from functools import reduce
 from typing import List, Dict, Optional
-import api
+
 import stripe
 from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.encoders import jsonable_encoder
@@ -15,8 +15,8 @@ from starlette.responses import JSONResponse
 from stripe.error import SignatureVerificationError
 from stripe.stripe_object import StripeObject
 
+import api
 from config import Settings
-from dependencies.customers import get_current_customer
 from dependencies.database import get_db
 from dependencies.stripe_utils import create_payment_intent, \
     get_payment_intent, modify_payment_intent
@@ -24,8 +24,8 @@ from emails.base import send_email
 from emails.createpassword import CreatePasswordEmail
 from emails.followup import FollowUpEmail
 from models.customers import Customer
-from models.orders import Cart, Order
 from models.orders import Cart, PromoCode, PaymentStatusEnum
+from models.orders import Order
 from models.recipes import RecipePrice
 from models.signups import VerifiedSignUp
 from routers.order import send_receipt_email_best_effort, to_order_dict, complete_invitation
@@ -133,7 +133,7 @@ async def initiate_place_order(order: api.orders.Order, verification_code: str, 
     if len(promo_codes) is not len(order.promo_codes):
         raise HTTPException(status_code=400, detail="Invalid promo codes.")
 
-    promo_codes = promo_codes + all_site_wide_promos(verification_code, db)
+    promo_codes = promo_codes + all_site_wide_promos(verification_code, promo_codes, db)
 
     recipes_serving_size_map: Dict[int, int] = {}
     recipe_prices_ordered: List[RecipePrice] = []
@@ -147,13 +147,13 @@ async def initiate_place_order(order: api.orders.Order, verification_code: str, 
             raise HTTPException(status_code=404, detail="Invalid recipe serving size combo")
         recipe_prices_ordered.append(recipe_price)
 
-    order_total_dollars = reduce(lambda p1, p2: p1 + p2, [x.price for x in recipe_prices_ordered],
-                                 0) + shipping_charge_dollars
+    order_total_dollars = reduce(lambda p1, p2: p1 + p2, [x.price for x in recipe_prices_ordered], 0)
     for promo_code in promo_codes:
         if promo_code.amount_off is not None and promo_code.amount_off > 0:
             order_total_dollars = order_total_dollars - promo_code.amount_off
         elif promo_code.percent_off is not None and promo_code.percent_off > 0:
             order_total_dollars = (1.0 - (promo_code.percent_off / 100.0)) * order_total_dollars
+    order_total_dollars = order_total_dollars + shipping_charge_dollars
     order_breakdown_dollars = reduce(lambda d1, d2: {**d1, **d2}, [{x.id: x.price} for x in recipe_prices_ordered], {})
     order_breakdown = {
         "items": order_breakdown_dollars,

@@ -80,16 +80,12 @@ def send_receipt_email_best_effort(email: str, first_name: str, order_dict: Dict
     if "shipping_fee" in order_dict["order_breakdown"] and order_dict["order_breakdown"]["shipping_fee"] > 0:
         shipping_fee = "${}".format(str(order_dict["order_breakdown"]["shipping_fee"]))
     promo_codes = order_dict["order_breakdown"]["promo_codes"]
-    if len(promo_codes) == 0:
-        promo_code = {}
-    else:
-        promo_code = promo_codes[0]
 
     receipt_email: ReceiptEmail = ReceiptEmail(
         url_base=url_base,
         first_name=first_name,
         line_items=line_items,
-        promo_code=promo_code,
+        promo_codes=promo_codes,
         total=order_dict["order_total_dollars"],
         sub_total=sub_total,
         shipping_fee=shipping_fee,

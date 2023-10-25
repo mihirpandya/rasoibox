@@ -6,7 +6,8 @@ from emails.base import RasoiBoxEmail
 class ReceiptEmail(RasoiBoxEmail):
     _subject: str = "Rasoi Box Order Confirmation"
 
-    def __init__(self, url_base: str, first_name: str, line_items: List[Dict[str, Any]], promo_code: Dict[str, Any],
+    def __init__(self, url_base: str, first_name: str, line_items: List[Dict[str, Any]],
+                 promo_codes: List[Dict[str, Any]],
                  total: float, sub_total: float, shipping_fee: str, shipping_address: Dict[str, Any], order_id: str,
                  estimated_delivery: str, to_email: str, from_email: str):
         subject = self._subject + ": " + order_id
@@ -22,16 +23,20 @@ class ReceiptEmail(RasoiBoxEmail):
             "estimated_delivery": estimated_delivery
         }
 
-        if len(promo_code) > 0:
-            discount_str = ""
-            if promo_code["amount_off"] is not None and promo_code["amount_off"] > 0:
-                discount_str = "-$" + "{:.2f}".format(promo_code["amount_off"])
-            elif promo_code["percent_off"] is not None and promo_code["percent_off"] > 0:
-                discount_str = "-" + str(int(promo_code["percent_off"])) + "%"
-            template_args["promo_code"] = {
-                "name": promo_code["name"],
-                "discount_str": discount_str
-            }
+        display_promo_codes: List[Dict[str, Any]] = []
+        for promo_code in promo_codes:
+            if len(promo_code) > 0:
+                discount_str = ""
+                if promo_code["amount_off"] is not None and promo_code["amount_off"] > 0:
+                    discount_str = "-$" + "{:.2f}".format(promo_code["amount_off"])
+                elif promo_code["percent_off"] is not None and promo_code["percent_off"] > 0:
+                    discount_str = "-" + str(int(promo_code["percent_off"])) + "%"
+                display_promo_codes.append({
+                    "name": promo_code["name"],
+                    "discount_str": discount_str
+                })
+
+        template_args["promo_codes"] = display_promo_codes
 
         super().__init__("receipt.html", template_args, to_email, subject, from_email)
 

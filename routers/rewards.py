@@ -1,7 +1,7 @@
 import json
 import logging
 from functools import reduce
-from typing import List, Any, Dict
+from typing import List, Any, Dict, Optional
 
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.encoders import jsonable_encoder
@@ -75,15 +75,22 @@ async def get_all_rewards(verification_code: str, db: Session = Depends(get_db))
     return JSONResponse(content=jsonable_encoder(result))
 
 
-@router.get("/site_wide_promos")
-async def get_site_wide_promos(verification_code: str, db: Session = Depends(get_db)):
-    promo_codes: List[PromoCode] = all_site_wide_promos(verification_code, db)
+@router.post("/site_wide_promos")
+async def get_site_wide_promos(verification_code: str, applied_promo_code_names: List[str],
+                               db: Session = Depends(get_db)):
+    applied_promo_codes: List[PromoCode] = db.query(PromoCode).filter(
+        PromoCode.promo_code_name.in_(applied_promo_code_names)).all()
+
+    if applied_promo_codes is None or len(applied_promo_codes) != len(applied_promo_code_names):
+        raise HTTPException(status_code=400, detail="Invalid promo code.")
+
+    promo_codes: List[PromoCode] = all_site_wide_promos(verification_code, applied_promo_codes, db)
     result = [{"name": x.promo_code_name, "amount_off": x.amount_off, "percent_off": x.percent_off} for x in
               promo_codes]
     return JSONResponse(content=jsonable_encoder(result))
 
 
-def all_site_wide_promos(verification_code: str, db: Session) -> List[PromoCode]:
+def all_site_wide_promos(verification_code: str, applied_promo_codes: List[PromoCode], db: Session) -> List[PromoCode]:
     cart: List[Cart] = db.query(Cart).filter(Cart.verification_code == verification_code).all()
 
     subtotal: float = 0
@@ -94,32 +101,25 @@ def all_site_wide_promos(verification_code: str, db: Session) -> List[PromoCode]
             raise HTTPException(status_code=404, detail="Unknown item in cart")
         subtotal = subtotal + recipe_price.price
 
-    promo_codes: List[PromoCode] = []
+    for promo_code in applied_promo_codes:
+        if promo_code.amount_off is not None and promo_code.amount_off > 0:
+            subtotal = subtotal - promo_code.amount_off
+        elif promo_code.percent_off is not None and promo_code.percent_off > 0:
+            subtotal = (1.0 - (promo_code.percent_off / 100.0)) * subtotal
 
     # diwali promotion
+    diwali_promo_code: Optional[PromoCode] = None
     if subtotal >= 80.0:
-        promo_codes.append(
-            PromoCode(
-                promo_code_name="DIWALI20",
-                amount_off=20,
-                percent_off=None
-            )
-        )
+        diwali_promo_code = db.query(PromoCode).filter(and_(PromoCode.promo_code_name == "DIWALI20",
+                                                            PromoCode.redeemable_by_verification_code == "INTERNAL")).first()
     elif subtotal >= 60.0:
-        promo_codes.append(
-            PromoCode(
-                promo_code_name="DIWALI10",
-                amount_off=10,
-                percent_off=None
-            )
-        )
+        diwali_promo_code = db.query(PromoCode).filter(and_(PromoCode.promo_code_name == "DIWALI10",
+                                                            PromoCode.redeemable_by_verification_code == "INTERNAL")).first()
     elif subtotal >= 40.0:
-        promo_codes.append(
-            PromoCode(
-                promo_code_name="DIWALI5",
-                amount_off=5,
-                percent_off=None
-            )
-        )
+        diwali_promo_code = db.query(PromoCode).filter(and_(PromoCode.promo_code_name == "DIWALI5",
+                                                            PromoCode.redeemable_by_verification_code == "INTERNAL")).first()
 
-    return promo_codes
+    if diwali_promo_code is not None:
+        return [diwali_promo_code]
+    else:
+        return []

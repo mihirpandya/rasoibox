@@ -120,16 +120,16 @@
                 <td>Sub-total</td>
                 <td>${{ subtotal }}</td>
             </tr>
+            {% for promo_code in promo_codes %}
+            <tr>
+                <td><em>{{ promo_code.name }}</em></td>
+                <td><em>{{ promo_code.discount_str }}</em></td>
+            </tr>
+            {% endfor %}
             <tr>
                 <td>Shipping</td>
                 <td>{{ shipping_fee }}</td>
             </tr>
-            {% if promo_code is defined %}
-            <tr>
-                <td>Promo: <em>{{ promo_code.name }}</em></td>
-                <td><em>{{ promo_code.discount_str }}</em></td>
-            </tr>
-            {% endif %}
             <tr>
                 <td><b>Total</b></td>
                 <td><b>${{ total }}</b></td>
