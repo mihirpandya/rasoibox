@@ -29,6 +29,7 @@ from models.orders import Cart, PromoCode, PaymentStatusEnum
 from models.recipes import RecipePrice
 from models.signups import VerifiedSignUp
 from routers.order import send_receipt_email_best_effort, to_order_dict, complete_invitation
+from routers.rewards import all_site_wide_promos
 from routers.signup import jinjaEnv, smtp_server
 
 logger = logging.getLogger("rasoibox")
@@ -127,13 +128,12 @@ async def initiate_place_order(order: api.orders.Order, verification_code: str, 
                                                           Cart.verification_code == verification_code)
                                                       .all()], {})
 
-    # if len(cart_items_by_recipe_id.keys()) > 2:
-    #     raise HTTPException(status_code=400, detail="Too many items in cart.")
-
     promo_codes: List[PromoCode] = db.query(PromoCode).filter(PromoCode.promo_code_name.in_(order.promo_codes)).all()
 
     if len(promo_codes) is not len(order.promo_codes):
         raise HTTPException(status_code=400, detail="Invalid promo codes.")
+
+    promo_codes = promo_codes + all_site_wide_promos(verification_code, db)
 
     recipes_serving_size_map: Dict[int, int] = {}
     recipe_prices_ordered: List[RecipePrice] = []

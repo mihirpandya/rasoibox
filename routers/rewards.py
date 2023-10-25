@@ -3,7 +3,7 @@ import logging
 from functools import reduce
 from typing import List, Any, Dict
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from fastapi.encoders import jsonable_encoder
 from sqlalchemy import and_
 from sqlalchemy.orm import Session
@@ -13,7 +13,8 @@ from config import Settings
 from dependencies.database import get_db
 from models.customers import Customer
 from models.invitations import Invitation, InvitationStatusEnum
-from models.orders import PromoCode, Order
+from models.orders import PromoCode, Order, Cart
+from models.recipes import RecipePrice
 from models.signups import VerifiedSignUp
 
 logger = logging.getLogger("rasoibox")
@@ -72,3 +73,53 @@ async def get_all_rewards(verification_code: str, db: Session = Depends(get_db))
 
     result.reverse()
     return JSONResponse(content=jsonable_encoder(result))
+
+
+@router.get("/site_wide_promos")
+async def get_site_wide_promos(verification_code: str, db: Session = Depends(get_db)):
+    promo_codes: List[PromoCode] = all_site_wide_promos(verification_code, db)
+    result = [{"name": x.promo_code_name, "amount_off": x.amount_off, "percent_off": x.percent_off} for x in
+              promo_codes]
+    return JSONResponse(content=jsonable_encoder(result))
+
+
+def all_site_wide_promos(verification_code: str, db: Session) -> List[PromoCode]:
+    cart: List[Cart] = db.query(Cart).filter(Cart.verification_code == verification_code).all()
+
+    subtotal: float = 0
+    for item in cart:
+        recipe_price: RecipePrice = db.query(RecipePrice).filter(
+            and_(RecipePrice.recipe_id == item.recipe_id, RecipePrice.serving_size == item.serving_size)).first()
+        if recipe_price is None:
+            raise HTTPException(status_code=404, detail="Unknown item in cart")
+        subtotal = subtotal + recipe_price.price
+
+    promo_codes: List[PromoCode] = []
+
+    # diwali promotion
+    if subtotal >= 80.0:
+        promo_codes.append(
+            PromoCode(
+                promo_code_name="DIWALI20",
+                amount_off=20,
+                percent_off=None
+            )
+        )
+    elif subtotal >= 60.0:
+        promo_codes.append(
+            PromoCode(
+                promo_code_name="DIWALI10",
+                amount_off=10,
+                percent_off=None
+            )
+        )
+    elif subtotal >= 40.0:
+        promo_codes.append(
+            PromoCode(
+                promo_code_name="DIWALI5",
+                amount_off=5,
+                percent_off=None
+            )
+        )
+
+    return promo_codes
