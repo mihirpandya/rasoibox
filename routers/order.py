@@ -29,7 +29,7 @@ from emails.receipt import ReceiptEmail
 from models.customers import Customer
 from models.invitations import Invitation, InvitationStatusEnum
 from models.orders import Cart, PromoCode, PaymentStatusEnum
-from models.recipes import Recipe, RecipePrice
+from models.recipes import Recipe, RecipePrice, RecipeContributor
 from models.signups import VerifiedSignUp, UnverifiedSignUp
 from routers.signup import smtp_server, jinjaEnv
 
@@ -414,6 +414,7 @@ async def get_available_items(db: Session = Depends(get_db)):
     recipe_ids: List[int] = list(set([x.recipe_id for x in recipe_prices]))
     recipes: Dict[int, Recipe] = reduce(lambda d1, d2: {**d1, **d2},
                                         [{x.id: x} for x in db.query(Recipe).filter(Recipe.id.in_(recipe_ids))], {})
+    creators: Dict[int, str] = {}
     result = {}
     for recipe_price in recipe_prices:
         if recipe_price.recipe_id not in recipes:
@@ -424,6 +425,15 @@ async def get_available_items(db: Session = Depends(get_db)):
         else:
             recipe: Recipe = recipes[recipe_price.recipe_id]
             tags = recipe.tags if recipe.tags is not None else json.dumps([])
+            created_by: str
+            if recipe.recipe_contributor_id in creators.keys():
+                created_by = creators[recipe.recipe_contributor_id]
+            else:
+                recipe_contributor: RecipeContributor = db.query(RecipeContributor).filter(
+                    RecipeContributor.id == recipe.recipe_contributor_id).first()
+                if recipe_contributor is None:
+                    raise HTTPException(status_code=400, detail="Unknown recipe contributor.")
+                created_by = recipe_contributor.name
             result[recipe_price.recipe_id] = {
                 "recipe_name": recipe.name,
                 "description": recipe.description,
@@ -433,7 +443,8 @@ async def get_available_items(db: Session = Depends(get_db)):
                 "prices": [recipe_price.price],
                 "cook_time": recipe.cook_time_minutes,
                 "prep_time": recipe.prep_time_minutes,
-                "tags": json.loads(tags)
+                "tags": json.loads(tags),
+                "created_by": created_by
             }
 
     return JSONResponse(content=jsonable_encoder(result))

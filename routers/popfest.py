@@ -109,7 +109,7 @@ async def preorder_1(after_id: int, db: Session = Depends(get_db)):
 
 @router.get("/is_valid_promo_code")
 async def is_valid_promo_code(promo_code: str, db: Session = Depends(get_db)):
-    if promo_code == "PFXRB15":
+    if promo_code == "SCXRB15":
         promo_code: PromoCode = db.query(PromoCode).filter(PromoCode.promo_code_name == promo_code).first()
         if promo_code is not None:
             return JSONResponse(content=jsonable_encoder({
