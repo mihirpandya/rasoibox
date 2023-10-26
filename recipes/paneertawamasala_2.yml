@@ -1,0 +1,141 @@
+recipe_name: Paneer Tawa Masala
+description: cubes of paneer cooked in a rich and aromatic tomato-based gravy.
+image_url: https://i0.wp.com/signatureconcoctions.com/wp-content/uploads/2023/06/Chicken-Tawa-Masala-11.jpg?resize=1020%2C600&ssl=1
+recipe_contributor_name: signature concoctions
+prep_time_minutes: 5
+cook_time_minutes: 20
+serving_size: 2
+long_description: A vegetarian twist on Vasanti's '#signatureconcoction'. Paneer tawa masala comes together within minutes and is a great one-pan weeknight wonder! Paneer, substituted for chicken, gets cooked in a luscious masala sauce, creating a harmonious combination of flavors. Its robust taste and vibrant appearance make it a perfect choice for special occasions in addition to being a delightful treat for any day of the week.
+tags:
+  - One-Pot
+  - Weeknight
+ingredients:
+  - name: cumin seeds
+    quantities:
+      - amount: 1
+        serving_size: 2
+    unit: tsp
+  - name: asafoetida (hing)
+    quantities:
+      - amount: 0.25
+        serving_size: 2
+    unit: tsp
+  - name: onion
+    quantities:
+      - amount: 1
+        serving_size: 2
+    unit: piece
+  - name: ginger-garlic paste
+    quantities:
+      - amount: 1
+        serving_size: 2
+    unit: tbsp
+  - name: tawa masala spice blend
+    quantities:
+      - amount: 1
+        serving_size: 2
+    unit: piece
+  - name: tomato paste
+    quantities:
+      - amount: 1
+        serving_size: 2
+    unit: tbsp
+  - name: tomato
+    quantities:
+      - amount: 1
+        serving_size: 2
+    unit: piece
+  - name: paneer
+    quantities:
+      - amount: 10
+        serving_size: 2
+    unit: oz
+  - name: jalapeño
+    quantities:
+      - amount: 1
+        serving_size: 2
+    unit: piece
+  - name: coriander leaves
+    quantities:
+      - amount: 1
+        serving_size: 2
+    unit: tbsp
+n_your_kitchen:
+  - name: water
+  - name: oil
+    or:
+      - ghee
+  - name: wooden spoon
+    or:
+      - rubber spatula
+  - name: tawa
+    or:
+      - cast-iron skillet
+steps:
+  - step_number: 1
+    title: Prep ingredients
+    instructions:
+      - Wash and dry all produce. Thinly slice onions and tomatoes. De-stem, slit jalapenos, and remove seeds (keep the seeds in for added spice). Chop coriander leaves.
+      - Cube the paneer into 1-inch pieces.
+    tips:
+      - To make the paneer soft and succulent, soak the paneer cubes in hot wate for 10 minutes until step 3.
+    chefs_hats: [ ]
+    ingredients:
+      - onion
+      - tomato
+      - jalapeños
+      - paneer
+      - coriander leaves
+    in_your_kitchen: [ ]
+    gif_urls: [ ]
+  - step_number: 2
+    title: Temper spices and aromatics
+    instructions:
+      - Heat a large skillet over medium heat and add 2 tbsp oil.
+      - Once the oil is hot, about 2-3 minutes, add cumin seeds and asafoetida. Let them cook for a few seconds, until the cumin seeds sizzle and asafoetida froths. 
+      - Add sliced onions and a pinch of salt. Saute until the onion turns light brown, stirring to prevent sticking or burning, about X minutes.
+      - Stir in ginger-garlic paste and sauté for 2 minutes.
+    tips:
+      - Signs that your oil is hot:<br /><ul><li>it flows smoothly, quickly coating the pan.</li><li>the surface glistens and shimmers.</li><li>a small piece of food sizzles immediately when added to the pan.</li></ul>
+    chefs_hats: [ ]
+    ingredients:
+      - cumin seeds
+      - asafoetida
+      - onion
+      - ginger-garlic paste
+    in_your_kitchen:
+      - oil
+    gif_urls: [ ]
+  - step_number: 3
+    title: Cook the masala sauce
+    instructions:
+      - After stirring for about 2 minutes, mix in the tawa masala spice blend (turmeric, cumin-coriander powder, garam masala). Sauté for 30 seconds.
+      - Stir in the tomato paste and tomato slices. Continue sautéing for about 4-5 mins until the oil separates.
+      - Add 1/2 cup water and stir to combine.
+    tips: 
+      - Many flavor compounds found in spices are fat-soluble. By heating spices or herbs in fat (oil) prior to adding water, you will extract more flavor than you could by simply simmering these ingredients in water. 
+    chefs_hats: [ ]
+    ingredients:
+      - tawa masala spice blend
+      - tomato paste
+      - tomato
+    in_your_kitchen:
+      - water
+    gif_urls: [ ]
+  - step_number: 4
+    title: Finish the Paneer Tawa Masala
+    instruction:
+      - Drain the soaked cubed paneer and add to your skillet. Season to taste with salt.
+      - Combine well and cook until most of the moisture is absorbed, about X minutes. Turn the heat off.
+      - Mix in sliced jalapeños, garnish with coriander leaves, and serve hot.
+    tips: [ ]
+    chefs_hats: [ ]
+    ingredients:
+      - tomato paste
+      - tomato
+      - jalapeños
+      - coriander leaves
+    in_your_kitchen:
+      - oil
+      - water
+    gif_urls: [ ]
