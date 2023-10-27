@@ -187,9 +187,8 @@ async def initiate_place_order(order: api.orders.Order, verification_code: str, 
                                 Order.payment_status == PaymentStatusEnum.INITIATED)).update(order_updates)
 
     promo_code_names = [x.promo_code_name for x in promo_codes]
-    db.query(PromoCode).filter(and_(PromoCode.promo_code_name.in_(promo_code_names),
-                                    PromoCode.redeemable_by_verification_code == verification_code)) \
-        .update({PromoCode.number_times_redeemed: PromoCode.number_times_redeemed + 1})
+    db.query(PromoCode).filter(PromoCode.promo_code_name.in_(promo_code_names)).update(
+        {PromoCode.number_times_redeemed: PromoCode.number_times_redeemed + 1})
 
     db.commit()
 

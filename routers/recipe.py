@@ -77,6 +77,8 @@ async def add_recipe_metadata(recipes: List[RecipeMetadata], db: Session = Depen
                                                                   [{x.name: x.quantities} for x in recipe.ingredients],
                                                                   {})
         ingredient_ids: Dict[str, int] = upsert_ingredient_ids([x.name for x in recipe.ingredients], db)
+        db.query(Recipe).filter(Recipe.id == existing_recipe.id).update(
+            {Recipe.tags: recipe.tags, Recipe.long_description: recipe.long_description})
 
         for ingredient_name, ingredient_id in ingredient_ids.items():
             quantities: List[Quantity] = ingredient_quantities[ingredient_name]

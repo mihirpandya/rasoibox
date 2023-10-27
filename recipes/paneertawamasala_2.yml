@@ -60,7 +60,7 @@ ingredients:
       - amount: 1
         serving_size: 2
     unit: tbsp
-n_your_kitchen:
+in_your_kitchen:
   - name: water
   - name: oil
     or:
@@ -83,7 +83,7 @@ steps:
     ingredients:
       - onion
       - tomato
-      - jalapeños
+      - jalapeño
       - paneer
       - coriander leaves
     in_your_kitchen: [ ]
@@ -92,7 +92,7 @@ steps:
     title: Temper spices and aromatics
     instructions:
       - Heat a large skillet over medium heat and add 2 tbsp oil.
-      - Once the oil is hot, about 2-3 minutes, add cumin seeds and asafoetida. Let them cook for a few seconds, until the cumin seeds sizzle and asafoetida froths. 
+      - Once the oil is hot, about 2-3 minutes, add cumin seeds and asafoetida (hing). Let them cook for a few seconds, until the cumin seeds sizzle and asafoetida froths.
       - Add sliced onions and a pinch of salt. Saute until the onion turns light brown, stirring to prevent sticking or burning, about X minutes.
       - Stir in ginger-garlic paste and sauté for 2 minutes.
     tips:
@@ -100,7 +100,7 @@ steps:
     chefs_hats: [ ]
     ingredients:
       - cumin seeds
-      - asafoetida
+      - asafoetida (hing)
       - onion
       - ginger-garlic paste
     in_your_kitchen:
@@ -124,7 +124,7 @@ steps:
     gif_urls: [ ]
   - step_number: 4
     title: Finish the Paneer Tawa Masala
-    instruction:
+    instructions:
       - Drain the soaked cubed paneer and add to your skillet. Season to taste with salt.
       - Combine well and cook until most of the moisture is absorbed, about X minutes. Turn the heat off.
       - Mix in sliced jalapeños, garnish with coriander leaves, and serve hot.
@@ -133,7 +133,7 @@ steps:
     ingredients:
       - tomato paste
       - tomato
-      - jalapeños
+      - jalapeño
       - coriander leaves
     in_your_kitchen:
       - oil
