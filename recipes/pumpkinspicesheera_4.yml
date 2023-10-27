@@ -1,0 +1,105 @@
+recipe_name: Pumpkin Spice Sheera
+description: A twist on a classic Indian dessert, infused with warm pumpkin spice flavors.
+image_url: https://thebellyrulesthemind.net/wp-content/uploads/2020/06/sheera-sooji-halva-rava-kesari-4-720x720.jpg
+recipe_contributor_name: signature concoctions
+prep_time_minutes: 5
+cook_time_minutes: 20
+serving_size: 4
+long_description: Pumpkin Spice Sheera is a delectable Indian dessert with a seasonal twist. This '#signatureconcoction' combines the rich, comforting flavors of sooji (semolina), pumpkin puree, and warm spices. Served warm or room temperature, it's a perfect treat for the Diwali season, offering a delightful blend of tradition and innovation, adding a touch of warmth and sweetness to your festivities.
+tags:
+  - Dessert
+  - Festive
+  - Vegan
+ingredients:
+  - name: sooji
+    quantities:
+      - amount: 1
+        serving_size: 4
+    unit: cup
+  - name: pumpkin puree
+    quantities:
+      - amount: 1
+        serving_size: 4
+    unit: cup
+  - name: brown sugar
+    quantities:
+      - amount: 0.75
+        serving_size: 4
+    unit: cup
+  - name: pumpkin spice mix
+    quantities:
+      - amount: 1
+        serving_size: 4
+    unit: tsp
+  - name: candied pecans
+    quantities:
+      - amount: 0.5
+        serving_size: 4
+    unit: cup
+in_your_kitchen:
+  - name: water
+  - name: ghee
+    or:
+      - butter
+  - name: wooden spoon
+    or:
+      - rubber spatula
+  - name: whole milk
+  - name: saucepan
+  - name: saute pan
+steps:
+  - step_number: 1
+    title: Prep Liquid Mixture
+    instructions:
+      - Combine 2 cups whole milk and 1 cup water in a saucepan, bringing it to a boil over medium heat.
+    tips:
+      - To make this vegan or dairy free, use the same amount of almond milk.
+    chefs_hats: [ ]
+    ingredients: [ ]
+    in_your_kitchen:
+      - whole milk
+      - water
+      - saucepan
+    gif_urls: [ ]
+  - step_number: 2
+    title: Toast Sooji and Incorporate Pumpkin
+    instructions:
+      - In a separate deep sauté pan (or another saucepan), melt ¾ cup ghee or butter. 
+      - Add sooji and toast for 5 to 7 minutes, stirring continuously until it's fragrant and light golden brown in color.
+      - Stir in pumpkin puree and sauté for 2 to 3 minutes, stirring continuously until the pumpkin puree is fully incorporated
+      - Add brown sugar and pumpkin spice mix (cinnamon, ginger, cloves, nutmeg), stirring to combine.
+    tips:
+      - To make this vegan or dairy free, use 3/4 cup of any neutral tasting oil.
+    chefs_hats: [ ]
+    ingredients:
+      - sooji
+      - pumpkin puree
+      - brown sugar
+      - pumpkin spice mix
+    in_your_kitchen:
+      - ghee
+      - saute pan
+    gif_urls: [ ] 
+  - step_number: 3
+    title: Combining Ingredients
+    instructions: 
+      - Carefully pour your liquids into the sooji mixture. Stir well and let it bubble.
+      - Reduce heat to low, cover, and cook for 5 minutes.
+    tips: [ ] 
+    chefs_hats: [ ]
+    ingredients: [ ]
+    in_your_kitchen: [ ]
+    gif_urls: [ ]
+  - step_number: 4
+    title: Finish the Sheera
+    instructions: 
+      - After 5 minutes, when most of the moisture is absorbed and the semolina has expanded, turn off the heat.
+      - Cover and let it rest off the heat for another 5 minutes.
+      - Garnish with candied pecans.
+    tips: 
+      - This dessert tastes great warm or at room temperature.
+    chefs_hats: [ ]
+    ingredients: [ ]
+    in_your_kitchen: [ ]
+    gif_urls: [ ]   
+  
