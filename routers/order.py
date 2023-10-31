@@ -597,7 +597,7 @@ async def order_picked_up(user_facing_order_id: str, db: Session = Depends(get_d
 def is_active_order(order: models.orders.Order) -> bool:
     now = datetime.now()
     difference = now - order.order_date
-    return difference.days < 365
+    return difference.days < 365 and order.delivered
 
 
 def to_order_dict(order: models.orders.Order, db: Session, customer_email=None) -> Dict[str, Any]:
