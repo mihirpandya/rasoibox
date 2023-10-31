@@ -247,11 +247,11 @@ async def is_deliverable_zipcode(zipcode: str, db: Session = Depends(get_db)):
 @router.post("/add_deliverable_zipcodes")
 async def add_deliverable_zipcodes(zipcodes: AddDeliverableZipcodes, db: Session = Depends(get_db)):
     now = datetime.now()
-    existing_zipcodes: List[DeliverableZipcode] = [x.zipcode for x in db.query(DeliverableZipcode).filter(
+    existing_zipcodes: List[str] = [x.zipcode for x in db.query(DeliverableZipcode).filter(
         DeliverableZipcode.zipcode.in_(zipcodes.zipcodes)).all()]
 
-    new_zipcodes: List[DeliverableZipcode] = [DeliverableZipcode(zipcode=x, delivery_start_date=now) for x in zipcodes
-                                              if x not in existing_zipcodes]
+    new_zipcodes: List[DeliverableZipcode] = [DeliverableZipcode(zipcode=x, delivery_start_date=now) for x in
+                                              zipcodes.zipcodes if x not in existing_zipcodes]
 
     if len(new_zipcodes) == 0:
         return
