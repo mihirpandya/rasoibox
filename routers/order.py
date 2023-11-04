@@ -22,6 +22,7 @@ from dependencies.referral_utils import generate_promo_code, create_stripe_promo
 from dependencies.stripe_utils import create_checkout_session, find_promo_code_id
 from emails.base import send_email
 from emails.invitationcomplete import InvitationCompleteEmail
+from emails.order_coming_today import OrderComingTodayEmail
 from emails.order_delivered import OrderDeliveredEmail
 from emails.order_enroute import OrderEnRouteEmail
 from emails.order_pickedup import OrderPickedUpEmail
@@ -101,6 +102,33 @@ def send_receipt_email_best_effort(email: str, first_name: str, order_dict: Dict
         send_email(jinjaEnv, receipt_email, smtp_server, settings.email, settings.email_app_password)
     except Exception as e:
         logger.exception("Failed to send email.{}".format(e))
+
+
+def send_order_coming_today_email_best_effort(email: str, first_name: str, estimated_delivery: str,
+                                              order_dict: Dict[str, Any]):
+    url_base: str = settings.frontend_url_base[0:-1] if settings.frontend_url_base.endswith(
+        "/") else settings.frontend_url_base
+    recipes = order_dict["recipes"]
+    line_items: List[Dict[str, Any]] = [
+        {"name": x, "serving_size": recipes[x]["serving_size"], "price": recipes[x]["price"],
+         "image_link": recipes[x]["image_url"]} for x in recipes.keys()]
+
+    order_coming_today_email: OrderComingTodayEmail = OrderComingTodayEmail(
+        url_base=url_base,
+        first_name=first_name,
+        estimated_delivery=estimated_delivery,
+        line_items=line_items,
+        shipping_address=order_dict["order_delivery_address"],
+        order_id=order_dict["order_number"],
+        to_email=email,
+        from_email=settings.from_email
+    )
+
+    # send email best effort
+    try:
+        send_email(jinjaEnv, order_coming_today_email, smtp_server, settings.email, settings.email_app_password)
+    except Exception:
+        logger.exception("Failed to send email.")
 
 
 def send_order_enroute_email_best_effort(email: str, first_name: str, estimated_delivery: str,
@@ -516,6 +544,30 @@ async def is_valid_promo_code(promo_code: str, current_customer: Customer = Depe
     return JSONResponse(content=jsonable_encoder(result))
 
 
+@router.post("/order_coming_today")
+async def order_coming_today(user_facing_order_id: str, db: Session = Depends(get_db)):
+    order: models.orders.Order = db.query(models.orders.Order).filter(
+        models.orders.Order.user_facing_order_id == user_facing_order_id).first()
+    if order is None:
+        raise HTTPException(status_code=404, detail="Unrecognized order")
+    if order.payment_status != PaymentStatusEnum.COMPLETED:
+        raise HTTPException(status_code=400, detail="Order payment not completed")
+    if order.delivered:
+        raise HTTPException(status_code=400, detail="Order already marked delivered")
+
+    customer: Customer = db.query(Customer).filter(Customer.id == order.customer).first()
+    if customer is None:
+        raise HTTPException(status_code=400,
+                            detail="Cannot find customer who placed order {}".format(user_facing_order_id))
+
+    estimated_delivery_str: str = datetime.now().strftime("%b %-d")
+
+    order_dict = to_order_dict(order, db, customer_email=customer.email)
+
+    send_order_coming_today_email_best_effort(customer.email, order.recipient_first_name, estimated_delivery_str,
+                                              order_dict)
+
+
 @router.post("/order_enroute")
 async def order_enroute(user_facing_order_id: str, estimated_delivery: datetime, db: Session = Depends(get_db)):
     order: models.orders.Order = db.query(models.orders.Order).filter(
@@ -536,7 +588,8 @@ async def order_enroute(user_facing_order_id: str, estimated_delivery: datetime,
 
     order_dict = to_order_dict(order, db, customer_email=customer.email)
 
-    send_order_enroute_email_best_effort(customer.email, order.recipient_first_name, estimated_delivery_str, order_dict)
+    send_order_enroute_email_best_effort(customer.email, order.recipient_first_name, estimated_delivery_str,
+                                         order_dict)
 
 
 @router.post("/order_delivered")
