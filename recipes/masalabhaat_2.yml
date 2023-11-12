@@ -1,0 +1,179 @@
+recipe_name: Masala Bhaat
+description: Maharashtrian style spicy pilaf with baby potatos.
+image_url: https://www.indianveggiedelight.com/wp-content/uploads/2019/07/veg-pulao-featured.jpg
+recipe_contributor_name: signature concoctions
+prep_time_minutes: 5
+cook_time_minutes: 20
+serving_size: 2
+long_description: Hailing from Maharashtra, Kolambi Bhaat is a regional specialty. This one-pot weeknight meal features a '#signatureconcoction' with a unique twist — baby potatoes. It's conveniently prepared in an Instant Pot, offering a taste of traditional Maharashtrian flavors with a hint of spice.
+tags:
+  - One-Pot
+  - Vegan
+  - Comfort
+ingredients:
+  - name: baby potatoes
+    quantities:
+      - amount: 0.5
+        serving_size: 2
+    unit: lb
+  - name: turmeric
+    quantities:
+      - amount: 0.25
+        serving_size: 4
+    unit: tsp
+  - name: basmati rice
+    quantities:
+      - amount: 1
+        serving_size: 4
+    unit: cup
+  - name: mustard seeds
+    quantities:
+      - amount: 0.25
+        serving_size: 4
+    unit: tsp
+  - name: cumin seeds
+    quantities:
+      - amount: 0.25
+        serving_size: 4
+    unit: tsp
+  - name: asafoetida (hing)
+    quantities:
+      - amount: 0.125
+        serving_size: 4
+    unit: tsp  
+  - name: onion
+    quantities:
+      - amount: 1
+        serving_size: 4
+    unit: piece
+  - name: ginger
+    quantities:
+      - amount: 0.5
+        serving_size: 4
+    unit: tsp
+  - name: garlic
+    quantities:
+      - amount: 1
+        serving_size: 4
+    unit: clove
+  - name: green chili
+    quantities:
+      - amount: 1
+        serving_size: 4
+    unit: piece
+  - name: goda masala
+    quantities:
+      - amount: 1
+        serving_size: 4
+    unit: tsp
+  - name: red chili powder
+    quantities:
+      - amount: 0.5
+        serving_size: 4
+    unit: tsp
+  - name: tomato
+    quantities:
+      - amount: 1
+        serving_size: 4
+    unit: piece 
+  - name: coriander leaves
+    quantities:
+      - amount: 1
+        serving_size: 4
+    unit: tbsp
+in_your_kitchen:
+  - name: water
+  - name: oil
+    or:
+      - ghee
+  - name: wooden spoon
+    or:
+      - rubber spatula
+  - name: Instant Pot
+  - name: salt
+steps:
+  - step_number: 1
+    title: Marinate Baby Potatoes
+    instructions:
+      - Cut baby potatoes in half. In a large mixing bowl, sprinkle salt and turmeric over the baby potatoes and toss to coat evenly. Let it sit until step 4.
+    tips: [ ]
+    chefs_hats: [ ]
+    ingredients:
+      - baby potatoes
+      - turmeric
+    in_your_kitchen:
+      - salt
+    gif_urls: [ ]
+  - step_number: 2
+    title: Prep Ingredients
+    instructions:
+      - Rinse the basmati rice by placing it in a large bowl and filling it with water. Swish with your hand for 10 seconds. Drain water and repeat 3-4 times, until water is clearer. Drain well.
+      - Finely dice onions, dice tomatoes. De-stem, slit green chilis lengthwise and remove seeds. Peel and grate ginger. Finely chop or mince garlic. 
+    tips: 
+      - If you have a spicier palate, dice chilis small and keep the seeds in.
+      - If you have a milder palate, only use 1/2 chili.
+    chefs_hats: [ ]
+    ingredients:
+      - basmati rice
+      - onion
+      - tomato
+      - green chili
+      - ginger
+      - garlic
+    in_your_kitchen:
+      - water
+    gif_urls: [ ]
+  - step_number: 3
+    title: Temper Spices and Aromatics
+    instructions:
+      - With the steel insert inside the Instant Pot, press the “Saute” button. Add 1 tbsp oil or ghee. Once the oil is hot, about 2 minutes, add mustard seeds, cumin seeds, and asafoetida (hing). Let them cook for a few seconds, until the mustard seeds crackle, the cumin seeds sizzle, and asafoetida (hing) turns frothy.
+      - Add onions and a pinch of salt. Saute until the onions turn translucent, about 5-6 minutes, stirring frequently.
+      - Add in the finely chopped ginger and garlic and saute for 1 minute. After stirring, add the goda masala and red chili powder and saute for 30 seconds to let the spices bloom. 
+    tips: 
+      - Many flavor compounds found in spices are fat-soluble. By heating spices or herbs in fat (oil) prior to adding water, you will extract more flavor than you could by simply simmering these ingredients in water. 
+    chefs_hats:
+      - Put your chef's hat on! Add as much or as little of the red chili powder based on your spice preference.
+    ingredients:
+      - mustard seeds
+      - cumin seeds
+      - asafoetida (hing)
+      - onion
+      - ginger
+      - garlic
+      - goda masala
+      - red chili powder
+    in_your_kitchen:
+      - oil
+      - salt
+    gif_urls: [ ]
+  - step_number: 4
+    title: Cook Down Tomatoes
+    instructions:
+      - Mix in the chopped tomato and stir to combine. Deglaze the bottom of the pot by scraping with a cooking spoon. 
+      - Continue to cook for another 5 minutes, until the tomatoes are soft and have lost most of their moisture.
+      - Press the cancel button to turn the Instant Pot off. 
+    tips:
+      - This is an important step. If the bottom of the pot is not deglazed well, your Instant Pot may display a “Burn” error during the pressure cooking stage.
+    chefs_hats: [ ]
+    ingredients:
+      - tomato
+    in_your_kitchen:
+      - oil
+      - water
+    gif_urls: [ ]
+  - step_number: 5
+    title: Pressure Cook the Pilaf
+    instructions:
+      - Stir in the rinsed basmati rice and baby potatoes and toss gently to combine well. Pour in 1-1.5 cups of water and stir gently, ensuring it is fully immersed.
+      - Close the top of the Instant Pot and press the pressure cook button. Change the pressure level to low. Change the time to 12 minutes. Make sure that the vent is in "seal mode" and let it cook.
+      - When the time is up, turn the Instant Pot off, and let the pressure release naturally before you open. It will take about 10-12 minutes.
+      - Garnish with coriander leaves and serve warm!
+    tips: [ ]
+    chefs_hats:
+      - Put your chef's hat on! Spicy food pairs well with cool and tangy yogurt. Enjoy this dish with your choice of raita, greek yogurt, or dairy-free yogurt to make this dish vegan!
+    ingredients:
+      - basmati rice
+      - baby potatoes
+      - coriander leaves
+    in_your_kitchen: [ ]
+    gif_urls: [ ]

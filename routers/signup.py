@@ -239,6 +239,7 @@ async def is_deliverable_zipcode(zipcode: str, db: Session = Depends(get_db)):
         result["delivery_start_date"] = deliverable_zipcode.delivery_start_date
         result["zipcode"] = deliverable_zipcode.zipcode
     else:
+        emit_event(db, "OUTSIDE_DELIVERY", datetime.now(), None, zipcode)
         result["status"] = -1
 
     return JSONResponse(content=jsonable_encoder(result))
