@@ -108,18 +108,19 @@ def all_site_wide_promos(verification_code: str, applied_promo_codes: List[Promo
             subtotal = (1.0 - (promo_code.percent_off / 100.0)) * subtotal
 
     # diwali promotion
-    diwali_promo_code: Optional[PromoCode] = None
-    if subtotal >= 80.0:
-        diwali_promo_code = db.query(PromoCode).filter(and_(PromoCode.promo_code_name == "DIWALI20",
-                                                            PromoCode.redeemable_by_verification_code == "INTERNAL")).first()
-    elif subtotal >= 60.0:
-        diwali_promo_code = db.query(PromoCode).filter(and_(PromoCode.promo_code_name == "DIWALI10",
-                                                            PromoCode.redeemable_by_verification_code == "INTERNAL")).first()
-    elif subtotal >= 40.0:
-        diwali_promo_code = db.query(PromoCode).filter(and_(PromoCode.promo_code_name == "DIWALI5",
-                                                            PromoCode.redeemable_by_verification_code == "INTERNAL")).first()
-
-    if diwali_promo_code is not None:
-        return [diwali_promo_code]
-    else:
-        return []
+    # diwali_promo_code: Optional[PromoCode] = None
+    # if subtotal >= 80.0:
+    #     diwali_promo_code = db.query(PromoCode).filter(and_(PromoCode.promo_code_name == "DIWALI20",
+    #                                                         PromoCode.redeemable_by_verification_code == "INTERNAL")).first()
+    # elif subtotal >= 60.0:
+    #     diwali_promo_code = db.query(PromoCode).filter(and_(PromoCode.promo_code_name == "DIWALI10",
+    #                                                         PromoCode.redeemable_by_verification_code == "INTERNAL")).first()
+    # elif subtotal >= 40.0:
+    #     diwali_promo_code = db.query(PromoCode).filter(and_(PromoCode.promo_code_name == "DIWALI5",
+    #                                                         PromoCode.redeemable_by_verification_code == "INTERNAL")).first()
+    #
+    # if diwali_promo_code is not None:
+    #     return [diwali_promo_code]
+    # else:
+    #     return []
+    return []

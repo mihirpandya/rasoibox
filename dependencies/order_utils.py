@@ -8,5 +8,6 @@ def get_pretty_estimated_delivery_date(order_date: datetime.datetime) -> str:
         days_to_sunday = 6 - day_of_week
     else:
         days_to_sunday = 7 + 6 - day_of_week
+    days_to_sunday = days_to_sunday + 7
     estimated_delivery_date = order_date + datetime.timedelta(days=days_to_sunday)
     return estimated_delivery_date.strftime("%a, %b %d, %Y")
